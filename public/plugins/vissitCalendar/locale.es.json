@@ -1,0 +1,37 @@
+{
+	"locale": "es",
+	"monthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+	"dayNames": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sabado"],
+	"dayNamesShort": ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
+	"txt_noEvents": "No hay eventos para la fecha seleccionada",
+	"txt_SpecificEvents_prev": "Eventos del ",
+	"txt_SpecificEvents_after": ":",
+	"txt_next": "siguiente",
+	"txt_prev": "anterior",
+	"txt_NextEvents": "Eventos programados",
+	"txt_GoToEventUrl": "Ir al evento",
+	"txt_NumAbbrevTh": "",
+	"txt_NumAbbrevSt": "",
+	"txt_NumAbbrevNd": "",
+	"txt_NumAbbrevRd": "",
+	"txt_loading": "cargando...",
+	"moment": {
+		"months": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+		"monthsShort": ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Julio", "Ago", "Sep", "Oct", "Nov", "Dic"],
+		"weekdays": ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sabado"],
+		"weekdaysShort": ["D", "L", "M", "M", "J", "V", "S"],
+		"weekdaysMin": ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"],
+		"longDateFormat": {
+			"LT": "H:mm",
+			"LTS": "LT:ss",
+			"L": "DD/MM/YYYY",
+			"LL": "D [de] MMMM [de] YYYY",
+			"LLL": "D [de] MMMM [de] YYYY LT",
+			"LLLL": "dddd, D [de] MMMM [de] YYYY LT"
+		},
+		"week": {
+			"dow": 1,
+			"doy": 4
+		}
+	}
+}
