@@ -34,7 +34,7 @@ class SalesController extends Controller
 
 		if ($request->isMethod('get'))
 		{
-			$query->whereMonth('created_at', Carbon::now()->month);
+			$query->whereMonth('registered_at', Carbon::now()->month);
 
 			if ($user->hasRole('Vendedor'))
 				$query->where('seller_id', $user->seller->id);
@@ -331,7 +331,7 @@ class SalesController extends Controller
     */
     public function list(Request $request)
     {
-        $sale = $request->limit ? Sale::orderBy('created_at', 'desc')->skip(0)->take($request->limit)->get() : Sale::paginate(20);
+        $sale = $request->limit ? Sale::ordregister'created_at', 'desc')->skip(0)->take($request->limit)->get() : Sale::paginate(20);
 
         return response()->json(
             $sale
