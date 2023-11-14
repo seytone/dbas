@@ -10,7 +10,17 @@ class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-	protected $fillable = ['category_id', 'brand_id', 'type', 'code', 'title', 'description', 'cost', 'price', 'picture'];
+	protected $fillable = ['category_id', 'brand_id', 'type', 'code', 'title', 'description', 'cost', 'price'];
+
+	/**
+     * A sale belongs to a sales.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function sales()
+    {
+        return $this->belongsTo(Sale::class);
+    }
 
 	/**
      * A sale belongs to a brand.
@@ -30,15 +40,5 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id', 'id');
-    }
-
-	/**
-     * A sale belongs to a sales.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sales()
-    {
-        return $this->belongsTo(Sale::class, 'id', 'product_id');
     }
 }

@@ -50,8 +50,6 @@
 						<div class="form-group {{ $errors->has('payment_method') ? 'has-error' : '' }}">
 							<label for="payment_method">Forma de Pago&nbsp;<b class="text-danger">*</b></label>
 							<select name="payment_method" id="payment_method" class="custom-select" required onchange="calculateValues()">
-								<option value="efectivo" {{ old('payment_method') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
-								<option value="deposito" {{ old('payment_method') == 'deposito' ? 'selected' : '' }}>Deposito</option>
 								<option value="bolivares" {{ old('payment_method') == 'bolivares' ? 'selected' : '' }}>Bolívares</option>
 								<option value="dolares" {{ old('payment_method') == 'dolares' ? 'selected' : '' }}>Dólares</option>
 								<option value="zelle" {{ old('payment_method') == 'zelle' ? 'selected' : '' }}>Zelle</option>
@@ -93,26 +91,34 @@
 							@endif
 						</div>
 					</div>
-					<div class="col-sm-6">
-						<div class="form-group {{ $errors->has('seller_id') ? 'has-error' : '' }}">
-							<label for="seller_id">Vendedor&nbsp;<b class="text-danger">*</b></label>
-							<select name="seller_id" id="seller" class="selectize-sorted" required>
-								<option value="">Seleccione</option>
-								@foreach ($sellers as $seller)
-									<option value="{{ $seller->id }}" data-data="{{ json_encode($seller) }}">{{ $seller->user->getFullname() }}</option>
-								@endforeach
-							</select>
-							@if ($errors->has('seller_id'))
-								<em class="invalid-feedback">
-									{{ $errors->first('seller_id') }}
-								</em>
-							@endif
+					@if ($user->hasRole('Superadmin'))
+						<div class="col-sm-6">
+							<div class="form-group {{ $errors->has('seller_id') ? 'has-error' : '' }}">
+								<label for="seller_id">Vendedor&nbsp;<b class="text-danger">*</b></label>
+								<select name="seller_id" id="seller" class="selectize-seller" required>
+									<option value="" selected>Seleccione</option>
+									@foreach ($sellers as $seller)
+										<option value="{{ $seller->id }}" data-data="{{ json_encode($seller) }}">{{ $seller->user->getFullname() }}</option>
+									@endforeach
+								</select>
+								@if ($errors->has('seller_id'))
+									<em class="invalid-feedback">
+										{{ $errors->first('seller_id') }}
+									</em>
+								@endif
+							</div>
 						</div>
-					</div>
+					@else
+						<input type="hidden" id="seller" name="seller_id" value="{{ $user->seller->id }}">
+					@endif
+					<input type="hidden" id="margin_prods" value="{{ $user->seller->commission_1 ?? 1 }}">
+					<input type="hidden" id="margin_servs" value="{{ $user->seller->commission_4 ?? 50 }}">
+				</div>
+				<div class="row">
 					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('product_id') ? 'has-error' : '' }}">
-							<label for="products">Productos&nbsp;<b class="text-danger">*</b></label>
-							<select name="products[]" class="selectize-products" multiple required>
+							<label for="products">Productos</label>
+							<select name="products_selected[]" class="selectize-products" multiple>
 								<option value="">Seleccione</option>
 								@foreach ($categories as $category)
 									@if ($category->products->count() > 0)
@@ -133,25 +139,31 @@
 						<div class="table-responsive">
 							<table class="table table-hover align-middle">
 								<thead class="bg-light">
-									<th>Producto</th>
-									<th>Código</th>
-									<th>Tipo</th>
-									<th>Costo</th>
-									<th>Precio</th>
-									<th width="150">Cantidad</th>
-									<th>Proveedor</th>
-									<th>Subtotal</th>
-									<th width="50">Descuento</th>
-									<th>Total</th>
+									<th class="text-left" width="250">Producto</th>
+									<th class="text-left" width="150">Código</th>
+									<th class="text-left">Tipo</th>
+									<th class="text-right">Costo</th>
+									<th class="text-right">Precio</th>
+									<th class="text-center" width="150">Cantidad</th>
+									<th class="text-right" width="80">Subtotal</th>
+									<th class="text-right" width="80">Desc.</th>
+									<th class="text-right" width="80">Prov.</th>
+									<th class="text-right" width="80">Total</th>
 								</thead>
 								<tbody id="products-list"></tbody>
+								<tfoot class="bg-light">
+									<th colspan="8"></th>
+									<th class="text-right">Costo<br><strong id="costo_prods">0.00</strong></th>
+									<th class="text-right">Total<br><strong id="total_prods">0.00</strong></th>
+								</tfoot>
 							</table>
+							<input type="hidden" id="provider" name="provider" value="0">
 						</div>
 					</div>
 					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('service_id') ? 'has-error' : '' }}">
-							<label for="services">Servicios&nbsp;<b class="text-danger">*</b></label>
-							<select name="services[]" class="selectize-services" multiple required>
+							<label for="services">Servicios</label>
+							<select name="services_selected[]" class="selectize-services" multiple>
 								<option value="">Seleccione</option>
 								@foreach ($services as $service)
 									<option value="{{ $service->id }}" data-data="{{ $service->toJson() }}">{{ $service->title . ' (' . $service->code . ')' }}</option>
@@ -166,23 +178,30 @@
 						<div class="table-responsive">
 							<table class="table table-hover align-middle">
 								<thead class="bg-light">
-									<th>Servicio</th>
-									<th>Código</th>
-									<th>Precio</th>
-									<th width="150">Cantidad</th>
-									<th>Subtotal</th>
-									<th width="50">Descuento</th>
-									<th>Total</th>
+									<th class="text-left" width="250">Servicio</th>
+									<th class="text-left" width="150">Código</th>
+									<th class="text-right">Precio</th>
+									<th class="text-center" width="150">Cantidad</th>
+									<th class="text-right" width="80">Subtotal</th>
+									<th class="text-right" width="80">Desc.</th>
+									<th class="text-right" width="80">Total</th>
 								</thead>
 								<tbody id="services-list"></tbody>
+								<tfoot class="bg-light">
+									<th colspan="6"></th>
+									<th class="text-right">Total<br><strong id="total_servs">0.00</strong></th>
+								</tfoot>
 							</table>
 						</div>
+					</div>
+					<div class="col-12">
+						<hr>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('subtotal') ? 'has-error' : '' }}">
-							<label for="subtotal"><b>Subtotal</b>&nbsp;<b class="text-danger">*</b></label>
+							<label for="subtotal">Base Imponible <span class="text-muted">(subtotal)</span>&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="subtotal" name="subtotal" class="form-control" value="{{ old('subtotal', 0) }}" min="0" required readonly>
 							@if ($errors->has('subtotal'))
 								<em class="invalid-feedback">
@@ -191,11 +210,9 @@
 							@endif
 						</div>
 					</div>
-				</div>
-				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('cityhall') ? 'has-error' : '' }}">
-							<label for="cityhall">Alcaldía (9% cuando factura)&nbsp;<b class="text-danger">*</b></label>
+							<label for="cityhall">Alcaldía <span class="text-muted">(9% sobre subtotal cuando factura)</span>&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="cityhall" name="cityhall" class="form-control" value="{{ old('cityhall', 0) }}" min="0" required readonly>
 							@if ($errors->has('cityhall'))
 								<em class="invalid-feedback">
@@ -205,8 +222,19 @@
 						</div>
 					</div>
 					<div class="col-sm-3">
+						<div class="form-group {{ $errors->has('iva') ? 'has-error' : '' }}">
+							<label for="iva">IVA <span class="text-muted">(16% sobre [subtotal + alcaldía] cuando factura)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="iva" name="iva" class="form-control" value="{{ old('iva', 0) }}" min="0" required readonly>
+							@if ($errors->has('iva'))
+								<em class="invalid-feedback">
+									{{ $errors->first('iva') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('igtf') ? 'has-error' : '' }}">
-							<label for="igtf">IGTF (3% cuando paga dolares)&nbsp;<b class="text-danger">*</b></label>
+							<label for="igtf">IGTF <span class="text-muted">(3% sobre pago en USD)</span>&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="igtf" name="igtf" class="form-control" value="{{ old('igtf', 0) }}" min="0" required readonly>
 							@if ($errors->has('igtf'))
 								<em class="invalid-feedback">
@@ -216,19 +244,8 @@
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<div class="form-group {{ $errors->has('iva') ? 'has-error' : '' }}">
-							<label for="iva">IVA (16% sobre: subtotal + alcaldía si aplica)&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="iva" name="iva" class="form-control" value="{{ old('iva', 0) }}" min="0" required readonly>
-							@if ($errors->has('iva'))
-								<em class="invalid-feedback">
-									{{ $errors->first('iva') }}
-								</em>
-							@endif
-						</div>
-					</div>
-					{{-- <div class="col-sm-3">
 						<div class="form-group {{ $errors->has('total') ? 'has-error' : '' }}">
-							<label for="total">Total&nbsp;<b class="text-danger">*</b></label>
+							<label for="total">Total Venta <span class="text-muted">(subtotal + alcaldía + iva + igtf)</span>&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="total" name="total" class="form-control" value="{{ old('total', 0) }}" min="0" required readonly>
 							@if ($errors->has('total'))
 								<em class="invalid-feedback">
@@ -236,10 +253,10 @@
 								</em>
 							@endif
 						</div>
-					</div> --}}
+					</div>
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('profit') ? 'has-error' : '' }}">
-							<label for="profit">Ganancia&nbsp;<b class="text-danger">*</b></label>
+							<label for="profit">Ganancia <span class="text-muted">(total productos - costos)</span>&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="profit" name="profit" class="form-control" value="{{ old('profit', 0) }}" min="0" required readonly>
 							@if ($errors->has('profit'))
 								<em class="invalid-feedback">
@@ -248,18 +265,69 @@
 							@endif
 						</div>
 					</div>
-				</div>
-				<div class="row">
 					<div class="col-sm-3">
-						<div class="form-group {{ $errors->has('commission') ? 'has-error' : '' }}">
-							<label for="commission"><b>Comisión</b>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission" name="commission" class="form-control" value="{{ old('commission', 0) }}" min="0" required readonly>
-							@if ($errors->has('commission'))
+						<div class="form-group {{ $errors->has('commission_prod') ? 'has-error' : '' }}">
+							<label for="commission_prod">Comisión Productos <span class="text-muted">(<span id="margin_p">{{ $user->seller->commission_1 ?? 1 }}</span>% sobre ganancia productos)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_prod" name="commission_prod" class="form-control" value="{{ old('commission_prod', 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_prod'))
 								<em class="invalid-feedback">
-									{{ $errors->first('commission') }}
+									{{ $errors->first('commission_prod') }}
 								</em>
 							@endif
 						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group {{ $errors->has('commission_serv') ? 'has-error' : '' }}">
+							<label for="commission_serv">Comisión Servicios <span class="text-muted">(<span id="margin_s">{{ $user->seller->commission_4 ?? 50 }}</span>% sobre servicios)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_serv" name="commission_serv" class="form-control" value="{{ old('commission_serv', 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_serv'))
+								<em class="invalid-feedback">
+									{{ $errors->first('commission_serv') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group {{ $errors->has('commission_total') ? 'has-error' : '' }}">
+							<label for="commission_total">Comisión Total <span class="text-muted">(productos + servicios)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_total" name="commission_total" class="form-control" value="{{ old('commission_total', 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_total'))
+								<em class="invalid-feedback">
+									{{ $errors->first('commission_total') }}
+								</em>
+							@endif
+						</div>
+					</div>
+				</div>
+				<div class="row d-none" id="payment_currency">
+					<div class="col-12">
+						<hr>
+					</div>
+					<div class="col-md-4">
+						<br>
+						<div class="custom-control custom-radio">
+							<input type="radio" id="payment_usd_total" name="payment_currency" class="custom-control-input" value="usd" onchange="calculateValues()" checked>
+							<label class="custom-control-label" for="payment_usd_total">Pago total en dólares</label>
+						</div>
+						<div class="custom-control custom-radio">
+							<input type="radio" id="payment_usd_mixed" name="payment_currency" class="custom-control-input" value="mix" onchange="calculateValues()">
+							<label class="custom-control-label" for="payment_usd_mixed">Pago en moneda combinada</label>
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label for="payment_amount_usd">Monto a pagar en dólares</label>
+							<input type="number" id="payment_amount_usd" name="payment_amount_usd" class="form-control" value="{{ old('payment_amount_usd', 0) }}" min="0" readonly onchange="calculateValues(true)">
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group">
+							<label for="payment_amount_bsf">Monto a pagar en bolívares</label>
+							<input type="number" id="payment_amount_bsf" name="payment_amount_bsf" class="form-control" value="{{ old('payment_amount_bsf', 0) }}" min="0" readonly>
+						</div>
+					</div>
+					<div class="col-12">
+						<hr>
 					</div>
 				</div>
 				<div class="form-group {{ $errors->has('notes') ? 'has-error' : '' }}">
@@ -283,49 +351,97 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script>
-		function calculateValues()
+		function calculateValues(adjust = false)
 		{
 			console.log('Calculating...');
 
 			var type = $('#invoice_type').val();
 			var method = $('#payment_method').val();
-			var subtotal = iva = igtf = cityhall = total = profit = commission = provider = 0;
-			var seller_profit = 0.01; // 1%
+			var margin_prods = parseFloat($('#margin_prods').val());
+			var margin_servs = parseFloat($('#margin_servs').val());
+			var payment_usd = parseFloat($('#payment_amount_usd').val());
+			var payment_total = $('input[name="payment_currency"]:checked').val();
 
-			$('.item .total').each(function() {
-				var value = parseFloat($(this).val());
-				subtotal += value;
-			});
+			var subtotal = subtotal_prod = subtotal_serv = iva = igtf = cityhall = total = profit = commission_prod = commission_serv = commission_total = costs = payment_amount_usd = payment_amount_bsf = 0;
+			var seller_margin_prods = margin_prods / 100; // 1%
+			var seller_margin_servs = margin_servs / 100; // 50%
 
-			$('.item .provider').each(function() {
-				var value = parseFloat($(this).val());
-				provider += value;
-			});
-
-			if (type == 'factura') {
-				cityhall = subtotal * 0.09;
+			if (method != 'bolivares') {
+				$('#payment_currency').removeClass('d-none');
+			} else {
+				$('#payment_currency').addClass('d-none');
 			}
 
-			if (method == 'dolares') {
-				igtf = subtotal * 0.03;
+			// Calculate total costs for products
+			$('.item .provider').each(function() {
+				var value = parseFloat($(this).val());
+				costs += value;
+			});
+
+			// Calculate total value for products
+			$('.item .product').each(function() {
+				var value = parseFloat($(this).val());
+				subtotal_prod += value;
+			});
+
+			// Calculate total value for services
+			$('.item .service').each(function() {
+				var value = parseFloat($(this).val());
+				subtotal_serv += value;
+			});
+
+			subtotal = subtotal_prod + subtotal_serv;
+
+			if (type == 'factura')
+			{
+				cityhall = subtotal * 0.09;
+				iva = (subtotal + cityhall) * 0.16;
+
+				if (method != 'bolivares') {
+					if (payment_total == 'usd') {
+						igtf = subtotal * 0.03;
+					} else {
+						igtf = (adjust ? payment_usd : subtotal) * 0.03;
+					}
+				}
 			}
 
 			if (subtotal > 0) {
-				iva = (subtotal + cityhall) * 0.16;
-				profit = subtotal - provider - cityhall;
-				commission = profit * seller_profit;
+				profit = subtotal_prod - costs;
+				commission_prod = (subtotal_prod - costs) * seller_margin_prods;
+				commission_serv = subtotal_serv * seller_margin_servs;
 				total = subtotal + cityhall + igtf + iva;
 			}
 
-			console.log(subtotal.toFixed(2), iva.toFixed(2), igtf.toFixed(2), cityhall.toFixed(2), total.toFixed(2), profit.toFixed(2), commission.toFixed(2));
-			
+			if (payment_total == 'usd') {
+				payment_amount_usd = total;
+				payment_amount_bsf = 0;
+				$('#payment_amount_usd').attr('readonly', true);
+			} else {
+				payment_amount_usd = payment_usd > 0 && adjust ? payment_usd : subtotal;
+				payment_amount_bsf = payment_usd > 0 ? total - payment_amount_usd : 0;
+				$('#payment_amount_usd').attr('readonly', false);
+			}
+
+			commission_total = commission_prod + commission_serv;
+
+			console.log(subtotal.toFixed(2), cityhall.toFixed(2), iva.toFixed(2), igtf.toFixed(2), total.toFixed(2), profit.toFixed(2), commission_prod.toFixed(2), commission_serv.toFixed(2), payment_amount_usd.toFixed(2), payment_amount_bsf.toFixed(2), commission_total.toFixed(2));
+		
 			$('#iva').val(iva.toFixed(2));
 			$('#igtf').val(igtf.toFixed(2));
-			// $('#total').val(total.toFixed(2));
+			$('#total').val(total.toFixed(2));
 			$('#profit').val(profit.toFixed(2));
+			$('#provider').val(costs.toFixed(2));
 			$('#subtotal').val(subtotal.toFixed(2));
 			$('#cityhall').val(cityhall.toFixed(2));
-			$('#commission').val(commission.toFixed(2));
+			$('#costo_prods').html(costs.toFixed(2));
+			$('#total_prods').html(subtotal_prod.toFixed(2));
+			$('#total_servs').html(subtotal_serv.toFixed(2));
+			$('#commission_prod').val(commission_prod.toFixed(2));
+			$('#commission_serv').val(commission_serv.toFixed(2));
+			$('#commission_total').val(commission_total.toFixed(2));
+			$('#payment_amount_usd').val(payment_amount_usd.toFixed(2));
+			$('#payment_amount_bsf').val(payment_amount_bsf.toFixed(2));
 		}
 
         $(function()
@@ -337,8 +453,8 @@
 					var data = this.options[item].data;
 
 					if (action == 'ADD') {
-						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="prod[]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="cost text-right">' + data.cost + '</td><td class="price text-right">' + data.price + '</td><td><input type="number" name="cant[]" min="1" value="1" class="form-control quantity"></td><td><input type="number" name="provider[]" min="0" class="form-control text-right provider" value="' + data.cost + '" readonly></td><td><input type="number" name="subtotal[]" min="0" class="form-control text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="discount[]" min="0" class="form-control text-right discount" value="0"></td><td><input type="number" name="total[]" min="0" class="form-control text-right total" value="' + data.price + '" readonly></td></tr>');
-						$('#products-list #prod-' + data.id + ' .quantity').inputSpinner();
+						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" class="form-control p-0 text-right provider" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" class="form-control p-0 text-right total product" value="' + data.price + '" readonly></td></tr>');
+						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
 					} else {
 						$('#products-list #prod-' + data.id).remove();
 					}
@@ -353,8 +469,8 @@
 					var data = this.options[item].data;
 
 					if (action == 'ADD') {
-						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="serv[]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right">' + data.price + '</td><td><input type="number" name="cant[]" min="1" value="1" class="form-control quantity"></td><td><input type="number" name="subtotal[]" min="0" class="form-control text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="discount[]" min="0" class="form-control text-right discount" value="0"></td><td><input type="number" name="total[]" min="0" class="form-control text-right total" value="' + data.price + '" readonly></td></tr>');
-						$('#services-list #serv-' + data.id + ' .quantity').inputSpinner();
+						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
+						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
 					} else {
 						$('#services-list #serv-' + data.id).remove();
 					}
@@ -362,7 +478,20 @@
 				};
 			}
 
-			$('body').on('change', '.quantity', function() {
+			function sellerHandler()
+			{
+				return function() {
+					var item = arguments[0];
+					var data = this.options[item].data;
+					$('#margin_p').html(data.commission_1);
+					$('#margin_s').html(data.commission_4);
+					$('#margin_prods').val(data.commission_1);
+					$('#margin_servs').val(data.commission_4);
+					calculateValues();
+				};
+			}
+
+			$('body').on('change', '.quantity_prod', function() {
 				var quantity = $(this).val();
 				var parent = $(this).parents('.item');
 				var cost = parent.find('.cost').text();
@@ -371,7 +500,17 @@
 				var provider = parseFloat(cost) * parseInt(quantity);
 				parent.find('.provider').val(provider);
 				parent.find('.subtotal').val(total);
-				parent.find('.total').val(total);
+				parent.find('.product').val(total);
+				calculateValues();
+			});
+
+			$('body').on('change', '.quantity_serv', function() {
+				var quantity = $(this).val();
+				var parent = $(this).parents('.item');
+				var price = parent.find('.price').text();
+				var total = parseFloat(price) * parseInt(quantity);
+				parent.find('.subtotal').val(total);
+				parent.find('.service').val(total);
 				calculateValues();
 			});
 
@@ -399,10 +538,11 @@
 				onItemAdd: serviceHandler('ADD'),
 				onItemRemove: serviceHandler('DEL'),
 			});
-
-			$('#seller').on('change', function() {
-				var data = $(this).find(':selected').data('data');
-				console.log(data);
+			
+			$('.selectize-seller').selectize({
+				persist: false,
+				sortField: 'text',
+				onItemAdd: sellerHandler(),
 			});
 
 			$('#notes').maxlength({

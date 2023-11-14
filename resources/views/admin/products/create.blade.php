@@ -90,7 +90,7 @@
 					</div>
 					<div class="col-sm-4">
 						<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
-							<label for="price">Costo&nbsp;<b class="text-danger">*</b></label>
+							<label for="price">Costo Proveedor&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" required>
 							@if ($errors->has('price'))
 								<em class="invalid-feedback">
@@ -101,7 +101,7 @@
 					</div>
 					<div class="col-sm-4">
 						<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
-							<label for="price">Precio&nbsp;<b class="text-danger">*</b></label>
+							<label for="price">Precio de Venta&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" required>
 							@if ($errors->has('price'))
 								<em class="invalid-feedback">

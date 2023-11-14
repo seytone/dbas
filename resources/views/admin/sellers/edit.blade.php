@@ -15,14 +15,6 @@
 					<div class="form-group {{ $errors->has('user_id') ? 'has-error' : '' }}">
 						<label for="user_id">Usuario&nbsp;<b class="text-danger">*</b></label>
 						<input type="text" class="form-control" value="{{ $seller->user->getFullname() }}" readonly disabled>
-						{{-- <select name="user_id" id="user_id" class="form-control select2" required>
-							<option value="">--Seleccione--</option>
-							@foreach($users as $user)
-								@if($user->hasRole('Vendedor'))
-									<option value="{{ $user->id }}" {{ $user->id == $seller->user_id ? 'selected' : '' }}>{{ $user->getFullname() }}</option>
-								@endif
-							@endforeach
-						</select> --}}
 						@if($errors->has('user_id'))
 							<em class="invalid-feedback">
 								{{ $errors->first('user_id') }}

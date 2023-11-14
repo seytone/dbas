@@ -1,10 +1,16 @@
 @extends('layouts.admin')
 @section('content')
+	<div class="row mb-4 filters">
+        <div class="col-12">
+            <h1>Productos</h1>
+		</div>
+		<div class="col-12"><hr></div>
+	</div>
     {{-- @can('create_products') --}}
     <div style="margin-bottom: 10px;" class="row">
         <div class="col-lg-12">
             <a class="btn btn-success" href="{{ route('admin.products.create') }}">
-                <i class="fa fa-plus mr-2 d-inline"></i>Nuevo Producto
+                <i class="fa fa-fw fa-plus mr-2 d-inline"></i>Nuevo Producto
             </a>
         </div>
     </div>
@@ -26,7 +32,7 @@
                             <th>Costo</th>
                             <th>Precio</th>
                             <th>Tipo</th>
-                            <th width="90">&nbsp;</th>
+                            <th width="100">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,16 +48,16 @@
                                 <td>{{ ucwords($product->type) }}</td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-primary" href="{{ route('admin.products.show', $product->id) }}" title="VER">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
                                     </a>
                                     <a class="btn btn-sm btn-warning" href="{{ route('admin.products.edit', $product->id) }}" title="EDITAR">
-                                        <i class="fa fa-wrench" aria-hidden="true"></i>
+                                        <i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
                                     </a>
                                     <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                         <input type="hidden" name="_method" value="delete">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-sm btn-danger" title="ELIMINAR">
-                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                            <i class="fa fa-fw fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>
                                 </td>

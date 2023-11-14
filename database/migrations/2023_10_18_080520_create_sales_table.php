@@ -17,10 +17,12 @@ class CreateSalesTable extends Migration
             $table->bigIncrements('id')->unsigned();
 			$table->bigInteger('client_id')->unsigned();
 			$table->bigInteger('seller_id')->unsigned();
-			$table->enum('type', ['nota', 'factura'])->default('nota');
+			$table->enum('invoice_type', ['nota', 'factura'])->default('nota');
 			$table->string('invoice_number');
-			$table->text('notes')->nullable()->default(null);
 			$table->enum('payment_method', ['efectivo', 'deposito', 'dolares', 'bolivares', 'zelle', 'paypal', 'binance', 'panama'])->default('efectivo');
+			$table->enum('payment_currency', ['usd', 'mix'])->default('usd')->comment('Moneda de pago = usd | mix');
+			$table->double('payment_amount_usd')->default(0)->comment('Pago en dólares');
+			$table->double('payment_amount_bsf')->default(0)->comment('Pago en bolívares');
 			$table->double('subtotal')->default(0)->comment('Subtotal = SUM(productos)');
 			$table->double('iva')->default(0)->comment('Impuestos = subtotal * 16% (aplica siempre)');
 			$table->double('igtf')->default(0)->comment('IGTF = subtotal * 3% (aplica solo cuando pago en dólares)');
@@ -29,7 +31,10 @@ class CreateSalesTable extends Migration
 			$table->double('provider')->default(0)->comment('Costo proveedor = total * 30%');
 			$table->double('profit')->default(0)->comment('Ganancia = total - provider');
 			$table->double('commission')->default(0)->comment('Comisión vendedor = profit * (% comisión)');
+			$table->double('commission_products')->default(0)->comment('Comisión productos');
+			$table->double('commission_services')->default(0)->comment('Comisión servicios');
 			$table->text('trello')->nullable()->default(null);
+			$table->text('notes')->nullable()->default(null);
 			$table->timestamp('registered_at');
 			$table->softDeletes();
             $table->timestamps();

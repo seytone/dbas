@@ -1,6 +1,11 @@
 @extends('layouts.admin')
 @section('content')
-	<br><br>
+	<div class="row mb-4 filters">
+        <div class="col-12">
+            <h1>Vendedores</h1>
+		</div>
+		<div class="col-12"><hr></div>
+	</div>
     <div class="card">
         <div class="card-header">
             Gestión de Vendedores
@@ -16,7 +21,7 @@
                             <th>% Suscripciones Anuales</th>
                             <th>% Hardware y Otros</th>
                             <th>% Servicios</th>
-                            <th width="90">&nbsp;</th>
+                            <th width="100">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -30,10 +35,10 @@
                                 <td>{{ $seller->commission_4 }}</td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-primary" href="{{ route('admin.users.show', $seller->user_id) }}" title="VER">
-                                        <i class="fa fa-eye" aria-hidden="true"></i>
+                                        <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
                                     </a>
                                     <a class="btn btn-sm btn-warning" href="{{ route('admin.users.edit', $seller->user_id) }}" title="EDITAR">
-                                        <i class="fa fa-wrench" aria-hidden="true"></i>
+                                        <i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>

@@ -21,6 +21,7 @@ class CreateSalesServicesTable extends Migration
             $table->double('price')->default(0);
             $table->double('discount')->default(0);
             $table->double('total')->default(0);
+			$table->softDeletes();
             $table->timestamps();
 
             $table->foreign('sale_id')->references('id')->on('sales')->onUpdate('cascade')->onDelete('cascade');

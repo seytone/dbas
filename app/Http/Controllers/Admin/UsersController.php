@@ -72,6 +72,8 @@ class UsersController extends Controller
 		$roles = $request->input('roles') ? $request->input('roles') : [];
 		$user->assignRole($roles);
 
+		// dd($request->all(), $user, $user->hasRole('Vendedor'));
+
 		if ($user->hasRole('Vendedor')) {
 			Seller::create([
 				'user_id' => $user->id,

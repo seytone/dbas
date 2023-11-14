@@ -2,67 +2,102 @@
 
 @section('content')
 <div class="content">
-    <div class="row">
-        <div class="col-lg-12">
-            <h1 class="mb-4">Control de Ventas</h1>
-            <hr>
-            <div class="row">
-                <div class="col-sm-2">
-                    <div class="callout callout-success">
-                    <h3 class="text-muted mb-0">Total Ventas</h3><br>
-                    <strong class="h4">10.850 USD</strong>
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="callout callout-warning">
-                    <h3 class="text-muted mb-0">Total Comisiones</h3><br>
-                    <strong class="h4">1.225 USD</strong>
-                    </div>
-                </div>
-				<div class="col-sm-2">
-                    <div class="callout callout-dark">
-                    <h3 class="text-muted mb-0">Total Productos</h3><br>
-                    <strong class="h4">120</strong>
-                    </div>
-                </div>
-				<div class="col-sm-2">
-                    <div class="callout callout-primary">
-                    <h3 class="text-muted mb-0">Hardware</h3><br>
-                    <strong class="h4">85</strong>
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="callout callout-danger">
-                    <h3 class="text-muted mb-0">Software</h3><br>
-                    <strong class="h4">10</strong>
-                    </div>
-                </div>
-                <div class="col-sm-2">
-                    <div class="callout callout-info">
-                    <h3 class="text-muted mb-0">Servicios</h3><br>
-                    <strong class="h4">25</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-				<div class="col-md-12">
-					<br>
-					<canvas id="myChart0" height="50px"></canvas>
-					<br>
+    <div class="row mb-4 filters">
+        <div class="col-md-6">
+            <h1>Panel de Control</h1>
+		</div>
+		<div class="col-md-6 pt-2">
+			<form method="POST" action="{{ route('admin.dashboard') }}" class="d-flex">
+				@csrf
+				<div class="col">
+					<div class="input-group">
+						<label class="input-group-text" for="start_date">Desde</label>
+						<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
+						<label class="input-group-text" for="final_date">Hasta</label>
+						<input type="date" id="final_date" name="final_date" class="form-control" value="{{ old('final_date', date('Y-m-d', strtotime($final_date))) }}">
+						@if ($user->hasRole('Superadmin'))
+							<label class="input-group-text" for="seller">Vendedor</label>
+							<select class="form-select" id="seller" name="seller">
+								<option value="all">Todos</option>
+								@foreach ($sellers as $seller)
+									<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
+								@endforeach
+							</select>
+						@endif
+						<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
+					</div>
 				</div>
-				<div class="col-md-9">
-					<br>
-					<canvas id="myChart1" height="100px"></canvas>
-					<br>
-				</div>
-				<div class="col-md-3">
-					<br>
-					<canvas id="myChart2"></canvas>
-					<br>
-				</div>
+			</form>
+		</div>
+		<div class="col-12"><hr></div>
+	</div>
+	<div class="row stats">
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="callout callout-secondary">
+			<h3 class="text-muted mb-0">Ventas</h3><br>
+			<strong class="h4">{{ $sales }}</strong>
 			</div>
-        </div>
-    </div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2">
+			<div class="callout callout-dark">
+			<h3 class="text-muted mb-0">Total Facturación</h3><br>
+			<strong class="h4">${{ number_format($total_amount, 2, ',', '.') }} USD</strong>
+			</div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2">
+			<div class="callout callout-success">
+			<h3 class="text-muted mb-0">Total Ganancia</h3><br>
+			<strong class="h4">${{ number_format($total_profit, 2, ',', '.') }} USD</strong>
+			</div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2">
+			<div class="callout callout-warning">
+			<h3 class="text-muted mb-0">Total Comisiones</h3><br>
+			<strong class="h4">${{ number_format($total_commission, 2, ',', '.') }} USD</strong>
+			</div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="callout callout-danger">
+			<h3 class="text-muted mb-0">Servicios</h3><br>
+			<strong class="h4">{{ $total_services }}</strong>
+			</div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="callout callout-primary">
+			<h3 class="text-muted mb-0">Productos</h3><br>
+			<strong class="h4">{{ $total_products }}</strong>
+			</div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="callout callout-info">
+			<h3 class="text-muted mb-0">Hardware</h3><br>
+			<strong class="h4">{{ $total_hardware }}</strong>
+			</div>
+		</div>
+		<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="callout callout-info">
+			<h3 class="text-muted mb-0">Software</h3><br>
+			<strong class="h4">{{ $total_software }}</strong>
+			</div>
+		</div>
+	</div>
+	<div class="row charts">
+		<div class="col-md-12">
+			<br>
+			<canvas id="myChart0" height="50px"></canvas>
+			<br>
+		</div>
+		<div class="col-md-9">
+			<br>
+			<canvas id="myChart1" height="100px"></canvas>
+			<br>
+		</div>
+		<div class="col-md-3">
+			<br>
+			<canvas id="myChart2"></canvas>
+			<br>
+		</div>
+	</div>
 </div>
 @endsection
 @section('scripts')

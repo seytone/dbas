@@ -14,8 +14,8 @@
                     <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span> --}}
 				</label>
 				<select name="roles[]" id="rol" class="custom-select" required>
-					@foreach($roles as $id => $roles)
-						<option value="{{ $id }}" {{ (in_array($id, old('roles', [])) || isset($user) && $user->hasRole($role)) ? 'selected' : '' }}>{{ $roles }}</option>
+					@foreach($roles as $id => $role)
+						<option value="{{ $role }}" {{ (isset($user) && $user->hasRole($role)) ? 'selected' : '' }}>{{ $role }}</option>
 					@endforeach
 				</select>
                 @if($errors->has('roles'))
@@ -138,7 +138,8 @@
 		{
 			$('#rol').on('change', function()
 			{
-				if($(this).val() == 'Vendedor')
+				var rol = $('#rol option:selected').text();
+				if(rol == 'Vendedor')
 				{
 					$('.seller_fields').removeClass('d-none');
 					$('.seller_fields input').prop('disabled', false);

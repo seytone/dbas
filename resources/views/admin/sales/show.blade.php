@@ -3,71 +3,308 @@
 
 <div class="card">
     <div class="card-header">
-        Gestión de Ventas
+        Detalle de Venta
     </div>
 
     <div class="card-body">
         <div class="mb-2">
             <table class="table table-bordered table-striped">
                 <tbody>
-                    <tr>
+					<tr>
                         <th>
-                            ID
+                            Fecha
                         </th>
                         <td>
-                            {{ $sales->id }}
+                            {{ date('d/m/Y', strtotime($sale->registered_at)) }}
+                        </td>
+                    </tr>
+					<tr>
+                        <th>
+                            Código
+                        </th>
+                        <td>
+                            {{ $sale->invoice_number }}
+                        </td>
+                    </tr>
+					<tr>
+                        <th>
+                            Tipo
+                        </th>
+                        <td>
+                            {{ mb_strtoupper($sale->invoice_type) }}
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Categoría
+                            Cliente
                         </th>
                         <td>
-                            {{ $sales->category->name }}
+                            {{ $sale->client->title }}
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Titulo
+                            Vendedor
                         </th>
                         <td>
-                            {{ $sales->title }}
+                            {{ $sale->seller->user->getFullname() }}
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Imagen
+                            Forma de pago
                         </th>
                         <td>
-                            @if($sales->image)
-                                <a href="{{ asset('storage/' . $sales->image) }}" target="_blank" class="btn btn-primary btn-sm">VER</a>
-                            @else
-                                No tiene
-                            @endif
+                            {{ $sale->payment_method }}
+                        </td>
+                    </tr>
+					<tr>
+						<th>
+							Productos
+						</th>
+						<td>
+							<div class="responsive-table">
+								<table class="table">
+									<thead>
+										<tr>
+											<th width="500">
+												Producto
+											</th>
+											<th>
+												Precio
+											</th>
+											<th>
+												Cantidad
+											</th>
+											<th>
+												Descuento
+											</th>
+											<th>
+												Total
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										@php
+											$total_prods = 0;
+										@endphp
+										@foreach ($products as $prod)
+											<tr>
+												<td>
+													{{ $prod->product->title }}
+												</td>
+												<td>
+													${{ number_format($prod->price, 2, ',', '.') }} USD
+												</td>
+												<td>
+													{{ $prod->quantity }}
+												</td>
+												<td>
+													${{ number_format($prod->discount, 2, ',', '.') }} USD
+												</td>
+												<td>
+													${{ number_format($prod->total, 2, ',', '.') }} USD
+												</td>
+											</tr>
+											@php
+												$total_prods += $prod->total;
+											@endphp
+										@endforeach
+									</tbody>
+									<tfoot>
+										<tr>
+											<th colspan="4"></th>
+											<th>
+												${{ number_format($total_prods, 2, ',', '.') }} USD
+											</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<th>
+							Servicios
+						</th>
+						<td>
+							<div class="responsive-table">
+								<table class="table">
+									<thead>
+										<tr>
+											<th width="500">
+												Servicio
+											</th>
+											<th>
+												Precio
+											</th>
+											<th>
+												Cantidad
+											</th>
+											<th>
+												Descuento
+											</th>
+											<th>
+												Total
+											</th>
+										</tr>
+									</thead>
+									<tbody>
+										@php
+											$total_servs = 0;
+										@endphp
+										@foreach ($services as $serv)
+											<tr>
+												<td>
+													{{ $serv->service->title }}
+												</td>
+												<td>
+													${{ number_format($serv->price, 2, ',', '.') }} USD
+												</td>
+												<td>
+													{{ $serv->quantity }}
+												</td>
+												<td>
+													${{ number_format($serv->discount, 2, ',', '.') }} USD
+												</td>
+												<td>
+													${{ number_format($serv->total, 2, ',', '.') }} USD
+												</td>
+											</tr>
+											@php
+												$total_servs += $serv->total;
+											@endphp
+										@endforeach
+									</tbody>
+									<tfoot>
+										<tr>
+											<th colspan="4"></th>
+											<th>
+												${{ number_format($total_servs, 2, ',', '.') }} USD
+											</th>
+										</tr>
+									</tfoot>
+								</table>
+							</div>
+						</td>
+                    <tr>
+                        <th>
+                            Subtotal
+                        </th>
+                        <td>
+                            ${{ number_format($sale->subtotal, 2, ',', '.') }} USD
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Resumen
+                            Alcaldía
                         </th>
                         <td>
-                            {{ $sales->resume }}
+                            ${{ number_format($sale->cityhall, 2, ',', '.') }} USD
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Contenido
+                            IGTF
                         </th>
                         <td>
-                            {{ $sales->content }}
+                            ${{ number_format($sale->igtf, 2, ',', '.') }} USD
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Enlace
+                            IVA
                         </th>
                         <td>
-                            {{ $sales->author }}
+                            ${{ number_format($sale->iva, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Total
+                        </th>
+                        <td>
+                            ${{ number_format($sale->total, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Pagado con
+                        </th>
+                        <td>
+                            {{ $sale->currency == 'usd' ? 'Dólares' : 'Dólares + Bolívares' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Pago en USD
+                        </th>
+                        <td>
+                            {{ number_format($sale->payment_amount_usd, 2, ',', '.') }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Pago en Bs.
+                        </th>
+                        <td>
+                            {{ number_format($sale->payment_amount_bsf, 2, ',', '.') }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Costo
+                        </th>
+                        <td>
+                            ${{ number_format($sale->provider, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Ganancia
+                        </th>
+                        <td>
+                            ${{ number_format($sale->profit, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Comisión sobre productos ({{ $sale->seller->commission_1 }}%)
+                        </th>
+                        <td>
+                            ${{ number_format($sale->commission_products, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Comisión sobre servicios ({{ $sale->seller->commission_4 }}%)
+                        </th>
+                        <td>
+                            ${{ number_format($sale->commission_services, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Comisión sobre el total
+                        </th>
+                        <td>
+                            ${{ number_format($sale->commission, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Trello
+                        </th>
+                        <td>
+                            <a href="{{ $sale->trello }}" target="_blank">{{ $sale->trello }}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Notas
+                        </th>
+                        <td>
+                            {{ $sale->notes }}
                         </td>
                     </tr>
                 </tbody>
@@ -75,6 +312,9 @@
             <a style="margin-top:20px;" class="btn btn-dark" href="{{ url()->previous() }}">
                 Regresar
             </a>
+			<a style="margin-top:20px;" class="btn btn-warning" href="{{ route('admin.sales.edit', $sale->id) }}">
+				Modificar
+			</a>
         </div>
 
     </div>

@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
             'lastname' => 'Ventas',
             'email' => 'coordinador@distribuidorabit.com',
             'password' => bcrypt('password'),
-        ])->assignRole('Coordinador');
+        ])->assignRole('Coordinador', 'Vendedor');
 
 		User::create([
             'name' => 'Vendedor',
