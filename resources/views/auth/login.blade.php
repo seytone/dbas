@@ -13,7 +13,7 @@
                     <form method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
                         <div class="text-center">
-                            <img class="img-fluid" src="{{ asset('img/logo.png') }}" alt="Logo INTER" width="400">
+                            <img class="img-fluid" src="{{ asset('img/logo.png') }}" alt="Logo Distribuidora Bit" width="400">
                         </div>
                         <h4 class="text-center text-muted my-5">Control Panel</h4>
 

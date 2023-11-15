@@ -41,10 +41,10 @@
         </button>
         <a class="navbar-brand" href="{{ route("admin.dashboard") }}">
             <span class="navbar-brand-full ml-0 ml-lg-2">
-            <img class="img-fluid mb-2" src="{{ asset('img/logo.png') }}" alt="Logo InterAPP" width="160">
+            <img class="img-fluid mb-2" src="{{ asset('img/logo.png') }}" alt="Logo Distribuidora Bit" width="160">
             </span>
             <span class="navbar-brand-minimized">
-            <img class="img-fluid" src="{{ asset('img/logo-min.png') }}" alt="Logo InterAPP" width="40">
+            <img class="img-fluid" src="{{ asset('img/logo-min.png') }}" alt="Logo Distribuidora Bit" width="40">
             </span>
         </a>
 

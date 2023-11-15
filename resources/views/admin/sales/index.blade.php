@@ -5,7 +5,7 @@
             <h1>Ventas</h1>
 		</div>
 		<div class="col-md-6 pt-2">
-			<form method="POST" action="{{ route('admin.sales.index') }}" class="d-flex">
+			<form method="POST" action="{{ route('admin.sales.index') }}" class="d-none d-md-flex">
 				@csrf
 				<div class="col">
 					<div class="input-group">
@@ -24,6 +24,25 @@
 						@endif
 						<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
 					</div>
+				</div>
+			</form>
+			<form method="POST" action="{{ route('admin.sales.index') }}" class="d-block d-md-none">
+				@csrf
+				<label class="input-group-text" for="start_date">Desde</label>
+				<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
+				<label class="input-group-text" for="final_date">Hasta</label>
+				<input type="date" id="final_date" name="final_date" class="form-control" value="{{ old('final_date', date('Y-m-d', strtotime($final_date))) }}">
+				@if ($user->hasRole('Superadmin'))
+					<label class="input-group-text" for="seller">Vendedor</label>
+					<select class="form-control" id="seller" name="seller">
+						<option value="all">Todos</option>
+						@foreach ($sellers as $seller)
+							<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
+						@endforeach
+					</select>
+				@endif
+				<div class="col text-right mt-3">
+					<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
 				</div>
 			</form>
 		</div>

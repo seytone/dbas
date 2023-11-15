@@ -70,12 +70,12 @@ class DashboardController extends Controller
 		}
 
 		$orders = Sale::select(
-				DB::raw("DATE_FORMAT(created_at,'%m') as month"),
+				DB::raw("DATE_FORMAT(registered_at,'%m') as month"),
 				DB::raw('count(id) sales'),
 				DB::raw('count(total) total'),
 				DB::raw('sum(profit) profit'),
 				DB::raw('sum(commission) commission'),
-		)->whereYear('created_at', Carbon::now()->year)->where($where)->groupBy('month')->get();
+		)->whereYear('registered_at', Carbon::now()->year)->where($where)->groupBy('month')->get();
 
 		$ventas = [];
 		foreach ($orders as $key => $value) {

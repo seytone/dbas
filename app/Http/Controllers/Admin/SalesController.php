@@ -331,7 +331,7 @@ class SalesController extends Controller
     */
     public function list(Request $request)
     {
-        $sale = $request->limit ? Sale::ordregister'created_at', 'desc')->skip(0)->take($request->limit)->get() : Sale::paginate(20);
+        $sale = $request->limit ? Sale::orderBy('created_at', 'desc')->skip(0)->take($request->limit)->get() : Sale::paginate(20);
 
         return response()->json(
             $sale
