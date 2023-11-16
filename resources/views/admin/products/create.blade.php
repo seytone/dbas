@@ -89,12 +89,12 @@
 						</div>
 					</div>
 					<div class="col-sm-4">
-						<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
-							<label for="price">Costo Proveedor&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" required>
-							@if ($errors->has('price'))
+						<div class="form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
+							<label for="cost">Costo Proveedor&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="cost" name="cost" class="form-control" value="{{ old('cost', 0) }}" min="0" required>
+							@if ($errors->has('cost'))
 								<em class="invalid-feedback">
-									{{ $errors->first('price') }}
+									{{ $errors->first('cost') }}
 								</em>
 							@endif
 						</div>
