@@ -35,9 +35,9 @@
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<div class="form-group {{ $errors->has('category') ? 'has-error' : '' }}">
-							<label for="category">Categoría&nbsp;<b class="text-danger">*</b></label>
-							<select name="category" class="selectize-create" required>
+						<div class="form-group {{ $errors->has('category_id') ? 'has-error' : '' }}">
+							<label for="category_id">Categoría&nbsp;<b class="text-danger">*</b></label>
+							<select name="category_id" class="selectize-create" required>
 								<option value="">Seleccione</option>
 								@foreach ($categories as $category)
 									<option value="{{ $category->id }}">{{ $category->title }}</option>
@@ -51,9 +51,9 @@
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<div class="form-group {{ $errors->has('brand') ? 'has-error' : '' }}">
-							<label for="brand">Marca&nbsp;<b class="text-danger">*</b></label>
-							<select name="brand" class="selectize-create" required>
+						<div class="form-group {{ $errors->has('brand_id') ? 'has-error' : '' }}">
+							<label for="brand_id">Marca&nbsp;<b class="text-danger">*</b></label>
+							<select name="brand_id" class="selectize-create" required>
 								<option value="">Seleccione</option>
 								@foreach ($brands as $brand)
 									<option value="{{ $brand->id }}">{{ $brand->title }}</option>
