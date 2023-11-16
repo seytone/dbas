@@ -56,6 +56,12 @@ class ProductsController extends Controller
             'price' => 'required|integer',
         ]);
 
+		$brand = Brand::firstOrCreate(['title' => $validatedData['brand_id']]);
+		$category = Category::firstOrCreate(['title' => $validatedData['category_id']]);
+
+		$validatedData['brand_id'] = $brand->id;
+		$validatedData['category_id'] = $category->id;
+
         Product::create($validatedData);
 
         return redirect()->route('admin.products.index');
@@ -105,6 +111,12 @@ class ProductsController extends Controller
             'cost' => 'required|integer',
             'price' => 'required|integer',
         ]);
+
+		$brand = Brand::firstOrCreate(['title' => $validatedData['brand_id']]);
+		$category = Category::firstOrCreate(['title' => $validatedData['category_id']]);
+
+		$validatedData['brand_id'] = $brand->id;
+		$validatedData['category_id'] = $category->id;
 
         $product->update($validatedData);
 

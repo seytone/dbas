@@ -38,55 +38,33 @@
 					</div>
 				</div>
 				<div class="col-sm-3">
-					<div class="form-group {{ $errors->has('category') ? 'has-error' : '' }}">
-						<label for="category">Categoría&nbsp;<b class="text-danger">*</b></label>
-						<select name="category" class="custom-select" required>
+					<div class="form-group {{ $errors->has('category_id') ? 'has-error' : '' }}">
+						<label for="category_id">Categoría&nbsp;<b class="text-danger">*</b></label>
+						<select name="category_id" class="selectize-create" required>
 							<option value="">Seleccione</option>
 							@foreach ($categories as $category)
-								<option value="{{ $category->id }}" {{ $category->id == $product->category_id ? 'selected' : '' }}>{{ $category->title }}</option>
+								<option value="{{ $category->id }}" {{ $product->category_id == $category->id ? 'selected' : '' }}>{{ $category->title }}</option>
 							@endforeach
 						</select>
-						@if ($errors->has('category'))
+						@if ($errors->has('category_id'))
 							<em class="invalid-feedback">
-								{{ $errors->first('category') }}
+								{{ $errors->first('category_id') }}
 							</em>
 						@endif
 					</div>
 				</div>
 				<div class="col-sm-3">
-					<div class="form-group {{ $errors->has('brand') ? 'has-error' : '' }}">
-						<label for="brand">Marca&nbsp;<b class="text-danger">*</b></label>
-						<select name="brand" class="custom-select" required>
+					<div class="form-group {{ $errors->has('brand_id') ? 'has-error' : '' }}">
+						<label for="brand_id">Marca&nbsp;<b class="text-danger">*</b></label>
+						<select name="brand_id" class="selectize-create" required>
 							<option value="">Seleccione</option>
-							@foreach ($brans as $brand)
-								<option value="{{ $brand->id }}" {{ $brand->id == $product->brand_id ? 'selected' : '' }}>{{ $brand->title }}</option>
+							@foreach ($brands as $brand)
+								<option value="{{ $brand->id }}" {{ $product->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->title }}</option>
 							@endforeach
 						</select>
-						@if ($errors->has('brand'))
+						@if ($errors->has('brand_id'))
 							<em class="invalid-feedback">
-								{{ $errors->first('brand') }}
-							</em>
-						@endif
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="form-group {{ $errors->has('category') ? 'has-error' : '' }}">
-						<label for="category">Categoría&nbsp;<b class="text-danger">*</b></label>
-						<input type="text" id="category" name="category" class="form-control" value="{{ old('category', isset($product) ? $product->category : '') }}" required>
-						@if ($errors->has('category'))
-							<em class="invalid-feedback">
-								{{ $errors->first('category') }}
-							</em>
-						@endif
-					</div>
-				</div>
-				<div class="col-sm-3">
-					<div class="form-group {{ $errors->has('brand') ? 'has-error' : '' }}">
-						<label for="brand">Marca&nbsp;<b class="text-danger">*</b></label>
-						<input type="text" id="brand" name="brand" class="form-control" value="{{ old('brand', isset($product) ? $product->brand : '') }}" required>
-						@if ($errors->has('brand'))
-							<em class="invalid-feedback">
-								{{ $errors->first('brand') }}
+								{{ $errors->first('brand_id') }}
 							</em>
 						@endif
 					</div>
@@ -115,7 +93,7 @@
 				</div>
 				<div class="col-sm-4">
 					<div class="form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
-						<label for="cost">Precio&nbsp;<b class="text-danger">*</b></label>
+						<label for="cost">Costo Proveedor&nbsp;<b class="text-danger">*</b></label>
 						<input type="number" id="cost" name="cost" class="form-control" value="{{ old('cost', isset($product) ? $product->cost : 0) }}" min="0" required>
 						@if ($errors->has('cost'))
 							<em class="invalid-feedback">
@@ -125,12 +103,12 @@
 					</div>
 				</div>
 				<div class="col-sm-4">
-					<div class="form-group {{ $errors->has('stock') ? 'has-error' : '' }}">
-						<label for="stock">Stock&nbsp;<b class="text-danger">*</b></label>
-						<input type="number" id="stock" name="stock" class="form-control" value="{{ old('stock', isset($product) ? $product->stock : 0) }}" min="0" required>
-						@if ($errors->has('stock'))
+					<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
+						<label for="price">Precio de Venta&nbsp;<b class="text-danger">*</b></label>
+						<input type="number" id="price" name="price" class="form-control" value="{{ old('price', isset($product) ? $product->price : 0) }}" min="0" required>
+						@if ($errors->has('price'))
 							<em class="invalid-feedback">
-								{{ $errors->first('stock') }}
+								{{ $errors->first('price') }}
 							</em>
 						@endif
 					</div>
