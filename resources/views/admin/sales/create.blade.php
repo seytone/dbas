@@ -74,23 +74,7 @@
                         </em>
                     @endif
                 </div>
-				<div class="row">
-					<div class="col-sm-6">
-						<div class="form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
-							<label for="client_id">Cliente&nbsp;<b class="text-danger">*</b></label>
-							<select name="client_id" class="selectize-create" required>
-								<option value="">Seleccione</option>
-								@foreach ($clients as $client)
-									<option value="{{ $client->id }}">{{ $client->getIdentification() }}</option>
-								@endforeach
-							</select>
-							@if ($errors->has('client_id'))
-								<em class="invalid-feedback">
-									{{ $errors->first('client_id') }}
-								</em>
-							@endif
-						</div>
-					</div>
+				<div class="row" id="cliente">
 					@if ($user->hasRole('Superadmin'))
 						<div class="col-sm-6">
 							<div class="form-group {{ $errors->has('seller_id') ? 'has-error' : '' }}">
@@ -113,6 +97,22 @@
 					@endif
 					<input type="hidden" id="margin_prods" value="{{ $user->seller->commission_1 ?? 1 }}">
 					<input type="hidden" id="margin_servs" value="{{ $user->seller->commission_4 ?? 50 }}">
+					<div class="col-sm-6">
+						<div class="form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
+							<label for="client_id">Cliente&nbsp;<b class="text-danger">*</b></label>
+							<select name="client_id" class="selectize-client" required>
+								<option value="">Seleccione</option>
+								@foreach ($clients as $client)
+									<option value="{{ $client->id }}">{{ $client->getIdentification() }}</option>
+								@endforeach
+							</select>
+							@if ($errors->has('client_id'))
+								<em class="invalid-feedback">
+									{{ $errors->first('client_id') }}
+								</em>
+							@endif
+						</div>
+					</div>
 				</div>
 				<div class="row">
 					<div class="col-sm-6">
@@ -451,7 +451,6 @@
 				return function() {
 					var item = arguments[0];
 					var data = this.options[item].data;
-
 					if (action == 'ADD') {
 						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" class="form-control p-0 text-right provider" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" class="form-control p-0 text-right total product" value="' + data.price + '" readonly></td></tr>');
 						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
@@ -467,7 +466,6 @@
 				return function() {
 					var item = arguments[0];
 					var data = this.options[item].data;
-
 					if (action == 'ADD') {
 						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
 						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
@@ -488,6 +486,24 @@
 					$('#margin_prods').val(data.commission_1);
 					$('#margin_servs').val(data.commission_4);
 					calculateValues();
+				};
+			}
+
+			function clientHandler(action)
+			{
+				return function() {
+					if (action == 'ADD') {
+						console.log('Cliente nuevo agregado');
+						var item = arguments[0];
+						var data = item.split(' :: ');
+						var code = data[0].trim();
+						var name = data[1].trim();
+						var client = '<div class="row new_client"><div class="col-sm-2"><div class="form-group"><label for="code">Código&nbsp;<b class="text-danger">*</b></label><input type="text" id="code" name="cli_code" class="form-control" value="' + code + '" required></div></div><div class="col-sm-4"><div class="form-group"><label for="title">Razón Social&nbsp;<b class="text-danger">*</b></label><input type="text" id="title" name="cli_title" class="form-control" value="' + name + '" required></div></div><div class="col-sm-2"><div class="form-group"><label for="document">Identificación&nbsp;<b class="text-danger">*</b></label><input type="text" id="document" name="cli_document" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="email">Email&nbsp;<b class="text-danger">*</b></label><input type="email" id="email" name="cli_email" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="phone">Télefono&nbsp;<b class="text-danger">*</b></label><input type="phone" id="phone" name="cli_phone" class="form-control" required></div></div></div>';
+						$('#cliente').after(client);
+					} else {
+						console.log('Cliente nuevo eliminado');
+						$('.new_client').remove();
+					}
 				};
 			}
 
@@ -543,6 +559,14 @@
 				persist: false,
 				sortField: 'text',
 				onItemAdd: sellerHandler(),
+			});
+			
+			$('.selectize-client').selectize({
+				create: true,
+				persist: false,
+				sortField: 'text',
+				onOptionAdd: clientHandler('ADD'),
+				onOptionRemove: clientHandler('DEL'),
 			});
 
 			$('#notes').maxlength({

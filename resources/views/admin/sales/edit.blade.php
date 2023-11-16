@@ -75,23 +75,7 @@
                         </em>
                     @endif
                 </div>
-				<div class="row">
-					<div class="col-sm-6">
-						<div class="form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
-							<label for="client_id">Cliente&nbsp;<b class="text-danger">*</b></label>
-							<select name="client_id" class="selectize-create" required>
-								<option value="">Seleccione</option>
-								@foreach ($clients as $client)
-									<option value="{{ $client->id }}" {{ $sale->client_id == $client->id ? 'selected' : '' }}>{{ $client->getIdentification() }}</option>
-								@endforeach
-							</select>
-							@if ($errors->has('client_id'))
-								<em class="invalid-feedback">
-									{{ $errors->first('client_id') }}
-								</em>
-							@endif
-						</div>
-					</div>
+				<div class="row" id="cliente">
 					@if ($user->hasRole('Superadmin'))
 						<div class="col-sm-6">
 							<div class="form-group {{ $errors->has('seller_id') ? 'has-error' : '' }}">
@@ -114,6 +98,22 @@
 					@endif
 					<input type="hidden" id="margin_prods" value="{{ $user->seller->commission_1 ?? 1 }}">
 					<input type="hidden" id="margin_servs" value="{{ $user->seller->commission_4 ?? 50 }}">
+					<div class="col-sm-6">
+						<div class="form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
+							<label for="client_id">Cliente&nbsp;<b class="text-danger">*</b></label>
+							<select name="client_id" class="selectize-client" required>
+								<option value="">Seleccione</option>
+								@foreach ($clients as $client)
+									<option value="{{ $client->id }}" {{ $sale->client_id == $client->id ? 'selected' : '' }}>{{ $client->getIdentification() }}</option>
+								@endforeach
+							</select>
+							@if ($errors->has('client_id'))
+								<em class="invalid-feedback">
+									{{ $errors->first('client_id') }}
+								</em>
+							@endif
+						</div>
+					</div>
 				</div>
 				<div class="row">
 					<div class="col-sm-6">
@@ -571,6 +571,24 @@
 				};
 			}
 
+			function clientHandler(action)
+			{
+				return function() {
+					if (action == 'ADD') {
+						console.log('Cliente nuevo agregado');
+						var item = arguments[0];
+						var data = item.split(' :: ');
+						var code = data[0].trim();
+						var name = data[1].trim();
+						var client = '<div class="row new_client"><div class="col-sm-2"><div class="form-group"><label for="code">Código&nbsp;<b class="text-danger">*</b></label><input type="text" id="code" name="cli_code" class="form-control" value="' + code + '" required></div></div><div class="col-sm-4"><div class="form-group"><label for="title">Razón Social&nbsp;<b class="text-danger">*</b></label><input type="text" id="title" name="cli_title" class="form-control" value="' + name + '" required></div></div><div class="col-sm-2"><div class="form-group"><label for="document">Identificación&nbsp;<b class="text-danger">*</b></label><input type="text" id="document" name="cli_document" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="email">Email&nbsp;<b class="text-danger">*</b></label><input type="email" id="email" name="cli_email" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="phone">Télefono&nbsp;<b class="text-danger">*</b></label><input type="phone" id="phone" name="cli_phone" class="form-control" required></div></div></div>';
+						$('#cliente').after(client);
+					} else {
+						console.log('Cliente nuevo eliminado');
+						$('.new_client').remove();
+					}
+				};
+			}
+
 			$('body').on('change', '.quantity_prod', function() {
 				var quantity = $(this).val();
 				var parent = $(this).parents('.item');
@@ -623,6 +641,14 @@
 				persist: false,
 				sortField: 'text',
 				onItemAdd: sellerHandler(),
+			});
+
+			$('.selectize-client').selectize({
+				create: true,
+				persist: false,
+				sortField: 'text',
+				onOptionAdd: clientHandler('ADD'),
+				onOptionRemove: clientHandler('DEL'),
 			});
 
 			$('#notes').maxlength({

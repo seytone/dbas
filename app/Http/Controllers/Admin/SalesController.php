@@ -103,7 +103,6 @@ class SalesController extends Controller
 	{
 		$validatedData = $request->validate([
 			'registered_at' => 'required|date',
-			'client_id' => 'required|integer|exists:clients,id',
 			'seller_id' => 'required|integer|exists:sellers,id',
 			'invoice_type' => 'required|string|max:10',
 			'invoice_number' => 'required|string|max:20',
@@ -136,6 +135,21 @@ class SalesController extends Controller
 			'services.*.discount' => 'required_if:services,[]|numeric',
 			'services.*.total' => 'required_if:services,[]|numeric',
 		]);
+
+		if (!is_numeric($request->client_id) && $request->cli_code && $request->cli_title)
+		{
+			$client = Client::create([
+				'code' => $request->cli_code,
+				'title' => $request->cli_title,
+				'document' => $request->cli_document,
+				'email' => $request->cli_email,
+				'phone' => $request->cli_phone,
+			]);
+			$validatedData['client_id'] = $client->id;
+		} else {
+			$validatedData['client_id'] = $request->client_id;
+		}
+
 		$validatedData['commission'] = $validatedData['commission_total'];
 		$validatedData['commission_products'] = $validatedData['commission_prod'];
 		$validatedData['commission_services'] = $validatedData['commission_serv'];
@@ -222,7 +236,6 @@ class SalesController extends Controller
     {
         $validatedData = $request->validate([
 			'registered_at' => 'required|date',
-			'client_id' => 'required|integer|exists:clients,id',
 			'seller_id' => 'required|integer|exists:sellers,id',
 			'invoice_type' => 'required|string|max:10',
 			'invoice_number' => 'required|string|max:20',
@@ -255,6 +268,21 @@ class SalesController extends Controller
 			'services.*.discount' => 'required_if:services,[]|numeric',
 			'services.*.total' => 'required_if:services,[]|numeric',
 		]);
+
+		if (!is_numeric($request->client_id) && $request->cli_code && $request->cli_title)
+		{
+			$client = Client::create([
+				'code' => $request->cli_code,
+				'title' => $request->cli_title,
+				'document' => $request->cli_document,
+				'email' => $request->cli_email,
+				'phone' => $request->cli_phone,
+			]);
+			$validatedData['client_id'] = $client->id;
+		} else {
+			$validatedData['client_id'] = $request->client_id;
+		}
+
 		$validatedData['commission'] = $validatedData['commission_total'];
 		$validatedData['commission_products'] = $validatedData['commission_prod'];
 		$validatedData['commission_services'] = $validatedData['commission_serv'];

@@ -5,7 +5,7 @@
             <h1>Ventas</h1>
 		</div>
 		<div class="col-md-6 pt-2">
-			<form method="POST" action="{{ route('admin.sales.index') }}" class="d-none d-md-flex">
+			<form method="POST" action="{{ route('admin.sales_filter') }}" class="d-none d-md-flex">
 				@csrf
 				<div class="col">
 					<div class="input-group">

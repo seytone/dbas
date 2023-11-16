@@ -15,7 +15,9 @@ Route::patch('change_password', 'Auth\ChangePasswordController@changePassword')-
 Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'], function ()
 {
 	Route::match(['get', 'post'], 'dashboard', 'Admin\DashboardController@index')->name('dashboard');
-    Route::resource('permissions', 'Admin\PermissionsController');
+	Route::match(['get', 'post'], 'sales_filter', 'Admin\SalesController@index')->name('sales_filter');
+    
+	Route::resource('permissions', 'Admin\PermissionsController');
     Route::resource('roles', 'Admin\RolesController');
     Route::resource('users', 'Admin\UsersController');
 	Route::resource('commissions', 'Admin\CommissionController');
@@ -28,8 +30,6 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::resource('providers', 'Admin\ProvidersController');
 	Route::resource('sellers', 'Admin\SellersController');
 	Route::get('help', 'Admin\HelpController@index')->name('help');
-
-	Route::match(['get', 'post'], 'sales', 'Admin\SalesController@index')->name('sales.index');
 
 	Route::delete('permissions_mass_destroy', 'Admin\PermissionsController@massDestroy')->name('permissions.mass_destroy');
 	Route::delete('roles_mass_destroy', 'Admin\RolesController@massDestroy')->name('roles.mass_destroy');
