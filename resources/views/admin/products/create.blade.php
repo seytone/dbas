@@ -22,7 +22,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
 							<label for="type">Tipo&nbsp;<b class="text-danger">*</b></label>
-							<select name="status" class="custom-select" required>
+							<select name="type" class="custom-select" required>
 								<option value="">Seleccione</option>
 								<option value="hardware">Hardware</option>
 								<option value="software">Software</option>

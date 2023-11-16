@@ -52,8 +52,8 @@ class ProductsController extends Controller
             'brand' => 'required|string|max:20',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
+            'cost' => 'required|integer',
             'price' => 'required|integer',
-            'stock' => 'required|integer',
         ]);
 
         Product::create($validatedData);
@@ -102,8 +102,8 @@ class ProductsController extends Controller
 			'brand' => 'required|string|max:20',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
+            'cost' => 'required|integer',
             'price' => 'required|integer',
-            'stock' => 'required|integer',
         ]);
 
         $product->update($validatedData);
