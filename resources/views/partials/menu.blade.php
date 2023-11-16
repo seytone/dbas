@@ -9,14 +9,6 @@
 					</a>
 				</li>
 			@endcan
-            {{-- @can('manage_modules')
-                <li class="nav-item">
-                    <a href="{{ route('admin.commissions.index') }}" class="nav-link" {{ request()->is('admin/commissions') || request()->is('admin/commissions/*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-fw fa-money"></i>
-                        Comisiones
-                    </a>
-                </li>
-            @endcan --}}
             @can('manage_sales')
                 <li class="nav-item">
                     <a href="{{ route('admin.sales.index') }}" class="nav-link" {{ request()->is('admin/sales') || request()->is('admin/sales/*') ? 'active' : '' }}">
@@ -33,14 +25,6 @@
 					</a>
 				</li>
 			@endcan
-			{{-- @can('manage_providers')
-				<li class="nav-item">
-					<a href="{{ route("admin.providers.index") }}" class="nav-link {{ request()->is('admin/providers') || request()->is('admin/providers/*') ? 'active' : '' }}">
-						<i class="fa-fw fas fa-truck nav-icon"></i>
-						Proveedores
-					</a>
-				</li>
-			@endcan --}}
             @can('manage_products')
 				<li class="nav-item nav-dropdown">
                     <a class="nav-link  nav-dropdown-toggle" href="#">
