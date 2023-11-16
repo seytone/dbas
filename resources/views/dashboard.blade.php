@@ -60,7 +60,7 @@
 			<div class="col-12"><hr></div>
 		</div>
 		<div class="row stats">
-			<div class="col-12 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-3">
 				<div class="callout callout-secondary">
 				<h3 class="text-muted mb-0">
 					<span class="d-none d-md-block">Ventas</span>
@@ -69,45 +69,45 @@
 				<strong class="h4">{{ $sales }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-2">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3">
 				<div class="callout callout-dark">
 					<h3 class="text-muted mb-0">Facturación</h3><br>
 					<strong class="h4">${{ number_format($total_amount, 2, ',', '.') }}</strong>
 				</div>
 			</div>
 			@if ($user->hasRole('Superadmin'))
-				<div class="col-6 col-sm-4 col-md-3 col-lg-2">
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3">
 					<div class="callout callout-success">
 					<h3 class="text-muted mb-0">Ganancia</h3><br>
 					<strong class="h4">${{ number_format($total_profit, 2, ',', '.') }}</strong>
 					</div>
 				</div>
 			@endif
-			<div class="col-6 col-sm-4 col-md-3 col-lg-2">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3">
 				<div class="callout callout-warning">
 				<h3 class="text-muted mb-0">Comisión</h3><br>
 				<strong class="h4">${{ number_format($total_commission, 2, ',', '.') }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3">
 				<div class="callout callout-danger">
 				<h3 class="text-muted mb-0">Servicios</h3><br>
 				<strong class="h4">{{ $total_services }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1 d-none d-md-block">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3 d-none d-md-block">
 				<div class="callout callout-info">
 				<h3 class="text-muted mb-0">Productos</h3><br>
 				<strong class="h4">{{ $total_products }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3">
 				<div class="callout callout-primary">
 				<h3 class="text-muted mb-0">Hardware</h3><br>
 				<strong class="h4">{{ $total_hardware }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-2 col-xl-1">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3">
 				<div class="callout callout-primary">
 				<h3 class="text-muted mb-0">Software</h3><br>
 				<strong class="h4">{{ $total_software }}</strong>
