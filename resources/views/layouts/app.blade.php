@@ -3,12 +3,21 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-capable" content="yes">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta content="#eee423" name="theme-color">
+	<meta content="#eee423" name="msapplication-TileColor">
+	<meta content="{{ asset('img/app-icon.png') }}" name="msapplication-TileImage">
+	<link href="{{ asset('img/app-icon.png') }}" sizes="200x200" rel="apple-touch-icon">
+	<link href="{{ asset('img/app-icon.png') }}" sizes="200x200" type="image/png" rel="icon">
     <link href="{{ asset('favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
-
-    <title>{{ env('APP_NAME', 'Permissions Manager') }}</title>
+	<link href="{{ asset('manifest.json') }}" rel="manifest">
+	
+	<title>{{ env('APP_NAME', 'LICENCIAS BIT') }}</title>
+	
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" />
     {{-- <link href="https://unpkg.com/@coreui/coreui/dist/css/coreui.min.css" rel="stylesheet" /> --}}
     <link href="https://unpkg.com/@coreui/coreui@2.1.16/dist/css/coreui.min.css" rel="stylesheet"/>
