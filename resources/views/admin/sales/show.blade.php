@@ -240,15 +240,15 @@
                             Pago en USD
                         </th>
                         <td>
-                            {{ number_format($sale->payment_amount_usd, 2, ',', '.') }}
+                            ${{ number_format($sale->payment_amount_usd, 2, ',', '.') }} USD
                         </td>
                     </tr>
                     <tr>
                         <th>
-                            Pago en Bs.
+                            Pago en Bs. (expresado en USD)
                         </th>
                         <td>
-                            {{ number_format($sale->payment_amount_bsf, 2, ',', '.') }}
+                            ${{ number_format($sale->payment_amount_bsf, 2, ',', '.') }} USD
                         </td>
                     </tr>
                     <tr>
@@ -269,10 +269,26 @@
                     </tr>
                     <tr>
                         <th>
-                            Comisión sobre productos ({{ $sale->seller->commission_1 }}%)
+                            Comisión Licencias Perpetuas ({{ $sale->seller->commission_1 }}%)
                         </th>
                         <td>
-                            ${{ number_format($sale->commission_products, 2, ',', '.') }} USD
+                            ${{ number_format($sale->commission_perpetual, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Comisión Suscripciones Anuales ({{ $sale->seller->commission_2 }}%)
+                        </th>
+                        <td>
+                            ${{ number_format($sale->commission_annual, 2, ',', '.') }} USD
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Comisión Hardware y Otros ({{ $sale->seller->commission_3 }}%)
+                        </th>
+                        <td>
+                            ${{ number_format($sale->commission_hardware, 2, ',', '.') }} USD
                         </td>
                     </tr>
                     <tr>

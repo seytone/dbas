@@ -8,6 +8,7 @@
             <form action="{{ route('admin.sales.update', [$sale->id]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
 				@method('PUT')
+				{{-- Fecha --}}
 				<div class="row">
 					<div class="col-sm-4">
 						<div class="form-group {{ $errors->has('registered_at') ? 'has-error' : '' }}">
@@ -21,6 +22,7 @@
 						</div>
 					</div>
 				</div>
+				{{-- Tipo/Número/Pago --}}
 				<div class="row">
 					<div class="col-sm-4">
 						<div class="form-group {{ $errors->has('invoice_type') ? 'has-error' : '' }}">
@@ -66,6 +68,7 @@
 						</div>
 					</div>
 				</div>
+				{{-- Trello --}}
 				<div class="form-group {{ $errors->has('trello') ? 'has-error' : '' }}">
                     <label for="trello">Trello&nbsp;<b class="text-danger">*</b></label>
                     <input type="url" id="trello" name="trello" class="form-control" value="{{ old('trello', isset($sale) ? $sale->trello : '') }}" required>
@@ -75,6 +78,7 @@
                         </em>
                     @endif
                 </div>
+				{{-- Vendedor/Cliente --}}
 				<div class="row" id="cliente">
 					@if ($user->hasRole('Superadmin'))
 						<div class="col-sm-6">
@@ -94,10 +98,12 @@
 							</div>
 						</div>
 					@else
-						<input type="hidden" id="seller" name="seller_id" value="{{ $user->seller->id }}">
+						<input type="hidden" id="seller" name="seller_id" value="{{ $user_seller->id }}">
 					@endif
-					<input type="hidden" id="margin_prods" value="{{ $user->seller->commission_1 ?? 1 }}">
-					<input type="hidden" id="margin_servs" value="{{ $user->seller->commission_4 ?? 50 }}">
+					<input type="hidden" id="margin_perpetual" value="{{ $user_seller->commission_1 ?? 1 }}">
+					<input type="hidden" id="margin_annual" value="{{ $user_seller->commission_2 ?? 1 }}">
+					<input type="hidden" id="margin_hardware" value="{{ $user_seller->commission_3 ?? 1 }}">
+					<input type="hidden" id="margin_services" value="{{ $user_seller->commission_4 ?? 50 }}">
 					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('client_id') ? 'has-error' : '' }}">
 							<label for="client_id">Cliente&nbsp;<b class="text-danger">*</b></label>
@@ -115,6 +121,7 @@
 						</div>
 					</div>
 				</div>
+				{{-- Productos/Servicios --}}
 				<div class="row">
 					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('product_id') ? 'has-error' : '' }}">
@@ -153,7 +160,6 @@
 								</thead>
 								<tbody id="products-list">
 									@php
-										$total_costs = 0;
 										$total_prods = 0;
 									@endphp
 									@foreach ($sale->products as $prod)
@@ -185,25 +191,24 @@
 												<input type="number" name="products[{{ $prod->product->id }}][discount]" min="0" value="{{ $prod->discount }}" class="form-control p-0 text-right discount">
 											</td>
 											<td>
-												<input type="number" min="0" class="form-control p-0 text-right provider" value="{{ $prod->product->cost }}" readonly>
+												<input type="number" min="0" class="form-control p-0 text-right provider" rel="{{ $prod->product->group }}" value="{{ $prod->quantity * $prod->product->cost }}" readonly>
 											</td>
 											<td>
-												<input type="number" name="products[{{ $prod->product->id }}][total]" min="0" value="{{ $prod->total }}" class="form-control p-0 text-right total product" readonly>
+												<input type="number" name="products[{{ $prod->product->id }}][total]" min="0" value="{{ $prod->total }}" class="form-control p-0 text-right total product" rel="{{ $prod->product->group }}" readonly>
 											</td>
 										</tr>
 										@php
-											$total_costs += $prod->price;
 											$total_prods += $prod->total;
 										@endphp
 									@endforeach
 								</tbody>
 								<tfoot class="bg-light">
 									<th colspan="8"></th>
-									<th class="text-right">Costo<br><strong id="costo_prods">{{ number_format($total_costs, 2, '.', ',') }}</strong></th>
+									<th class="text-right">Costo<br><strong id="costo_prods">{{ number_format($sale->provider, 2, '.', ',') }}</strong></th>
 									<th class="text-right">Total<br><strong id="total_prods">{{ number_format($total_prods, 2, '.', ',') }}</strong></th>
 								</tfoot>
 							</table>
-							<input type="hidden" id="provider" name="provider" value="0">
+							<input type="hidden" id="provider" name="provider" value="{{ $sale->provider }}">
 						</div>
 					</div>
 					<div class="col-sm-6">
@@ -278,6 +283,7 @@
 						<hr>
 					</div>
 				</div>
+				{{-- Totalización --}}
 				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('subtotal') ? 'has-error' : '' }}">
@@ -345,24 +351,49 @@
 							@endif
 						</div>
 					</div>
+				</div>
+				{{-- Desglose Comisión --}}
+				<div class="row">
 					<div class="col-sm-3">
-						<div class="form-group {{ $errors->has('commission_prod') ? 'has-error' : '' }}">
-							<label for="commission_prod">Comisión Productos <span class="text-muted">(<span id="margin_p">{{ $user->seller->commission_1 ?? 1 }}</span>% sobre ganancia productos)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_prod" name="commission_prod" class="form-control" value="{{ old('commission_prod', isset($sale) ? $sale->commission_products : 0) }}" min="0" required readonly>
-							@if ($errors->has('commission_prod'))
+						<div class="form-group {{ $errors->has('commission_perpetual') ? 'has-error' : '' }}">
+							<label for="commission_perpetual">Comisión Licencias Perpetuas <span class="text-muted">(<span id="margin_p">{{ $user_seller->commission_1 ?? 1 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_perpetual" name="commission_perpetual" class="form-control" value="{{ old('commission_perpetual', isset($sale) ? $sale->commission_perpetual : 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_perpetual'))
 								<em class="invalid-feedback">
-									{{ $errors->first('commission_prod') }}
+									{{ $errors->first('commission_perpetual') }}
 								</em>
 							@endif
 						</div>
 					</div>
 					<div class="col-sm-3">
-						<div class="form-group {{ $errors->has('commission_serv') ? 'has-error' : '' }}">
-							<label for="commission_serv">Comisión Servicios <span class="text-muted">(<span id="margin_s">{{ $user->seller->commission_4 ?? 50 }}</span>% sobre servicios)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_serv" name="commission_serv" class="form-control" value="{{ old('commission_serv', isset($sale) ? $sale->commission_services : 0) }}" min="0" required readonly>
-							@if ($errors->has('commission_serv'))
+						<div class="form-group {{ $errors->has('commission_annual') ? 'has-error' : '' }}">
+							<label for="commission_annual">Comisión Suscripciones Anuales <span class="text-muted">(<span id="margin_p">{{ $user_seller->commission_2 ?? 1 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_annual" name="commission_annual" class="form-control" value="{{ old('commission_annual', isset($sale) ? $sale->commission_annual : 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_annual'))
 								<em class="invalid-feedback">
-									{{ $errors->first('commission_serv') }}
+									{{ $errors->first('commission_annual') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group {{ $errors->has('commission_hardware') ? 'has-error' : '' }}">
+							<label for="commission_hardware">Comisión Hardware y Otros <span class="text-muted">(<span id="margin_p">{{ $user_seller->commission_3 ?? 1 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_hardware" name="commission_hardware" class="form-control" value="{{ old('commission_hardware', isset($sale) ? $sale->commission_hardware : 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_hardware'))
+								<em class="invalid-feedback">
+									{{ $errors->first('commission_hardware') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group {{ $errors->has('commission_services') ? 'has-error' : '' }}">
+							<label for="commission_services">Comisión Servicios <span class="text-muted">(<span id="margin_s">{{ $user_seller->commission_4 ?? 50 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
+							<input type="number" id="commission_services" name="commission_services" class="form-control" value="{{ old('commission_services', isset($sale) ? $sale->commission_servicesices : 0) }}" min="0" required readonly>
+							@if ($errors->has('commission_services'))
+								<em class="invalid-feedback">
+									{{ $errors->first('commission_services') }}
 								</em>
 							@endif
 						</div>
@@ -379,6 +410,7 @@
 						</div>
 					</div>
 				</div>
+				{{-- Dólares/Bolivares --}}
 				<div class="row {{ $sale->payment_method == 'bolivares' ? 'd-none' : '' }}" id="payment_currency">
 					<div class="col-12">
 						<hr>
@@ -402,7 +434,7 @@
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
-							<label for="payment_amount_bsf">Monto a pagar en bolívares</label>
+							<label for="payment_amount_bsf">Monto a pagar en bolívares (expresado en USD)</label>
 							<input type="number" id="payment_amount_bsf" name="payment_amount_bsf" class="form-control" value="{{ old('payment_amount_bsf', isset($sale) ? $sale->payment_amount_bsf : 0) }}" min="0" readonly>
 						</div>
 					</div>
@@ -410,6 +442,7 @@
 						<hr>
 					</div>
 				</div>
+				{{-- Notas --}}
 				<div class="form-group {{ $errors->has('notes') ? 'has-error' : '' }}">
                     <label for="notes">Anotaciones</label>
                     <textarea id="notes" name="notes" rows="1" class="form-control notes" maxlength="300">{{ old('notes', isset($sale) ? $sale->notes : '') }}</textarea>
@@ -419,6 +452,7 @@
                         </em>
                     @endif
                 </div>
+				{{-- Envío --}}
                 <div class="text-center text-md-right mt-4">
 					<hr>
                     <input class="btn btn-success" type="submit" value="Guardar">
@@ -437,14 +471,19 @@
 
 			var type = $('#invoice_type').val();
 			var method = $('#payment_method').val();
-			var margin_prods = parseFloat($('#margin_prods').val());
-			var margin_servs = parseFloat($('#margin_servs').val());
+			var margin_perpetual = parseFloat($('#margin_perpetual').val());
+			var margin_annual = parseFloat($('#margin_annual').val());
+			var margin_hardware = parseFloat($('#margin_hardware').val());
+			var margin_services = parseFloat($('#margin_services').val());
 			var payment_usd = parseFloat($('#payment_amount_usd').val());
 			var payment_total = $('input[name="payment_currency"]:checked').val();
 
-			var subtotal = subtotal_prod = subtotal_serv = iva = igtf = cityhall = total = profit = commission_prod = commission_serv = commission_total = costs = payment_amount_usd = payment_amount_bsf = 0;
-			var seller_margin_prods = margin_prods / 100; // 1%
-			var seller_margin_servs = margin_servs / 100; // 50%
+			var costs = costs_perpetual = costs_annual = costs_hardware = subtotal = subtotal_perpetual = subtotal_annual = subtotal_hardware = subtotal_products = subtotal_services = commission_perpetual = commission_annual = commission_hardware = commission_services = commission_total = iva = igtf = cityhall = total = profit = payment_amount_usd = payment_amount_bsf = 0;
+
+			var seller_margin_perpetual = margin_perpetual / 100; // 1%
+			var seller_margin_annual = margin_annual / 100; // 1%
+			var seller_margin_hardware = margin_hardware / 100; // 1%
+			var seller_margin_services = margin_services / 100; // 50%
 
 			if (method != 'bolivares') {
 				$('#payment_currency').removeClass('d-none');
@@ -454,23 +493,47 @@
 
 			// Calculate total costs for products
 			$('.item .provider').each(function() {
-				var value = parseFloat($(this).val());
-				costs += value;
+				var cost = parseFloat($(this).val());
+				var group = $(this).attr('rel');
+				switch (group) {
+					case 'perpetual':
+						costs_perpetual += cost;
+						break;
+					case 'annual':
+						costs_annual += cost;
+						break;
+					case 'hardware':
+						costs_hardware += cost;
+						break;
+				}
 			});
 
 			// Calculate total value for products
 			$('.item .product').each(function() {
-				var value = parseFloat($(this).val());
-				subtotal_prod += value;
+				var price = parseFloat($(this).val());
+				var group = $(this).attr('rel');
+				switch (group) {
+					case 'perpetual':
+						subtotal_perpetual += price;
+						break;
+					case 'annual':
+						subtotal_annual += price;
+						break;
+					case 'hardware':
+						subtotal_hardware += price;
+						break;
+				}
 			});
 
 			// Calculate total value for services
 			$('.item .service').each(function() {
 				var value = parseFloat($(this).val());
-				subtotal_serv += value;
+				subtotal_services += value;
 			});
 
-			subtotal = subtotal_prod + subtotal_serv;
+			subtotal_products = subtotal_perpetual + subtotal_annual + subtotal_hardware;
+			subtotal = subtotal_products + subtotal_services;
+			costs = costs_perpetual + costs_annual + costs_hardware;
 
 			if (type == 'factura')
 			{
@@ -487,10 +550,12 @@
 			}
 
 			if (subtotal > 0) {
-				profit = subtotal_prod - costs;
-				commission_prod = (subtotal_prod - costs) * seller_margin_prods;
-				commission_serv = subtotal_serv * seller_margin_servs;
+				profit = subtotal - costs;
 				total = subtotal + cityhall + igtf + iva;
+				commission_perpetual = (subtotal_perpetual - costs_perpetual) * seller_margin_perpetual;
+				commission_annual = (subtotal_annual - costs_annual) * seller_margin_annual;
+				commission_hardware = (subtotal_hardware - costs_hardware) * seller_margin_hardware;
+				commission_services = subtotal_services * seller_margin_services;
 			}
 
 			if (payment_total == 'usd') {
@@ -503,9 +568,9 @@
 				$('#payment_amount_usd').attr('readonly', false);
 			}
 
-			commission_total = commission_prod + commission_serv;
+			commission_total = parseFloat(commission_perpetual + commission_annual + commission_hardware + commission_services);
 
-			console.log(subtotal.toFixed(2), cityhall.toFixed(2), iva.toFixed(2), igtf.toFixed(2), total.toFixed(2), profit.toFixed(2), commission_prod.toFixed(2), commission_serv.toFixed(2), payment_amount_usd.toFixed(2), payment_amount_bsf.toFixed(2), commission_total.toFixed(2));
+			console.log(subtotal.toFixed(2), cityhall.toFixed(2), iva.toFixed(2), igtf.toFixed(2), total.toFixed(2), profit.toFixed(2), commission_hardware.toFixed(2), commission_services.toFixed(2), payment_amount_usd.toFixed(2), payment_amount_bsf.toFixed(2), commission_total.toFixed(2));
 		
 			$('#iva').val(iva.toFixed(2));
 			$('#igtf').val(igtf.toFixed(2));
@@ -515,10 +580,12 @@
 			$('#subtotal').val(subtotal.toFixed(2));
 			$('#cityhall').val(cityhall.toFixed(2));
 			$('#costo_prods').html(costs.toFixed(2));
-			$('#total_prods').html(subtotal_prod.toFixed(2));
-			$('#total_servs').html(subtotal_serv.toFixed(2));
-			$('#commission_prod').val(commission_prod.toFixed(2));
-			$('#commission_serv').val(commission_serv.toFixed(2));
+			$('#total_prods').html(subtotal_products.toFixed(2));
+			$('#total_servs').html(subtotal_services.toFixed(2));
+			$('#commission_perpetual').val(commission_perpetual.toFixed(2));
+			$('#commission_annual').val(commission_annual.toFixed(2));
+			$('#commission_hardware').val(commission_hardware.toFixed(2));
+			$('#commission_services').val(commission_services.toFixed(2));
 			$('#commission_total').val(commission_total.toFixed(2));
 			$('#payment_amount_usd').val(payment_amount_usd.toFixed(2));
 			$('#payment_amount_bsf').val(payment_amount_bsf.toFixed(2));
@@ -526,14 +593,17 @@
 
         $(function()
 		{
+			setTimeout(() => {
+				calculateValues();
+			}, 250);
+
 			function productHandler(action)
 			{
 				return function() {
 					var item = arguments[0];
 					var data = this.options[item].data;
-
 					if (action == 'ADD') {
-						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" class="form-control p-0 text-right provider" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" class="form-control p-0 text-right total product" value="' + data.price + '" readonly></td></tr>');
+						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
 						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
 					} else {
 						$('#products-list #prod-' + data.id).remove();
@@ -547,7 +617,6 @@
 				return function() {
 					var item = arguments[0];
 					var data = this.options[item].data;
-
 					if (action == 'ADD') {
 						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
 						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
@@ -563,10 +632,14 @@
 				return function() {
 					var item = arguments[0];
 					var data = this.options[item].data;
-					$('#margin_p').html(data.commission_1);
-					$('#margin_s').html(data.commission_4);
-					$('#margin_prods').val(data.commission_1);
-					$('#margin_servs').val(data.commission_4);
+					$('#margin_perpetual').val(data.commission_1);
+					$('#margin_1').html(data.commission_1);
+					$('#margin_annual').val(data.commission_2);
+					$('#margin_2').html(data.commission_2);
+					$('#margin_hardware').val(data.commission_3);
+					$('#margin_3').html(data.commission_3);
+					$('#margin_services').val(data.commission_4);
+					$('#margin_4').html(data.commission_4);
 					calculateValues();
 				};
 			}
@@ -577,10 +650,11 @@
 					if (action == 'ADD') {
 						console.log('Cliente nuevo agregado');
 						var item = arguments[0];
-						var data = item.split(' :: ');
-						var code = data[0].trim();
-						var name = data[1].trim();
-						var client = '<div class="row new_client"><div class="col-sm-2"><div class="form-group"><label for="code">Código&nbsp;<b class="text-danger">*</b></label><input type="text" id="code" name="cli_code" class="form-control" value="' + code + '" required></div></div><div class="col-sm-4"><div class="form-group"><label for="title">Razón Social&nbsp;<b class="text-danger">*</b></label><input type="text" id="title" name="cli_title" class="form-control" value="' + name + '" required></div></div><div class="col-sm-2"><div class="form-group"><label for="document">Identificación&nbsp;<b class="text-danger">*</b></label><input type="text" id="document" name="cli_document" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="email">Email&nbsp;<b class="text-danger">*</b></label><input type="email" id="email" name="cli_email" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="phone">Télefono&nbsp;<b class="text-danger">*</b></label><input type="phone" id="phone" name="cli_phone" class="form-control" required></div></div></div>';
+						var name = item.trim();
+						// var data = item.split(' :: ');
+						// var code = data[0].trim();
+						// var name = data[1].trim();
+						var client = '<div class="row new_client"><div class="col-sm-6"><div class="form-group"><label for="title">Razón Social&nbsp;<b class="text-danger">*</b></label><input type="text" id="title" name="cli_title" class="form-control" value="' + name + '" required></div></div><div class="col-sm-2"><div class="form-group"><label for="document">Identificación&nbsp;<b class="text-danger">*</b></label><input type="text" id="document" name="cli_document" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="email">Email&nbsp;<b class="text-danger">*</b></label><input type="email" id="email" name="cli_email" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="phone">Télefono&nbsp;<b class="text-danger">*</b></label><input type="phone" id="phone" name="cli_phone" class="form-control" required></div></div></div>';
 						$('#cliente').after(client);
 					} else {
 						console.log('Cliente nuevo eliminado');
@@ -642,7 +716,7 @@
 				sortField: 'text',
 				onItemAdd: sellerHandler(),
 			});
-
+			
 			$('.selectize-client').selectize({
 				create: true,
 				persist: false,

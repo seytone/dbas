@@ -118,8 +118,10 @@ class SalesController extends Controller
 			'provider' => 'required|numeric',
 			'profit' => 'required|numeric',
 			'commission_total' => 'required|numeric',
-			'commission_prod' => 'required|numeric',
-			'commission_serv' => 'required|numeric',
+			'commission_perpetual' => 'required|numeric',
+			'commission_annual' => 'required|numeric',
+			'commission_hardware' => 'required|numeric',
+			'commission_services' => 'required|numeric',
 			'trello' => 'required|url',
 			'notes' => 'nullable|max:300',
 			'products' => 'sometimes|required|array',
@@ -135,11 +137,12 @@ class SalesController extends Controller
 			'services.*.discount' => 'required_if:services,[]|numeric',
 			'services.*.total' => 'required_if:services,[]|numeric',
 		]);
+		$validatedData['commission'] = $validatedData['commission_total'];
 
-		if (!is_numeric($request->client_id) && $request->cli_code && $request->cli_title)
+		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
 			$client = Client::create([
-				'code' => $request->cli_code,
+				'code' => 'CLI-' . time(),
 				'title' => $request->cli_title,
 				'document' => $request->cli_document,
 				'email' => $request->cli_email,
@@ -149,10 +152,6 @@ class SalesController extends Controller
 		} else {
 			$validatedData['client_id'] = $request->client_id;
 		}
-
-		$validatedData['commission'] = $validatedData['commission_total'];
-		$validatedData['commission_products'] = $validatedData['commission_prod'];
-		$validatedData['commission_services'] = $validatedData['commission_serv'];
 
 		// Store the Sale
 		$sale = Sale::create($validatedData);
@@ -219,10 +218,11 @@ class SalesController extends Controller
         $clients = Client::all();
         $services = Service::all();
         $categories = Category::with('products')->get();
-		$sale_products = $sale->products->pluck('id')->toArray();
-		$sale_services = $sale->services->pluck('id')->toArray();
+		$sale_products = $sale->products->pluck('product_id')->toArray();
+		$sale_services = $sale->services->pluck('service_id')->toArray();
+		$user_seller = Seller::find($sale->seller_id);
 
-        return view('admin.sales.edit', compact('sale', 'user', 'sellers', 'clients', 'services', 'categories', 'sale_products', 'sale_services'));
+        return view('admin.sales.edit', compact('sale', 'user', 'sellers', 'clients', 'services', 'categories', 'sale_products', 'sale_services', 'user_seller'));
     }
 
     /**
@@ -251,8 +251,10 @@ class SalesController extends Controller
 			'provider' => 'required|numeric',
 			'profit' => 'required|numeric',
 			'commission_total' => 'required|numeric',
-			'commission_prod' => 'required|numeric',
-			'commission_serv' => 'required|numeric',
+			'commission_perpetual' => 'required|numeric',
+			'commission_annual' => 'required|numeric',
+			'commission_hardware' => 'required|numeric',
+			'commission_services' => 'required|numeric',
 			'trello' => 'required|url',
 			'notes' => 'nullable|max:300',
 			'products' => 'sometimes|required|array',
@@ -268,11 +270,12 @@ class SalesController extends Controller
 			'services.*.discount' => 'required_if:services,[]|numeric',
 			'services.*.total' => 'required_if:services,[]|numeric',
 		]);
+		$validatedData['commission'] = $validatedData['commission_total'];
 
-		if (!is_numeric($request->client_id) && $request->cli_code && $request->cli_title)
+		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
 			$client = Client::create([
-				'code' => $request->cli_code,
+				'code' => 'CLI-' . time(),
 				'title' => $request->cli_title,
 				'document' => $request->cli_document,
 				'email' => $request->cli_email,
@@ -282,10 +285,6 @@ class SalesController extends Controller
 		} else {
 			$validatedData['client_id'] = $request->client_id;
 		}
-
-		$validatedData['commission'] = $validatedData['commission_total'];
-		$validatedData['commission_products'] = $validatedData['commission_prod'];
-		$validatedData['commission_services'] = $validatedData['commission_serv'];
 
 		// Update the Sale data
 		$sale->update($validatedData);

@@ -11,7 +11,7 @@
             @csrf
             @method('PUT')
 			<div class="row">
-				<div class="col-sm-3">
+				<div class="col-sm-2">
 					<div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
 						<label for="code">Código&nbsp;<b class="text-danger">*</b></label>
 						<input type="text" id="code" name="code" class="form-control" value="{{ old('code', isset($product) ? $product->code : '') }}" required>
@@ -22,7 +22,23 @@
 						@endif
 					</div>
 				</div>
-				<div class="col-sm-3">
+				<div class="col-sm-2">
+					<div class="form-group {{ $errors->has('group') ? 'has-error' : '' }}">
+						<label for="group">Grupo&nbsp;<b class="text-danger">*</b></label>
+						<select name="group" class="custom-select" required>
+							<option value="">Seleccione</option>
+							<option value="perpetual" {{ $product->group == 'perpetual' ? 'selected' : '' }}>Licencias Perpetuas</option>
+							<option value="annual" {{ $product->group == 'annual' ? 'selected' : '' }}>Suscripciones Anuales</option>
+							<option value="hardware" {{ $product->group == 'hardware' ? 'selected' : '' }}>Hardware y Otros</option>
+						</select>
+						@if ($errors->has('group'))
+							<em class="invalid-feedback">
+								{{ $errors->first('group') }}
+							</em>
+						@endif
+					</div>
+				</div>
+				<div class="col-sm-2">
 					<div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
 						<label for="type">Tipo&nbsp;<b class="text-danger">*</b></label>
 						<select name="type" class="custom-select" required>

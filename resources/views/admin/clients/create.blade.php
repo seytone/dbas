@@ -8,7 +8,7 @@
             <form action="{{ route('admin.clients.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 				<div class="row">
-					<div class="col-sm-4">
+					{{-- <div class="col-sm-4">
 						<div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
 							<label for="code">Código&nbsp;<b class="text-danger">*</b></label>
 							<input type="text" id="code" name="code" class="form-control" value="{{ old('code') }}" required>
@@ -18,8 +18,8 @@
 								</em>
 							@endif
 						</div>
-					</div>
-					<div class="col-sm-8">
+					</div> --}}
+					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
 							<label for="title">Razón Social&nbsp;<b class="text-danger">*</b></label>
 							<input type="text" id="title" name="title" class="form-control" value="{{ old('title') }}" required>
@@ -30,7 +30,7 @@
 							@endif
 						</div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-2">
 						<div class="form-group {{ $errors->has('document') ? 'has-error' : '' }}">
 							<label for="document">Identificación&nbsp;<b class="text-danger">*</b></label>
 							<input type="text" id="document" name="document" class="form-control" value="{{ old('document') }}" required>
@@ -41,7 +41,7 @@
 							@endif
 						</div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-2">
 						<div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
 							<label for="email">Email&nbsp;<b class="text-danger">*</b></label>
 							<input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required>
@@ -52,7 +52,7 @@
 							@endif
 						</div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-2">
 						<div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
 							<label for="phone">Télefono&nbsp;<b class="text-danger">*</b></label>
 							<input type="phone" id="phone" name="phone" class="form-control" value="{{ old('phone') }}" required>

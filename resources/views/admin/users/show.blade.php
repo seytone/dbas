@@ -46,7 +46,7 @@
                     </tr>
                     <tr class="{{ $user->hasRole('Vendedor') ? '' : 'd-none' }}">
                         <th>
-                            Comisión Licencias Perpétuas
+                            Comisión Licencias Perpetuas
                         </th>
                         <td>
                             {{ $user->seller->commission_1 }}%

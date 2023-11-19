@@ -17,6 +17,7 @@ class CreateProductsTable extends Migration
             $table->bigIncrements('id')->unsigned();
 			$table->bigInteger('category_id')->unsigned();
 			$table->bigInteger('brand_id')->unsigned();
+			$table->enum('group', ['perpetual', 'annual', 'hardware'])->default('hardware');
 			$table->enum('type', ['hardware', 'software'])->default('hardware');
 			$table->string('code');
 			$table->string('title');

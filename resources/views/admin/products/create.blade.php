@@ -8,7 +8,7 @@
             <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 				<div class="row">
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
 							<label for="code">Código&nbsp;<b class="text-danger">*</b></label>
 							<input type="text" id="code" name="code" class="form-control" value="{{ old('code') }}" required>
@@ -19,7 +19,23 @@
 							@endif
 						</div>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
+						<div class="form-group {{ $errors->has('group') ? 'has-error' : '' }}">
+							<label for="group">Grupo&nbsp;<b class="text-danger">*</b></label>
+							<select name="group" class="custom-select" required>
+								<option value="">Seleccione</option>
+								<option value="perpetual">Licencias Perpetuas</option>
+								<option value="annual">Suscripciones Anuales</option>
+								<option value="hardware">Hardware y Otros</option>
+							</select>
+							@if ($errors->has('group'))
+								<em class="invalid-feedback">
+									{{ $errors->first('group') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-2">
 						<div class="form-group {{ $errors->has('type') ? 'has-error' : '' }}">
 							<label for="type">Tipo&nbsp;<b class="text-danger">*</b></label>
 							<select name="type" class="custom-select" required>

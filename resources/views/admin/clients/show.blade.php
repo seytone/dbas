@@ -28,7 +28,7 @@
                     </tr>
                     <tr>
                         <th>
-                            Documento
+                            Identificación
                         </th>
                         <td>
                             {{ $client->document }}

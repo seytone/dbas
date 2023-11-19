@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 use App\Models\Client;
 
@@ -41,13 +42,14 @@ class ClientsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|unique:clients|max:20',
+            // 'code' => 'required|string|unique:clients|max:20',
             'title' => 'required|string|max:100',
             'document' => 'required|string|max:20',
             'email' => 'required|email',
             'phone' => 'required|integer',
             'address' => 'required|string|max:140',
         ]);
+		$validatedData['code'] = 'CLI-' . time();
 
         Client::create($validatedData);
 
@@ -86,7 +88,7 @@ class ClientsController extends Controller
     public function update(Request $request, Client $client)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20',
+            // 'code' => 'required|string|max:20',
             'title' => 'required|string|max:100',
             'document' => 'required|string|max:20',
             'email' => 'required|email',

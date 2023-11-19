@@ -28,10 +28,12 @@ class CreateSalesTable extends Migration
 			$table->double('igtf')->default(0)->comment('IGTF = subtotal * 3% (aplica solo cuando pago en dólares)');
 			$table->double('cityhall')->default(0)->comment('Alcaldía = subtotal * 9% (aplica solo cuando se entrega factura)');
 			$table->double('total')->default(0)->comment('Total (Base imponible) = subtotal - iva');
-			$table->double('provider')->default(0)->comment('Costo proveedor = total * 30%');
+			$table->double('provider')->default(0)->comment('Costo proveedor');
 			$table->double('profit')->default(0)->comment('Ganancia = total - provider');
 			$table->double('commission')->default(0)->comment('Comisión vendedor = profit * (% comisión)');
-			$table->double('commission_products')->default(0)->comment('Comisión productos');
+			$table->double('commission_perpetual')->default(0)->comment('Comisión licencias perpetuas');
+			$table->double('commission_annual')->default(0)->comment('Comisión suscripciones anuales');
+			$table->double('commission_hardware')->default(0)->comment('Comisión hardware y otros');
 			$table->double('commission_services')->default(0)->comment('Comisión servicios');
 			$table->text('trello')->nullable()->default(null);
 			$table->text('notes')->nullable()->default(null);

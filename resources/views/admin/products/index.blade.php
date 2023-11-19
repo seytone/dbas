@@ -26,12 +26,13 @@
                         <tr>
                             <th width="10"></th>
                             <th>Código</th>
+                            <th>Producto</th>
                             <th>Categoría</th>
                             <th>Marca</th>
-                            <th>Producto</th>
+                            <th>Grupo</th>
+                            <th>Tipo</th>
                             <th>Costo</th>
                             <th>Precio</th>
-                            <th>Tipo</th>
                             <th width="100">&nbsp;</th>
                         </tr>
                     </thead>
@@ -40,12 +41,25 @@
                             <tr data-entry-id="{{ $product->id }}">
                                 <td></td>
                                 <td>{{ $product->code }}</td>
+                                <td>{{ $product->title }}</td>
                                 <td>{{ $product->category->title }}</td>
                                 <td>{{ $product->brand->title }}</td>
-                                <td>{{ $product->title }}</td>
+								<td>
+									@switch($product->group)
+										@case('perpetual')
+											Licencias Perpetuas
+											@break
+										@case('annual')
+											Suscripciones Anuales
+											@break
+										@case('hardware')
+											Hardware y Otros
+											@break
+									@endswitch
+								</td>
+                                <td>{{ ucwords($product->type) }}</td>
                                 <td>{{ $product->cost }}</td>
                                 <td>{{ $product->price }}</td>
-                                <td>{{ ucwords($product->type) }}</td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-primary" href="{{ route('admin.products.show', $product->id) }}" title="VER">
                                         <i class="fa fa-fw fa-eye" aria-hidden="true"></i>

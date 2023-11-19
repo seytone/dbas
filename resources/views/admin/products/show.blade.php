@@ -44,6 +44,24 @@
                     </tr>
                     <tr>
                         <th>
+                            Grupo
+                        </th>
+                        <td>
+                            @switch($product->group)
+								@case('perpetual')
+									Licencias Perpetuas
+									@break
+								@case('annual')
+									Suscripciones Anuales
+									@break
+								@case('hardware')
+									Hardware y Otros
+									@break
+							@endswitch
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
                             Producto
                         </th>
                         <td>

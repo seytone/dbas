@@ -17,7 +17,7 @@
                         <tr>
                             <th width="10"></th>
                             <th>Vendedor</th>
-                            <th>% Licencias Perpétuas</th>
+                            <th>% Licencias Perpetuas</th>
                             <th>% Suscripciones Anuales</th>
                             <th>% Hardware y Otros</th>
                             <th>% Servicios</th>

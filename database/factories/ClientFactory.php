@@ -14,7 +14,7 @@ class ClientFactory extends Factory
     public function definition()
     {
         return [
-			'code' => mb_strtoupper($this->faker->lexify('CLI-????')),
+			'code' => 'CLI-' . $this->faker->unixTime(),
 			'title' => $this->faker->company(),
 			'document' => $this->faker->numberBetween(),
 			'email' => $this->faker->email(),

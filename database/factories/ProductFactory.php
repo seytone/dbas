@@ -18,6 +18,7 @@ class ProductFactory extends Factory
         return [
 			'brand_id' => Brand::factory(),
 			'category_id' => Category::factory(),
+			'group' => $this->faker->randomElement(['perpetual', 'annual', 'hardware']),
 			'type' => $this->faker->randomElement(['hardware', 'software']),
 			'code' => $this->faker->bothify('?????-#####'),
 			'title' => ucwords($this->faker->words(3, true)),

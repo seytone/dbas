@@ -27,7 +27,7 @@
                             <th width="10"></th>
                             <th>Código</th>
                             <th>Cliente</th>
-                            <th>Documento</th>
+                            <th>Identificación</th>
                             <th>Email</th>
                             <th>Teléfono</th>
                             <th>Dirección</th>

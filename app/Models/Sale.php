@@ -10,7 +10,7 @@ class Sale extends Model
 {
 	use HasFactory, SoftDeletes;
 
-	protected $fillable = ['client_id', 'seller_id', 'invoice_type', 'invoice_number', 'payment_method', 'payment_currency', 'payment_amount_usd', 'payment_amount_bsf', 'subtotal', 'iva', 'igtf', 'cityhall', 'total', 'provider', 'profit', 'commission', 'commission_products', 'commission_services', 'trello', 'notes', 'registered_at'];
+	protected $fillable = ['client_id', 'seller_id', 'invoice_type', 'invoice_number', 'payment_method', 'payment_currency', 'payment_amount_usd', 'payment_amount_bsf', 'subtotal', 'iva', 'igtf', 'cityhall', 'total', 'provider', 'profit', 'commission', 'commission_perpetual', 'commission_annual', 'commission_hardware', 'commission_services', 'trello', 'notes', 'registered_at'];
 
 	/**
 	 * The attributes that are guarded.
