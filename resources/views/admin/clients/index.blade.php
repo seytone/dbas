@@ -45,16 +45,16 @@
                                 <td>{{ $client->phone }}</td>
                                 <td>{{ $client->address }}</td>
                                 <td class="text-center">
-                                    <a class="btn btn-sm btn-primary" href="{{ route('admin.clients.show', $client->id) }}" title="VER">
+                                    <a class="btn btn-sm btn-primary m-1" href="{{ route('admin.clients.show', $client->id) }}" title="VER">
                                         <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-warning" href="{{ route('admin.clients.edit', $client->id) }}" title="EDITAR">
+                                    <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.clients.edit', $client->id) }}" title="EDITAR">
                                         <i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
                                     </a>
                                     <form action="{{ route('admin.clients.destroy', $client->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                         <input type="hidden" name="_method" value="delete">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="btn btn-sm btn-danger" title="ELIMINAR">
+                                        <button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
                                             <i class="fa fa-fw fa-trash" aria-hidden="true"></i>
                                         </button>
                                     </form>

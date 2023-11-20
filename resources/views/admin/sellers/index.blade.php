@@ -34,10 +34,10 @@
                                 <td>{{ $seller->commission_3 }}</td>
                                 <td>{{ $seller->commission_4 }}</td>
                                 <td class="text-center">
-                                    <a class="btn btn-sm btn-primary" href="{{ route('admin.users.show', $seller->user_id) }}" title="VER">
+                                    <a class="btn btn-sm btn-primary m-1" href="{{ route('admin.users.show', $seller->user_id) }}" title="VER">
                                         <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-warning" href="{{ route('admin.users.edit', $seller->user_id) }}" title="EDITAR">
+                                    <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.users.edit', $seller->user_id) }}" title="EDITAR">
                                         <i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
                                     </a>
                                 </td>

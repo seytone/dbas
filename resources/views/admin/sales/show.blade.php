@@ -7,7 +7,7 @@
     </div>
 
     <div class="card-body">
-        <div class="mb-2">
+        <div class="table-responsive mb-2">
             <table class="table table-bordered table-striped">
                 <tbody>
 					<tr>
@@ -63,64 +63,67 @@
 							Productos
 						</th>
 						<td>
-							<div class="responsive-table">
-								<table class="table">
-									<thead>
+							{{ count($products) }}<a class="btn btn-sm btn-dark text-light pull-right show-items" rel="products">VER</a>
+						</td>
+					</tr>
+					<tr class="d-none" id="products">
+						<td colspan="2">
+							<table class="table">
+								<thead>
+									<tr>
+										<th width="500">
+											Producto
+										</th>
+										<th>
+											Precio
+										</th>
+										<th>
+											Cantidad
+										</th>
+										<th>
+											Descuento
+										</th>
+										<th>
+											Total
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@php
+										$total_prods = 0;
+									@endphp
+									@foreach ($products as $prod)
 										<tr>
-											<th width="500">
-												Producto
-											</th>
-											<th>
-												Precio
-											</th>
-											<th>
-												Cantidad
-											</th>
-											<th>
-												Descuento
-											</th>
-											<th>
-												Total
-											</th>
+											<td>
+												{{ $prod->product->title }}
+											</td>
+											<td>
+												${{ number_format($prod->price, 2, ',', '.') }} USD
+											</td>
+											<td>
+												{{ $prod->quantity }}
+											</td>
+											<td>
+												${{ number_format($prod->discount, 2, ',', '.') }} USD
+											</td>
+											<td>
+												${{ number_format($prod->total, 2, ',', '.') }} USD
+											</td>
 										</tr>
-									</thead>
-									<tbody>
 										@php
-											$total_prods = 0;
+											$total_prods += $prod->total;
 										@endphp
-										@foreach ($products as $prod)
-											<tr>
-												<td>
-													{{ $prod->product->title }}
-												</td>
-												<td>
-													${{ number_format($prod->price, 2, ',', '.') }} USD
-												</td>
-												<td>
-													{{ $prod->quantity }}
-												</td>
-												<td>
-													${{ number_format($prod->discount, 2, ',', '.') }} USD
-												</td>
-												<td>
-													${{ number_format($prod->total, 2, ',', '.') }} USD
-												</td>
-											</tr>
-											@php
-												$total_prods += $prod->total;
-											@endphp
-										@endforeach
-									</tbody>
-									<tfoot>
-										<tr>
-											<th colspan="4"></th>
-											<th>
-												${{ number_format($total_prods, 2, ',', '.') }} USD
-											</th>
-										</tr>
-									</tfoot>
-								</table>
-							</div>
+									@endforeach
+								</tbody>
+								<tfoot>
+									<tr>
+										<th colspan="4"></th>
+										<th>
+											${{ number_format($total_prods, 2, ',', '.') }} USD
+										</th>
+									</tr>
+								</tfoot>
+							</table>
 						</td>
 					</tr>
 					<tr>
@@ -128,64 +131,67 @@
 							Servicios
 						</th>
 						<td>
-							<div class="responsive-table">
-								<table class="table">
-									<thead>
+							{{ count($services) }}<a class="btn btn-sm btn-dark text-light pull-right show-items" rel="services">VER</a>
+						</td>
+					</tr>
+					<tr class="d-none" id="services">
+						<td colspan="2">
+							<table class="table">
+								<thead>
+									<tr>
+										<th width="500">
+											Servicio
+										</th>
+										<th>
+											Precio
+										</th>
+										<th>
+											Cantidad
+										</th>
+										<th>
+											Descuento
+										</th>
+										<th>
+											Total
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@php
+										$total_servs = 0;
+									@endphp
+									@foreach ($services as $serv)
 										<tr>
-											<th width="500">
-												Servicio
-											</th>
-											<th>
-												Precio
-											</th>
-											<th>
-												Cantidad
-											</th>
-											<th>
-												Descuento
-											</th>
-											<th>
-												Total
-											</th>
+											<td>
+												{{ $serv->service->title }}
+											</td>
+											<td>
+												${{ number_format($serv->price, 2, ',', '.') }} USD
+											</td>
+											<td>
+												{{ $serv->quantity }}
+											</td>
+											<td>
+												${{ number_format($serv->discount, 2, ',', '.') }} USD
+											</td>
+											<td>
+												${{ number_format($serv->total, 2, ',', '.') }} USD
+											</td>
 										</tr>
-									</thead>
-									<tbody>
 										@php
-											$total_servs = 0;
+											$total_servs += $serv->total;
 										@endphp
-										@foreach ($services as $serv)
-											<tr>
-												<td>
-													{{ $serv->service->title }}
-												</td>
-												<td>
-													${{ number_format($serv->price, 2, ',', '.') }} USD
-												</td>
-												<td>
-													{{ $serv->quantity }}
-												</td>
-												<td>
-													${{ number_format($serv->discount, 2, ',', '.') }} USD
-												</td>
-												<td>
-													${{ number_format($serv->total, 2, ',', '.') }} USD
-												</td>
-											</tr>
-											@php
-												$total_servs += $serv->total;
-											@endphp
-										@endforeach
-									</tbody>
-									<tfoot>
-										<tr>
-											<th colspan="4"></th>
-											<th>
-												${{ number_format($total_servs, 2, ',', '.') }} USD
-											</th>
-										</tr>
-									</tfoot>
-								</table>
-							</div>
+									@endforeach
+								</tbody>
+								<tfoot>
+									<tr>
+										<th colspan="4"></th>
+										<th>
+											${{ number_format($total_servs, 2, ',', '.') }} USD
+										</th>
+									</tr>
+								</tfoot>
+							</table>
 						</td>
                     <tr>
                         <th>
@@ -332,7 +338,19 @@
 				Modificar
 			</a>
         </div>
-
     </div>
 </div>
+@endsection
+
+@section('scripts')
+	<script>
+		$(function()
+		{
+			$('.show-items').on('click', function()
+			{
+				var id = $(this).attr('rel');
+				$('#' + id).toggleClass('d-none');
+			});
+		});
+	</script>
 @endsection

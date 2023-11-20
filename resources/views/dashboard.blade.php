@@ -11,12 +11,15 @@
 @endsection
 @section('content')
 	<div class="content">
-		<div class="row filters mb-4">
+		<div class="row filters mb-2">
 			<div class="col-md-6">
-				<h1>Panel de Control</h1>
+				<h1>
+					Dashboard
+					<a class="btn btn-sm btn-dark text-light pull-right d-block d-md-none mt-2 show-filters" rel="filters">FILTROS</a>
+				</h1>
 			</div>
-			<div class="col-md-6 pt-2">
-				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-md-flex">
+			<div class="col-md-6">
+				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-md-flex pt-2">
 					@csrf
 					<div class="col">
 						<div class="input-group">
@@ -37,7 +40,7 @@
 						</div>
 					</div>
 				</form>
-				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-block d-md-none">
+				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none pt-2" id="filters">
 					@csrf
 					<label class="input-group-text" for="start_date">Desde</label>
 					<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
@@ -245,6 +248,10 @@
 					}]
 				}
 			}
+		});
+
+		$('.show-filters').click(function() {
+			$('#filters').toggleClass('d-none');
 		});
 	</script>
 @endsection

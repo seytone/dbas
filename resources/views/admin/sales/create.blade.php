@@ -146,16 +146,16 @@
 						<div class="table-responsive">
 							<table class="table table-hover align-middle">
 								<thead class="bg-light">
-									<th class="text-left" width="250">Producto</th>
-									<th class="text-left" width="150">Código</th>
+									<th class="text-left" width="250" style="min-width: 250px">Producto</th>
+									<th class="text-left" width="150" style="min-width: 150px">Código</th>
 									<th class="text-left">Tipo</th>
 									<th class="text-right">Costo</th>
 									<th class="text-right">Precio</th>
-									<th class="text-center" width="150">Cantidad</th>
-									<th class="text-right" width="80">Subtotal</th>
-									<th class="text-right" width="80">Desc.</th>
-									<th class="text-right" width="80">Prov.</th>
-									<th class="text-right" width="80">Total</th>
+									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
+									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
+									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
+									<th class="text-right" width="80" style="min-width: 80px">Prov.</th>
+									<th class="text-right" width="80" style="min-width: 80px">Total</th>
 								</thead>
 								<tbody id="products-list"></tbody>
 								<tfoot class="bg-light">
@@ -185,13 +185,13 @@
 						<div class="table-responsive">
 							<table class="table table-hover align-middle">
 								<thead class="bg-light">
-									<th class="text-left" width="250">Servicio</th>
-									<th class="text-left" width="150">Código</th>
+									<th class="text-left" width="250" style="min-width: 250px">Servicio</th>
+									<th class="text-left" width="150" style="min-width: 150px">Código</th>
 									<th class="text-right">Precio</th>
-									<th class="text-center" width="150">Cantidad</th>
-									<th class="text-right" width="80">Subtotal</th>
-									<th class="text-right" width="80">Desc.</th>
-									<th class="text-right" width="80">Total</th>
+									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
+									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
+									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
+									<th class="text-right" width="80" style="min-width: 80px">Total</th>
 								</thead>
 								<tbody id="services-list"></tbody>
 								<tfoot class="bg-light">
