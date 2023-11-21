@@ -143,7 +143,7 @@
 								</em>
 							@endif
 						</div>
-						<div class="table-responsive">
+						<div class="table-responsive d-none" id="products-cont">
 							<table class="table table-hover align-middle">
 								<thead class="bg-light">
 									<th class="text-left" width="250" style="min-width: 250px">Producto</th>
@@ -182,7 +182,7 @@
 								</em>
 							@endif
 						</div>
-						<div class="table-responsive">
+						<div class="table-responsive d-none" id="services-cont">
 							<table class="table table-hover align-middle">
 								<thead class="bg-light">
 									<th class="text-left" width="250" style="min-width: 250px">Servicio</th>
@@ -523,6 +523,7 @@
 					if (action == 'ADD') {
 						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
 						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
+						$('#products-cont').removeClass('d-none');
 					} else {
 						$('#products-list #prod-' + data.id).remove();
 					}
@@ -538,6 +539,7 @@
 					if (action == 'ADD') {
 						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
 						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
+						$('#services-cont').removeClass('d-none');
 					} else {
 						$('#services-list #serv-' + data.id).remove();
 					}
