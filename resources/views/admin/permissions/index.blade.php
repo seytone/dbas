@@ -30,7 +30,7 @@
                             <th>
                                 {{ trans('cruds.permission.fields.title') }}
                             </th>
-                            <th width="100">&nbsp;</th>
+                            <th width="120">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>

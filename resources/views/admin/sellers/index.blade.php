@@ -21,7 +21,7 @@
                             <th>% Suscripciones Anuales</th>
                             <th>% Hardware y Otros</th>
                             <th>% Servicios</th>
-                            <th width="100">&nbsp;</th>
+                            <th width="120">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>

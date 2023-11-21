@@ -33,7 +33,7 @@
                             <th>Tipo</th>
                             <th>Costo</th>
                             <th>Precio</th>
-                            <th width="100">&nbsp;</th>
+                            <th width="120">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>

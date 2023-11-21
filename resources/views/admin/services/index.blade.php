@@ -28,7 +28,7 @@
                             <th>Código</th>
                             <th>Servicio</th>
                             <th>Precio</th>
-                            <th width="100">&nbsp;</th>
+                            <th width="120">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
