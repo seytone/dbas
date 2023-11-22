@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         User::create([
             'name' => 'Super',
             'lastname' => 'Admin',
-            'email' => 'admin@admin.com',
+            'email' => 'sadmin@distribuidorabit.com',
             'password' => bcrypt('Password123!'),
         ])->assignRole('Superadmin');
 
@@ -29,9 +29,9 @@ class UserSeeder extends Seeder
         ])->assignRole('Superadmin');
 
 		User::create([
-            'name' => 'Coordinador',
-            'lastname' => 'Ventas',
-            'email' => 'coordinador@distribuidorabit.com',
+            'name' => 'Emily',
+            'lastname' => 'Sandoval',
+            'email' => 'ventas@distribuidorabit.com',
             'password' => bcrypt('Password123!'),
         ])->assignRole('Coordinador', 'Vendedor');
 
@@ -41,26 +41,5 @@ class UserSeeder extends Seeder
             'email' => 'vendedor1@distribuidorabit.com',
             'password' => bcrypt('Password123!'),
         ])->assignRole('Vendedor');
-
-		User::create([
-            'name' => 'Vendedor',
-            'lastname' => '2',
-            'email' => 'vendedor2@distribuidorabit.com',
-            'password' => bcrypt('Password123!'),
-        ])->assignRole('Vendedor');
-
-		User::create([
-            'name' => 'Vendedor',
-            'lastname' => '3',
-            'email' => 'vendedor3@distribuidorabit.com',
-            'password' => bcrypt('Password123!'),
-        ])->assignRole('Vendedor');
-
-		User::create([
-            'name' => 'Otro',
-            'lastname' => 'Usuario',
-            'email' => 'otro@distribuidorabit.com',
-            'password' => bcrypt('Password123!'),
-        ])->assignRole('Otro');
     }
 }

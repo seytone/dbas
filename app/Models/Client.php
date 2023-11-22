@@ -2,15 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Client extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, CascadeSoftDeletes;
 
-	protected $fillable = ['code', 'title', 'document', 'email', 'phone', 'address'];
+	protected $cascadeDeletes = ['invoices'];
+
+	protected $fillable = [
+		'code',
+		'title',
+		'document',
+		'email',
+		'phone',
+		'address'
+	];
 
 	/**
      * A client has many invoices.

@@ -12,7 +12,14 @@ class SaleService extends Model
 
 	protected $table = 'sales_services';
 	
-	protected $fillable = ['sale_id', 'service_id', 'quantity', 'price', 'discount', 'total'];
+	protected $fillable = [
+		'sale_id',
+		'service_id',
+		'quantity',
+		'price',
+		'discount',
+		'total'
+	];
 
 	/**
 	 * A sale service belongs to a sale.

@@ -29,21 +29,5 @@ class SellerSeeder extends Seeder
 			'commission_3' => 1,
 			'commission_4' => 50,
 		]);
-
-		Seller::create([
-			'user_id' => 5,
-			'commission_1' => 1,
-			'commission_2' => 1,
-			'commission_3' => 1,
-			'commission_4' => 50,
-		]);
-
-		Seller::create([
-			'user_id' => 6,
-			'commission_1' => 1,
-			'commission_2' => 1,
-			'commission_3' => 1,
-			'commission_4' => 50,
-		]);
     }
 }

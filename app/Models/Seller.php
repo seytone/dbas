@@ -2,17 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use App\User;
 
 class Seller extends Model
 {
-	use HasFactory, SoftDeletes;
+	use HasFactory, SoftDeletes, CascadeSoftDeletes;
 
-	protected $fillable = ['user_id', 'commission_1', 'commission_2', 'commission_3', 'commission_4'];
+	protected $cascadeDeletes = ['sales'];
+
+	protected $fillable = [
+		'user_id',
+		'commission_1',
+		'commission_2',
+		'commission_3',
+		'commission_4'
+	];
 
 	/**
 	 * The attributes that are guarded.

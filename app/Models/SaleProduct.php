@@ -12,7 +12,14 @@ class SaleProduct extends Model
 
 	protected $table = 'sales_products';
 
-	protected $fillable = ['sale_id', 'product_id', 'quantity', 'price', 'discount', 'total'];
+	protected $fillable = [
+		'sale_id',
+		'product_id',
+		'quantity',
+		'price',
+		'discount',
+		'total'
+	];
 
 	/**
 	 * A sale product belongs to a sale.

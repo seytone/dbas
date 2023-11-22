@@ -2,15 +2,42 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Sale extends Model
 {
-	use HasFactory, SoftDeletes;
+	use HasFactory, SoftDeletes, CascadeSoftDeletes;
 
-	protected $fillable = ['client_id', 'seller_id', 'invoice_type', 'invoice_number', 'payment_method', 'payment_currency', 'payment_amount_usd', 'payment_amount_bsf', 'subtotal', 'iva', 'igtf', 'cityhall', 'total', 'provider', 'profit', 'commission', 'commission_perpetual', 'commission_annual', 'commission_hardware', 'commission_services', 'trello', 'notes', 'registered_at'];
+	protected $cascadeDeletes = ['products', 'services'];
+
+	protected $fillable = [
+		'client_id',
+		'seller_id',
+		'invoice_type',
+		'invoice_number',
+		'payment_method',
+		'payment_currency',
+		'payment_amount_usd',
+		'payment_amount_bsf',
+		'subtotal',
+		'iva',
+		'igtf',
+		'cityhall',
+		'total',
+		'provider',
+		'profit',
+		'commission',
+		'commission_perpetual',
+		'commission_annual',
+		'commission_hardware',
+		'commission_services',
+		'trello',
+		'notes',
+		'registered_at'
+	];
 
 	/**
 	 * The attributes that are guarded.

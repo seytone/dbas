@@ -2,15 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
 {
     use HasFactory, SoftDeletes;
 
-	protected $fillable = ['category_id', 'brand_id', 'group', 'type', 'code', 'title', 'description', 'cost', 'price'];
+	protected $fillable = [
+		'category_id',
+		'brand_id',
+		'group',
+		'type',
+		'code',
+		'title',
+		'description',
+		'cost',
+		'price'
+	];
 
 	/**
      * A sale belongs to a sales.

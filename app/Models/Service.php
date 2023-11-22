@@ -10,7 +10,12 @@ class Service extends Model
 {
     use HasFactory, SoftDeletes;
 
-	protected $fillable = ['code', 'title', 'description', 'price'];
+	protected $fillable = [
+		'code',
+		'title',
+		'description',
+		'price'
+	];
 
 	/**
      * A sale belongs to a sales.

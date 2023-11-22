@@ -1,13 +1,14 @@
 <?php
 namespace App;
 
-use Hash;
 use Laravel\Passport\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Dyrynda\Database\Support\CascadeSoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 
 use App\Models\Seller;
 
@@ -22,7 +23,21 @@ use App\Models\Seller;
 */
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens, HasRoles, SoftDeletes;
+    use HasFactory, HasApiTokens, HasRoles, SoftDeletes, CascadeSoftDeletes, Notifiable;
+
+	protected $cascadeDeletes = ['seller'];
+
+	protected $fillable = [
+		'name',
+		'lastname',
+		'email',
+		'password',
+		'status',
+		'phone',
+		'picture',
+		'remember_token',
+		'active',
+	];
 
     /**
      * The attributes that are guarded.
