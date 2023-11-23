@@ -47,8 +47,8 @@ class ProductsController extends Controller
     {
         $validatedData = $request->validate([
             'code' => 'required|string|unique:products|max:20',
-            'category_id' => 'required|string|max:20',
-            'brand_id' => 'required|string|max:20',
+            'category_id' => 'required|string|max:30',
+            'brand_id' => 'required|string|max:30',
             'group' => 'required|string',
             'type' => 'required|string',
             'title' => 'required|string|max:100',
@@ -57,11 +57,27 @@ class ProductsController extends Controller
             'price' => 'required|integer',
         ]);
 
-		$brand = Brand::firstOrCreate(['title' => $validatedData['brand_id']]);
-		$category = Category::firstOrCreate(['title' => $validatedData['category_id']]);
+		if (!is_numeric($request->category_id))
+		{
+			$category = Category::create([
+				'title' => $request->category_id,
+				'description' => $request->category_id,
+			]);
+			$validatedData['category_id'] = $category->id;
+		} else {
+			$validatedData['category_id'] = $request->category_id;
+		}
 
-		$validatedData['brand_id'] = $brand->id;
-		$validatedData['category_id'] = $category->id;
+		if (!is_numeric($request->brand_id))
+		{
+			$brand = Brand::create([
+				'title' => $request->brand_id,
+				'description' => $request->brand_id,
+			]);
+			$validatedData['brand_id'] = $brand->id;
+		} else {
+			$validatedData['brand_id'] = $request->brand_id;
+		}
 
         Product::create($validatedData);
 
@@ -104,8 +120,8 @@ class ProductsController extends Controller
     {
         $validatedData = $request->validate([
             'code' => 'required|string|max:20',
-			'category_id' => 'required|string|max:20',
-			'brand_id' => 'required|string|max:20',
+			'category_id' => 'required|string|max:30',
+			'brand_id' => 'required|string|max:30',
             'group' => 'required|string',
             'type' => 'required|string',
             'title' => 'required|string|max:100',
@@ -114,11 +130,27 @@ class ProductsController extends Controller
             'price' => 'required|integer',
         ]);
 
-		$brand = Brand::firstOrCreate(['title' => $validatedData['brand_id']]);
-		$category = Category::firstOrCreate(['title' => $validatedData['category_id']]);
+		if (!is_numeric($request->category_id))
+		{
+			$category = Category::create([
+				'title' => $request->category_id,
+				'description' => $request->category_id,
+			]);
+			$validatedData['category_id'] = $category->id;
+		} else {
+			$validatedData['category_id'] = $request->category_id;
+		}
 
-		$validatedData['brand_id'] = $brand->id;
-		$validatedData['category_id'] = $category->id;
+		if (!is_numeric($request->brand_id))
+		{
+			$brand = Brand::create([
+				'title' => $request->brand_id,
+				'description' => $request->brand_id,
+			]);
+			$validatedData['brand_id'] = $brand->id;
+		} else {
+			$validatedData['brand_id'] = $request->brand_id;
+		}
 
         $product->update($validatedData);
 
