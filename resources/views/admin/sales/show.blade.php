@@ -334,7 +334,7 @@
             <a style="margin-top:20px;" class="btn btn-dark" href="{{ url()->previous() }}">
                 Regresar
             </a>
-			<a style="margin-top:20px;" class="btn btn-warning" href="{{ route('admin.sales.edit', $sale->id) }}">
+			<a style="margin-top:20px;" class="btn btn-warning pull-right" href="{{ route('admin.sales.edit', $sale->id) }}">
 				Modificar
 			</a>
         </div>

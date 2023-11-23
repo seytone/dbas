@@ -455,6 +455,9 @@
 				{{-- Envío --}}
                 <div class="text-center text-md-right mt-4">
 					<hr>
+					<a class="btn btn-dark pull-left" href="{{ url()->previous() }}">
+						Regresar
+					</a>
                     <input class="btn btn-success" type="submit" value="Guardar">
                 </div>
             </form>
