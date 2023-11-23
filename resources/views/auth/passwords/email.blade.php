@@ -7,14 +7,11 @@
                 <div class="card-body">
                     <form method="POST" action="{{ route('password.email') }}">
                         {{ csrf_field() }}
-                        <h1>
-                            <div class="login-logo">
-                                <a href="#">
-                                    {{ env('APP_NAME', 'Permissions Manager') }}
-                                </a>
-                            </div>
-                        </h1>
-                        <p class="text-muted"></p>
+                        <div class="text-center">
+                            <img class="img-fluid" src="{{ asset('img/logo.png') }}" alt="Logo Distribuidora Bit" width="400">
+                        </div>
+                        <h4 class="text-center text-muted my-5">Recuperación de contraseña</h4>
+                        <p class="text-muted">Escribe el email con el que accedes a la plataforma.</p>
                         <div>
                             {{ csrf_field() }}
                             <div class="form-group has-feedback">
@@ -28,8 +25,8 @@
                         </div>
                         <div class="row">
                             <div class="col-12 text-right">
-                                <button type="submit" class="btn btn-primary btn-block btn-flat">
-                                    Reset Password
+                                <button type="submit" class="btn btn-custom btn-block btn-flat">
+                                    Recuperar
                                 </button>
                             </div>
                         </div>

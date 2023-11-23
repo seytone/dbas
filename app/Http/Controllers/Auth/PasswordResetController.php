@@ -43,7 +43,7 @@ class PasswordResetController extends Controller
 
         if ($user && $passwordReset) {
             $user->notify(
-                new PasswordResetRequest($passwordReset->token)
+                (new PasswordResetRequest($passwordReset->token))->locale('es')
             );
         }
 
@@ -116,7 +116,7 @@ class PasswordResetController extends Controller
         $user->password = bcrypt($request->password);
         $user->save();
         $passwordReset->delete();
-        $user->notify(new PasswordResetSuccess($passwordReset));
+        $user->notify((new PasswordResetSuccess($passwordReset))->locale('es'));
 
         return response()->json($user);
     }
