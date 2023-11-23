@@ -13,7 +13,7 @@
                     {{-- <span class="btn btn-info btn-xs select-all">{{ trans('global.select_all') }}</span>
                     <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span> --}}
 				</label>
-				<select name="roles[]" id="rol" class="custom-select" required>
+				<select name="roles[]" id="rol" class="selectize-roles" multiple required>
 					@foreach($roles as $id => $role)
 						<option value="{{ $role }}" {{ (isset($user) && $user->hasRole($role)) ? 'selected' : '' }}>{{ $role }}</option>
 					@endforeach
@@ -136,17 +136,26 @@
     <script>
         $(function()
 		{
-			$('#rol').on('change', function()
+			$('.selectize-roles').selectize({
+				persist: false,
+				plugins: ["remove_button"],
+			});
+
+			$('#rol').on('change', function(action)
 			{
-				var rol = $('#rol option:selected').text();
-				if(rol == 'Vendedor')
-				{
+				var is_seller = false;
+
+				$('#rol option:selected').each(function() {
+					if ($(this).val() == "Vendedor") {
+						is_seller = true;
+					}
+				});
+
+				if (is_seller) {
 					$('.seller_fields').removeClass('d-none');
 					$('.seller_fields input').prop('disabled', false);
 					$('.commission-filed').prop('required', true);
-				}
-				else
-				{
+				} else {
 					$('.seller_fields').addClass('d-none');
 					$('.seller_fields input').prop('disabled', true);
 					$('.commission-filed').prop('required', false);
