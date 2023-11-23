@@ -7,19 +7,33 @@
 		#myChart1 {
 			max-height: 450px;
 		}
+
+		.print-hidden {
+			display: none !important;
+		}
+
+		@media print {
+			#print-options,
+			.print-hidden {
+				display: none !important;
+			}
+			#filters {
+				display: block !important;
+			}
+		}
 	</style>
 @endsection
 @section('content')
-	<div class="content">
+	<div class="content" id="printable-content">
 		<div class="row filters mb-2">
-			<div class="col-md-6">
+			<div class="col-lg-3">
 				<h1>
 					Dashboard
-					<a class="btn btn-sm btn-dark text-light pull-right d-block d-md-none mt-2 show-filters" rel="filters">FILTROS</a>
+					<a class="btn btn-sm btn-dark text-light pull-right d-block d-lg-none mt-2 show-filters print-hidden" rel="filters">FILTROS</a>
 				</h1>
 			</div>
-			<div class="col-md-6">
-				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-md-flex pt-2">
+			<div class="col-lg-9">
+				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-lg-flex pt-2">
 					@csrf
 					<div class="col">
 						<div class="input-group">
@@ -55,7 +69,7 @@
 							@endforeach
 						</select>
 					@endif
-					<div class="col text-right mt-3">
+					<div class="col text-right mt-3 print-hidden">
 						<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
 					</div>
 				</form>
@@ -63,54 +77,54 @@
 			<div class="col-12"><hr></div>
 		</div>
 		<div class="row stats">
-			<div class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-3">
+			<div class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-ventas">
 				<div class="callout callout-secondary">
 				<h3 class="text-muted mb-0">
-					<span class="d-none d-md-block">Ventas</span>
-					<span class="d-block d-md-none">Número de Ventas</span>
+					<span class="d-none d-lg-block">Ventas</span>
+					<span class="d-block d-lg-none">Número de Ventas</span>
 				</h3><br>
 				<strong class="h4">{{ $sales }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-facturacion">
 				<div class="callout callout-dark">
 					<h3 class="text-muted mb-0">Facturación</h3><br>
 					<strong class="h4">${{ number_format($total_amount, 2, ',', '.') }}</strong>
 				</div>
 			</div>
 			@if ($user->hasRole('Superadmin'))
-				<div class="col-6 col-sm-4 col-md-3 col-lg-3">
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-ganancia">
 					<div class="callout callout-success">
 					<h3 class="text-muted mb-0">Ganancia</h3><br>
 					<strong class="h4">${{ number_format($total_profit, 2, ',', '.') }}</strong>
 					</div>
 				</div>
 			@endif
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-comision">
 				<div class="callout callout-warning">
 				<h3 class="text-muted mb-0">Comisión</h3><br>
 				<strong class="h4">${{ number_format($total_commission, 2, ',', '.') }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-servicios">
 				<div class="callout callout-danger">
 				<h3 class="text-muted mb-0">Servicios</h3><br>
 				<strong class="h4">{{ $total_services }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3 d-none d-md-block">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3 d-none d-lg-block" id="stats-productos">
 				<div class="callout callout-info">
 				<h3 class="text-muted mb-0">Productos</h3><br>
 				<strong class="h4">{{ $total_products }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-hardware">
 				<div class="callout callout-primary">
 				<h3 class="text-muted mb-0">Hardware</h3><br>
 				<strong class="h4">{{ $total_hardware }}</strong>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3">
+			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-software">
 				<div class="callout callout-primary">
 				<h3 class="text-muted mb-0">Software</h3><br>
 				<strong class="h4">{{ $total_software }}</strong>
@@ -119,23 +133,80 @@
 			<div class="col-12"><hr></div>
 		</div>
 		<div class="row charts">
-			<div class="col-md-12">
+			<div class="col-md-12" id="stats-grafica-1">
 				<br>
 				<canvas id="myChart0"></canvas>
 				<br>
 			</div>
-			<div class="col-md-9">
+			<div class="col-md-9" id="stats-grafica-2">
 				<br>
 				<canvas id="myChart1"></canvas>
 				<br>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-3" id="stats-grafica-3">
 				<br>
 				<canvas id="myChart2"></canvas>
 				<br>
 			</div>
 		</div>
 	</div>
+	@if ($user->hasRole('Superadmin'))
+		<div class="row mb-3" id="print-options">
+			<div class="col-12">
+				<hr>
+			</div>
+			<div class="col-md-12 text-center text-xl-right">
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="ventas" class="custom-control-input printable" rel="stats-ventas" checked>
+					<label class="custom-control-label" for="ventas">Ventas</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="facturacion" class="custom-control-input printable" rel="stats-facturacion" checked>
+					<label class="custom-control-label" for="facturacion">Facturación</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="ganancia" class="custom-control-input printable" rel="stats-ganancia" checked>
+					<label class="custom-control-label" for="ganancia">Ganancia</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="comision" class="custom-control-input printable" rel="stats-comision" checked>
+					<label class="custom-control-label" for="comision">Comisión</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="servicios" class="custom-control-input printable" rel="stats-servicios" checked>
+					<label class="custom-control-label" for="servicios">Servicios</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="productos" class="custom-control-input printable" rel="stats-productos" checked>
+					<label class="custom-control-label" for="productos">Productos</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="hardware" class="custom-control-input printable" rel="stats-hardware" checked>
+					<label class="custom-control-label" for="hardware">Hardware</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="software" class="custom-control-input printable" rel="stats-software" checked>
+					<label class="custom-control-label" for="software">Software</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="grafica-1" class="custom-control-input printable" rel="stats-grafica-1" checked>
+					<label class="custom-control-label" for="grafica-1">Gráfica 1</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="grafica-2" class="custom-control-input printable" rel="stats-grafica-2" checked>
+					<label class="custom-control-label" for="grafica-2">Gráfica 2</label>
+				</div>
+				<div class="custom-control custom-checkbox custom-control-inline mt-2">
+					<input type="checkbox" id="grafica-3" class="custom-control-input printable" rel="stats-grafica-3" checked>
+					<label class="custom-control-label" for="grafica-3">Gráfica 3</label>
+				</div>
+				<div class="d-block d-xl-none">
+					<br>
+				</div>
+				<a class="btn btn-default" id="print"><i class="fa fa-print"></i> Imprimir</a>
+			</div>
+		</div>
+	@endif
 @endsection
 @section('scripts')
 	@parent
@@ -252,6 +323,15 @@
 
 		$('.show-filters').click(function() {
 			$('#filters').toggleClass('d-none');
+		});
+
+		$('.printable').click(function() {
+			var rel = $(this).attr('rel');
+			$('#' + rel).toggleClass('print-hidden');
+		});
+
+		$('#print').click(function() {
+			print('#printable-content');
 		});
 	</script>
 @endsection

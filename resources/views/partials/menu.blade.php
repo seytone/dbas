@@ -5,7 +5,7 @@
 				<li class="nav-item">
 					<a href="{{ route("admin.dashboard") }}" class="nav-link" {{ request()->is('admin/dashboard') || request()->is('admin/dashboard/*') ? 'active' : '' }}">
 						<i class="nav-icon fas fa-fw fa-tachometer-alt"></i>
-						{{ trans('global.dashboard') }}
+						Dashboard
 					</a>
 				</li>
 			@endcan
