@@ -159,7 +159,7 @@
 				} else {
 					$('.seller_fields').addClass('d-none');
 					$('.seller_fields input').prop('disabled', true);
-					$('.commission-filed').prop('required', false);
+					$('.commission-filed').prop('required', false).val('');
 				}
 			});
 		});
