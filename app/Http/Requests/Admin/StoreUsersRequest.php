@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreUsersRequest extends FormRequest
@@ -24,7 +25,7 @@ class StoreUsersRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'email' => 'required|email|unique:users,email',
+            'email' => ['required', 'email', 'max:50', Rule::unique('users', 'email')->whereNull('deleted_at')],
             'password' => 'required',
             'roles' => 'required'
         ];

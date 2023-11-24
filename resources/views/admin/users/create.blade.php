@@ -65,14 +65,19 @@
             </div>
             <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
                 <label for="password">{{ trans('cruds.user.fields.password') }}</label>
-                <input type="password" id="password" name="password" class="form-control" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" required>
-                @if($errors->has('password'))
-                    <em class="invalid-feedback">
-                        {{ $errors->first('password') }}
-                    </em>
-                @endif
+				<div class="input-group">
+					<input name="password" type="password" class="form-control password {{ $errors->has('password') ? 'is-invalid' : '' }}" minlength="8" required>
+					<div class="input-group-append">
+						<span class="input-group-text" id="toggle-password"><i class="fa fa-eye"></i></span>
+					</div>
+					@if($errors->has('password'))
+						<div class="invalid-feedback">
+							{{ $errors->first('password') }}
+						</div>
+					@endif
+				</div>
                 <p class="helper-block text-danger">
-                    <small>UpperCase, LowerCase, Number/SpecialChar and min 8 Chars</small>
+                    <small>La contraseña debe ser mínimo de 8 caracteres y debe contener al menos 1 mayúscula, 1 minúsculas, 1 número, y 1 carácter especial.</small>
                 </p>
             </div>
 			<div class="row seller_fields d-none">
@@ -159,6 +164,16 @@
 					$('.seller_fields').addClass('d-none');
 					$('.seller_fields input').prop('disabled', true);
 					$('.commission-filed').prop('required', false).val('');
+				}
+			});
+
+			$("#toggle-password").click(function() {
+				if($(".password").attr("type") == "password") {
+					$(".password").attr("type", "text");
+					$("#toggle-password").html('<i class="fa fa-eye-slash"></i>');
+				} else {
+					$(".password").attr("type", "password");
+					$("#toggle-password").html('<i class="fa fa-eye"></i>');
 				}
 			});
 		});

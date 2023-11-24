@@ -14,12 +14,6 @@
             @method('PATCH')
             <div class="form-group {{ $errors->has('current_password') ? 'has-error' : '' }}">
                 <label for="current_password">Contraseña actual *</label>
-                {{-- <input type="password" id="current_password" name="current_password" class="form-control" required>
-                @if($errors->has('current_password'))
-                    <em class="invalid-feedback">
-                        {{ $errors->first('current_password') }}
-                    </em>
-                @endif --}}
 				<div class="input-group mb-3">
 					<input name="current_password" type="password" class="form-control password {{ $errors->has('current_password') ? 'is-invalid' : '' }}" minlength="8" required>
 					<div class="input-group-append">
