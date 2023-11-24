@@ -9,7 +9,7 @@
 		}
 
 		.print-hidden {
-			display: none !important;
+			display: none;
 		}
 
 		@media print {
