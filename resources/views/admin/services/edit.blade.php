@@ -36,7 +36,7 @@
 				<div class="col-sm-3">
 					<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
 						<label for="price">Precio&nbsp;<b class="text-danger">*</b></label>
-						<input type="number" id="price" name="price" class="form-control" value="{{ old('price', isset($service) ? $service->price : 0) }}" min="0" required>
+						<input type="number" id="price" name="price" class="form-control" value="{{ old('price', isset($service) ? $service->price : 0) }}" min="0" step=".01" required>
 						@if ($errors->has('price'))
 							<em class="invalid-feedback">
 								{{ $errors->first('price') }}

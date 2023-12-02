@@ -67,7 +67,7 @@ class ChangePasswordController extends Controller
     {
         return Validator::make($data, [
             'current_password' => 'required',
-            'new_password' => 'required|min:6|confirmed',
+            'new_password' => 'required|min:8|confirmed',
         ]);
     }
 }

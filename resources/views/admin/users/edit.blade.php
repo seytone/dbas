@@ -64,23 +64,6 @@
                     {{ trans('cruds.user.fields.email_helper') }}
                 </p>
             </div>
-            <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-                <label for="password">{{ trans('cruds.user.fields.password') }}</label>
-				<div class="input-group">
-					<input name="password" type="password" class="form-control password {{ $errors->has('password') ? 'is-invalid' : '' }}" minlength="8" required>
-					<div class="input-group-append">
-						<span class="input-group-text" id="toggle-password"><i class="fa fa-eye"></i></span>
-					</div>
-					@if($errors->has('password'))
-						<div class="invalid-feedback">
-							{{ $errors->first('password') }}
-						</div>
-					@endif
-				</div>
-                <p class="helper-block text-danger">
-                    <small>La contraseña debe ser mínimo de 8 caracteres y debe contener al menos 1 mayúscula, 1 minúsculas, 1 número, y 1 carácter especial.</small>
-                </p>
-            </div>
 			<div class="row seller_fields {{ $user->hasRole('Vendedor') ? '' : 'd-none' }}">
 				<div class="col-sm-3">
 					<div class="form-group {{ $errors->has('commission_1') ? 'has-error' : '' }}">
@@ -127,7 +110,51 @@
 					</div>
 				</div>
 			</div>
-            <div class="mt-3">
+			<div class="form-group">
+				<label for="commission_4">Cambiar contraseña</label><br>
+				<div class="form-check form-check-inline">
+					<input class="form-check-input" type="radio" name="changePassOptions" id="changePass1" value="1">
+					<label class="form-check-label" for="changePass1">Si</label>
+				</div>
+				<div class="form-check form-check-inline">
+					<input class="form-check-input" type="radio" name="changePassOptions" id="changePass0" value="0" checked>
+					<label class="form-check-label" for="changePass0">No</label>
+				</div>
+			</div>
+			<div class="row changePassCont d-none">
+				<hr>
+				<div class="col-md-6">
+					<div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
+						<label for="password">{{ trans('cruds.user.fields.password') }}*</label>
+						<div class="input-group">
+							<input name="password" type="password" class="form-control password {{ $errors->has('password') ? 'is-invalid' : '' }}" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" disabled>
+							<div class="input-group-append">
+								<span class="input-group-text" id="toggle-password"><i class="fa fa-eye"></i></span>
+							</div>
+							@if($errors->has('password'))
+								<div class="invalid-feedback">
+									{{ $errors->first('password') }}
+								</div>
+							@endif
+						</div>
+						<p class="helper-block text-danger">
+							<small>La contraseña debe ser mínimo de 8 caracteres y debe contener al menos 1 mayúscula, 1 minúsculas, 1 número, y 1 carácter especial.</small>
+						</p>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
+						<label for="password_confirmation">Confirmar contraseña*</label>
+						<input type="password" id="password_confirmation" name="password_confirmation" class="form-control password {{ $errors->has('password') ? 'is-invalid' : '' }}" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" disabled>
+						@if($errors->has('password_confirmation'))
+							<em class="invalid-feedback">
+								{{ $errors->first('password_confirmation') }}
+							</em>
+						@endif
+					</div>
+				</div>
+			</div>
+            <div class="mt-4">
                 <a class="btn btn-dark" href="{{ url()->previous() }}">
                     Regresar
                 </a>
@@ -175,6 +202,18 @@
 				} else {
 					$(".password").attr("type", "password");
 					$("#toggle-password").html('<i class="fa fa-eye"></i>');
+				}
+			});
+
+			$("input[name='changePassOptions']").on('change', function() {
+				if ($(this).val() == 1) {
+					$('.changePassCont').removeClass('d-none');
+					$('.changePassCont input').prop('disabled', false);
+					$('.changePassCont input').prop('required', true);
+				} else {
+					$('.changePassCont').addClass('d-none');
+					$('.changePassCont input').prop('disabled', true);
+					$('.changePassCont input').prop('required', false);
 				}
 			});
 		});

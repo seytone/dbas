@@ -698,6 +698,28 @@
 				calculateValues();
 			});
 
+			$('body').on('change', '#document', function() {
+				var doc = $(this).val();
+				$.ajax({
+					url: "{{ route('admin.clients.exists') }}",
+					type: 'GET',
+					data: { document: doc },
+					success: function(data) {
+						if (data) {
+							$('#document').addClass('is-invalid');
+							$('#document').focus();
+							Swal.fire({
+								type: 'error',
+								title: 'Error',
+								text: 'Ya existe un cliente con esa identificación',
+							});
+						} else {
+							$('#document').removeClass('is-invalid');
+						}
+					}
+				});
+			});
+
 			$('.selectize-products').selectize({
 				persist: false,
 				sortField: 'text',

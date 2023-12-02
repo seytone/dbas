@@ -105,7 +105,7 @@ class SalesController extends Controller
 			'registered_at' => 'required|date',
 			'seller_id' => 'required|integer|exists:sellers,id',
 			'invoice_type' => 'required|string|max:10',
-			'invoice_number' => 'required|string|max:20',
+			'invoice_number' => 'required|string|max:20|unique:sales',
 			'payment_method' => 'required|string|max:20',
 			'payment_currency' => 'required|string|max:3',
 			'payment_amount_usd' => 'required|numeric',
@@ -141,13 +141,14 @@ class SalesController extends Controller
 
 		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
-			$client = Client::create([
-				'code' => 'CLI-' . time(),
-				'title' => $request->cli_title,
-				'document' => $request->cli_document,
-				'email' => $request->cli_email,
-				'phone' => $request->cli_phone,
+			$clientData = $request->validate([
+				'title' => 'required|string|max:100',
+				'document' => 'required|string|max:20|unique:clients',
+				'email' => 'required|email',
+				'phone' => 'required|integer',
 			]);
+			$clientData['code'] = 'CLI-' . time();
+			$client = Client::create($clientData);
 			$validatedData['client_id'] = $client->id;
 		} else {
 			$validatedData['client_id'] = $request->client_id;
@@ -238,7 +239,7 @@ class SalesController extends Controller
 			'registered_at' => 'required|date',
 			'seller_id' => 'required|integer|exists:sellers,id',
 			'invoice_type' => 'required|string|max:10',
-			'invoice_number' => 'required|string|max:20',
+			'invoice_number' => 'required|string|max:20|unique:sales,invoice_number,' . $sale->id,
 			'payment_method' => 'required|string|max:20',
 			'payment_currency' => 'required|string|max:3',
 			'payment_amount_usd' => 'required|numeric',
@@ -375,4 +376,18 @@ class SalesController extends Controller
     {
         return response()->json($sale);
     }
+
+	/**
+	 * Check if the specified resource exists.
+	 * 
+	 * @param  \App\Models\Sale  $sale
+	 * @return \Illuminate\Http\Response
+	 */
+	public function exists(Request $request)
+	{
+		$sale = Sale::where('invoice_number', $request->invoice_number)->first();
+		$exists = $sale ? true : false;
+
+		return response()->json($exists);
+	}
 }

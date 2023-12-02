@@ -64,9 +64,9 @@
                 </p>
             </div>
             <div class="form-group {{ $errors->has('password') ? 'has-error' : '' }}">
-                <label for="password">{{ trans('cruds.user.fields.password') }}</label>
+                <label for="password">{{ trans('cruds.user.fields.password') }}*</label>
 				<div class="input-group">
-					<input name="password" type="password" class="form-control password {{ $errors->has('password') ? 'is-invalid' : '' }}" minlength="8" required>
+					<input name="password" type="password" class="form-control password {{ $errors->has('password') ? 'is-invalid' : '' }}" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" required>
 					<div class="input-group-append">
 						<span class="input-group-text" id="toggle-password"><i class="fa fa-eye"></i></span>
 					</div>
@@ -79,6 +79,15 @@
                 <p class="helper-block text-danger">
                     <small>La contraseña debe ser mínimo de 8 caracteres y debe contener al menos 1 mayúscula, 1 minúsculas, 1 número, y 1 carácter especial.</small>
                 </p>
+            </div>
+			<div class="form-group {{ $errors->has('password_confirmation') ? 'has-error' : '' }}">
+                <label for="password_confirmation">Confirmar contraseña*</label>
+                <input type="password" id="password_confirmation" name="password_confirmation" class="form-control password" pattern="(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$" required>
+                @if($errors->has('password_confirmation'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('password_confirmation') }}
+                    </em>
+                @endif
             </div>
 			<div class="row seller_fields d-none">
 				<div class="col-sm-3">

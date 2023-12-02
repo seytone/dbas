@@ -41,10 +41,10 @@ class ServicesController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|unique:services|max:20',
+            'code' => 'required|string|max:20|unique:services',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
-            'price' => 'required|integer',
+            'price' => 'required|numeric|between:0,999999.99',
         ]);
 
         Service::create($validatedData);
@@ -84,10 +84,10 @@ class ServicesController extends Controller
     public function update(Request $request, Service $service)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20',
+            'code' => 'required|string|max:20|unique:services,code,' . $service->id,
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
-            'price' => 'required|integer',
+            'price' => 'required|numeric|between:0,999999.99',
         ]);
 
         $service->update($validatedData);
@@ -144,4 +144,18 @@ class ServicesController extends Controller
     {
         return response()->json($service);
     }
+
+	/**
+	 * Check if the specified resource exists.
+	 * 
+	 * @param  \App\Models\Service  $service
+	 * @return \Illuminate\Http\Response
+	 */
+	public function exists(Request $request)
+	{
+		$service = Service::where('code', $request->code)->first();
+		$exists = $service ? true : false;
+
+		return response()->json($exists);
+	}
 }

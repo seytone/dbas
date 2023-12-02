@@ -31,6 +31,11 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::resource('sellers', 'Admin\SellersController');
 	Route::get('help', 'Admin\HelpController@index')->name('help');
 
+	Route::get('sale_exists', 'Admin\SalesController@exists')->name('sales.exists');
+	Route::get('client_exists', 'Admin\ClientsController@exists')->name('clients.exists');
+	Route::get('product_exists', 'Admin\ProductsController@exists')->name('products.exists');
+	Route::get('service_exists', 'Admin\ServicesController@exists')->name('services.exists');
+
 	Route::delete('permissions_mass_destroy', 'Admin\PermissionsController@massDestroy')->name('permissions.mass_destroy');
 	Route::delete('roles_mass_destroy', 'Admin\RolesController@massDestroy')->name('roles.mass_destroy');
 	Route::delete('users_mass_destroy', 'Admin\UsersController@massDestroy')->name('users.mass_destroy');

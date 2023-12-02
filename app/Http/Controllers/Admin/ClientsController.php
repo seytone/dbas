@@ -42,9 +42,8 @@ class ClientsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            // 'code' => 'required|string|unique:clients|max:20',
             'title' => 'required|string|max:100',
-            'document' => 'required|string|max:20',
+            'document' => 'required|string|max:20|unique:clients',
             'email' => 'required|email',
             'phone' => 'required|integer',
             'address' => 'required|string|max:140',
@@ -88,9 +87,8 @@ class ClientsController extends Controller
     public function update(Request $request, Client $client)
     {
         $validatedData = $request->validate([
-            // 'code' => 'required|string|max:20',
             'title' => 'required|string|max:100',
-            'document' => 'required|string|max:20',
+            'document' => 'required|string|max:20|unique:clients,document,' . $client->id,
             'email' => 'required|email',
             'phone' => 'required|integer',
             'address' => 'required|string|max:140',
@@ -150,4 +148,18 @@ class ClientsController extends Controller
     {
         return response()->json($client);
     }
+
+	/**
+	 * Check if the specified resource exists.
+	 *
+	 * @param  \App\Models\Client  $client
+	 * @return \Illuminate\Http\Response
+	 */
+	public function exists(Request $request)
+	{
+		$client = Client::where('document', $request->document)->first();
+		$exists = $client ? true : false;
+
+		return response()->json($exists);
+	}
 }

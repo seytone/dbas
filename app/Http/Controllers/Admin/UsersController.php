@@ -26,7 +26,7 @@ class UsersController extends Controller
             return abort(401);
         }
 
-        $users = User::all();
+        $users = User::where('email', '!=', 'sadmin@distribuidorabit.com')->get();
 
         return view('admin.users.index', compact('users'));
     }
@@ -63,7 +63,7 @@ class UsersController extends Controller
             'name' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
             'email' => 'required|email|max:50|unique:users,deleted_at,NULL',
-            'password' => 'required',
+            'password' => 'required|string|min:8|confirmed',
 			'roles' => 'required|array',
         ]);
 
@@ -117,10 +117,13 @@ class UsersController extends Controller
             return abort(401);
         }
 
+		if ($request->input('password') == '')
+			$request->request->remove('password');
+
 		$validatedData = $request->validate([
             'name' => 'required|string|max:50',
             'lastname' => 'required|string|max:50',
-            'password' => 'sometimes',
+            'password' => 'sometimes|required|string|min:8|confirmed',
 			'roles' => 'required|array',
         ]);
 

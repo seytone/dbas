@@ -33,7 +33,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
 							<label for="price">Precio&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" required>
+							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" step=".01" required>
 							@if ($errors->has('price'))
 								<em class="invalid-feedback">
 									{{ $errors->first('price') }}
@@ -72,6 +72,27 @@
             $('.resume').maxlength({
                 threshold: 140
             });
+			$('body').on('change', '#code', function() {
+				var code = $(this).val();
+				$.ajax({
+					url: "{{ route('admin.services.exists') }}",
+					type: 'GET',
+					data: { code: code },
+					success: function(data) {
+						if (data) {
+							$('#code').addClass('is-invalid');
+							$('#code').focus();
+							Swal.fire({
+								type: 'error',
+								title: 'Error',
+								text: 'Ya existe un servicio con ese código',
+							});
+						} else {
+							$('#code').removeClass('is-invalid');
+						}
+					}
+				});
+			});
         });
     </script>
 @endsection

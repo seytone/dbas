@@ -24,9 +24,9 @@
 							<label for="group">Grupo&nbsp;<b class="text-danger">*</b></label>
 							<select name="group" class="custom-select" required>
 								<option value="">Seleccione</option>
-								<option value="perpetual">Licencias Perpetuas</option>
-								<option value="annual">Suscripciones Anuales</option>
-								<option value="hardware">Hardware y Otros</option>
+								<option value="perpetual" {{ old('group') == 'perpetual' ? 'selected' : '' }}>Licencias Perpetuas</option>
+								<option value="annual" {{ old('group') == 'annual' ? 'selected' : '' }}>Suscripciones Anuales</option>
+								<option value="hardware" {{ old('group') == 'hardware' ? 'selected' : '' }}>Hardware y Otros</option>
 							</select>
 							@if ($errors->has('group'))
 								<em class="invalid-feedback">
@@ -40,8 +40,8 @@
 							<label for="type">Tipo&nbsp;<b class="text-danger">*</b></label>
 							<select name="type" class="custom-select" required>
 								<option value="">Seleccione</option>
-								<option value="hardware">Hardware</option>
-								<option value="software">Software</option>
+								<option value="software" {{ old('type') == 'software' ? 'selected' : '' }}>Software</option>
+								<option value="hardware" {{ old('type') == 'hardware' ? 'selected' : '' }}>Hardware</option>
 							</select>
 							@if ($errors->has('type'))
 								<em class="invalid-feedback">
@@ -56,7 +56,7 @@
 							<select name="category_id" class="selectize-create" required>
 								<option value="">Seleccione</option>
 								@foreach ($categories as $category)
-									<option value="{{ $category->id }}">{{ $category->title }}</option>
+									<option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->title }}</option>
 								@endforeach
 							</select>
 							@if ($errors->has('category'))
@@ -72,7 +72,7 @@
 							<select name="brand_id" class="selectize-create" required>
 								<option value="">Seleccione</option>
 								@foreach ($brands as $brand)
-									<option value="{{ $brand->id }}">{{ $brand->title }}</option>
+									<option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>{{ $brand->title }}</option>
 								@endforeach
 							</select>
 							@if ($errors->has('brand'))
@@ -107,7 +107,7 @@
 					<div class="col-sm-4">
 						<div class="form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
 							<label for="cost">Costo Proveedor&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="cost" name="cost" class="form-control" value="{{ old('cost', 0) }}" min="0" required>
+							<input type="number" id="cost" name="cost" class="form-control" value="{{ old('cost', 0) }}" min="0" step=".01" required>
 							@if ($errors->has('cost'))
 								<em class="invalid-feedback">
 									{{ $errors->first('cost') }}
@@ -118,7 +118,7 @@
 					<div class="col-sm-4">
 						<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
 							<label for="price">Precio de Venta&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" required>
+							<input type="number" id="price" name="price" class="form-control" value="{{ old('price', 0) }}" min="0" step=".01" required>
 							@if ($errors->has('price'))
 								<em class="invalid-feedback">
 									{{ $errors->first('price') }}
@@ -146,6 +146,27 @@
             $('.resume').maxlength({
                 threshold: 140
             });
+			$('body').on('change', '#code', function() {
+				var code = $(this).val();
+				$.ajax({
+					url: "{{ route('admin.products.exists') }}",
+					type: 'GET',
+					data: { code: code },
+					success: function(data) {
+						if (data) {
+							$('#code').addClass('is-invalid');
+							$('#code').focus();
+							Swal.fire({
+								type: 'error',
+								title: 'Error',
+								text: 'Ya existe un producto con ese código',
+							});
+						} else {
+							$('#code').removeClass('is-invalid');
+						}
+					}
+				});
+			});
         });
     </script>
 @endsection

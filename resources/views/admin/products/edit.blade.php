@@ -110,7 +110,7 @@
 				<div class="col-sm-4">
 					<div class="form-group {{ $errors->has('cost') ? 'has-error' : '' }}">
 						<label for="cost">Costo Proveedor&nbsp;<b class="text-danger">*</b></label>
-						<input type="number" id="cost" name="cost" class="form-control" value="{{ old('cost', isset($product) ? $product->cost : 0) }}" min="0" required>
+						<input type="number" id="cost" name="cost" class="form-control" value="{{ old('cost', isset($product) ? $product->cost : 0) }}" min="0" step=".01" required>
 						@if ($errors->has('cost'))
 							<em class="invalid-feedback">
 								{{ $errors->first('cost') }}
@@ -121,7 +121,7 @@
 				<div class="col-sm-4">
 					<div class="form-group {{ $errors->has('price') ? 'has-error' : '' }}">
 						<label for="price">Precio de Venta&nbsp;<b class="text-danger">*</b></label>
-						<input type="number" id="price" name="price" class="form-control" value="{{ old('price', isset($product) ? $product->price : 0) }}" min="0" required>
+						<input type="number" id="price" name="price" class="form-control" value="{{ old('price', isset($product) ? $product->price : 0) }}" min="0" step=".01" required>
 						@if ($errors->has('price'))
 							<em class="invalid-feedback">
 								{{ $errors->first('price') }}

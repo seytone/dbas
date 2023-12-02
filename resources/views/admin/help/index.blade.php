@@ -23,7 +23,7 @@
 						</div>
 						<div class="card-body">
 							<div class="row">
-								<div class="col-md-12">
+								<div class="col-md-6 offset-md-3">
 									<div class="embed-responsive embed-responsive-16by9">
 										@if (Auth::user()->hasRole('Superadmin'))
 											<iframe src="https://drive.google.com/file/d/1sUiBl2DJYNi0OpgcZ2RXDiojlUsrK-1c/preview" class="embed-responsive-item" allow="autoplay" allowfullscreen></iframe>

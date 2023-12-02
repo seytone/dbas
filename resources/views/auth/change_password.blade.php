@@ -15,7 +15,7 @@
             <div class="form-group {{ $errors->has('current_password') ? 'has-error' : '' }}">
                 <label for="current_password">Contraseña actual *</label>
 				<div class="input-group mb-3">
-					<input name="current_password" type="password" class="form-control password {{ $errors->has('current_password') ? 'is-invalid' : '' }}" minlength="8" required>
+					<input name="current_password" type="password" class="form-control password {{ $errors->has('current_password') ? 'is-invalid' : '' }}" required>
 					<div class="input-group-append">
 						<span class="input-group-text" id="toggle-password"><i class="fa fa-eye"></i></span>
 					</div>

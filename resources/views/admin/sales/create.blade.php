@@ -571,9 +571,6 @@
 						console.log('Cliente nuevo agregado');
 						var item = arguments[0];
 						var name = item.trim();
-						// var data = item.split(' :: ');
-						// var code = data[0].trim();
-						// var name = data[1].trim();
 						var client = '<div class="row new_client"><div class="col-sm-6"><div class="form-group"><label for="title">Razón Social&nbsp;<b class="text-danger">*</b></label><input type="text" id="title" name="cli_title" class="form-control" value="' + name + '" required></div></div><div class="col-sm-2"><div class="form-group"><label for="document">Identificación&nbsp;<b class="text-danger">*</b></label><input type="text" id="document" name="cli_document" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="email">Email&nbsp;<b class="text-danger">*</b></label><input type="email" id="email" name="cli_email" class="form-control" required></div></div><div class="col-sm-2"><div class="form-group"><label for="phone">Télefono&nbsp;<b class="text-danger">*</b></label><input type="phone" id="phone" name="cli_phone" class="form-control" required></div></div></div>';
 						$('#cliente').after(client);
 					} else {
@@ -613,6 +610,50 @@
 				var total = parseFloat(subtotal) - parseFloat(discount);
 				parent.find('.total').val(total);
 				calculateValues();
+			});
+
+			$('body').on('change', '#invoice_number', function() {
+				var invoice_number = $(this).val();
+				$.ajax({
+					url: "{{ route('admin.sales.exists') }}",
+					type: 'GET',
+					data: { invoice_number: invoice_number },
+					success: function(data) {
+						if (data) {
+							$('#invoice_number').addClass('is-invalid');
+							$('#invoice_number').focus();
+							Swal.fire({
+								type: 'error',
+								title: 'Error',
+								text: 'Ya existe una venta registrada con ese número, que quizá incluso, pertenece a otro vendedor. Por favor, verifique.',
+							});
+						} else {
+							$('#invoice_number').removeClass('is-invalid');
+						}
+					}
+				});
+			});
+
+			$('body').on('change', '#document', function() {
+				var doc = $(this).val();
+				$.ajax({
+					url: "{{ route('admin.clients.exists') }}",
+					type: 'GET',
+					data: { document: doc },
+					success: function(data) {
+						if (data) {
+							$('#document').addClass('is-invalid');
+							$('#document').focus();
+							Swal.fire({
+								type: 'error',
+								title: 'Error',
+								text: 'Ya existe un cliente con esa identificación',
+							});
+						} else {
+							$('#document').removeClass('is-invalid');
+						}
+					}
+				});
 			});
 
 			$('.selectize-products').selectize({

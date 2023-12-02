@@ -46,15 +46,15 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20',
+            'code' => 'required|string|max:20|unique:products',
             'category_id' => 'required|string|max:30',
             'brand_id' => 'required|string|max:30',
             'group' => 'required|string',
             'type' => 'required|string',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
-            'cost' => 'required|integer',
-            'price' => 'required|integer',
+            'cost' => 'required|numeric|between:0,999999.99',
+            'price' => 'required|numeric|between:0,999999.99',
         ]);
 
 		if (!is_numeric($request->category_id))
@@ -119,15 +119,15 @@ class ProductsController extends Controller
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20',
+            'code' => 'required|string|max:20|unique:products,code,' . $product->id,
 			'category_id' => 'required|string|max:30',
 			'brand_id' => 'required|string|max:30',
             'group' => 'required|string',
             'type' => 'required|string',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
-            'cost' => 'required|integer',
-            'price' => 'required|integer',
+            'cost' => 'required|numeric|between:0,999999.99',
+            'price' => 'required|numeric|between:0,999999.99',
         ]);
 
 		if (!is_numeric($request->category_id))
@@ -206,4 +206,18 @@ class ProductsController extends Controller
     {
         return response()->json($product);
     }
+
+	/**
+	 * Check if the specified resource exists.
+	 * 
+	 * @param  \App\Models\Product  $product
+	 * @return \Illuminate\Http\Response
+	 */
+	public function exists(Request $request)
+	{
+		$product = Product::where('code', $request->code)->first();
+		$exists = $product ? true : false;
+
+		return response()->json($exists);
+	}
 }
