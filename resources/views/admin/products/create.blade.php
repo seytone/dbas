@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.' . $layout)
 @section('content')
     <div class="card">
         <div class="card-header">
@@ -7,6 +7,7 @@
         <div class="card-body">
             <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+				<input type="hidden" name="layout" value="{{ $layout }}">
 				<div class="row">
 					<div class="col-sm-2">
 						<div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
@@ -127,10 +128,12 @@
 						</div>
 					</div>
 				</div>
-                <div class="text-center text-md-right mt-4">
-					<hr>
-                    <input class="btn btn-success" type="submit" value="Guardar">
-                </div>
+				@if ($layout == 'admin')
+					<div class="text-center text-md-right mt-4">
+						<hr>
+						<input class="btn btn-success" type="submit" value="Guardar">
+					</div>
+				@endif
             </form>
         </div>
     </div>

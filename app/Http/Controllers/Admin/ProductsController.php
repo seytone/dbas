@@ -29,12 +29,12 @@ class ProductsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($layout = 'admin')
     {
 		$brands = Brand::all();
 		$categories = Category::all();
 
-        return view('admin.products.create', compact('brands', 'categories'));
+        return view('admin.products.create', compact('layout', 'brands', 'categories'));
     }
 
     /**
@@ -79,7 +79,16 @@ class ProductsController extends Controller
 			$validatedData['brand_id'] = $request->brand_id;
 		}
 
-        Product::create($validatedData);
+		$product = Product::create($validatedData);
+
+		if ($request->layout == 'modal')
+		{
+			return response()->json([
+				'status' => 'success',
+				'message' => 'El producto ha sido registrado exitosamente.',
+				'response' => $product->toJson(),
+			]);
+		}
 
         return redirect()->route('admin.products.index');
     }

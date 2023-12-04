@@ -27,9 +27,9 @@ class ServicesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create($layout = 'admin')
     {
-        return view('admin.services.create');
+        return view('admin.services.create', compact('layout'));
     }
 
     /**
@@ -47,7 +47,16 @@ class ServicesController extends Controller
             'price' => 'required|numeric|between:0,999999.99',
         ]);
 
-        Service::create($validatedData);
+		$service = Service::create($validatedData);
+
+		if ($request->layout == 'modal')
+		{
+			return response()->json([
+				'status' => 'success',
+				'message' => 'El servicio ha sido registrado exitosamente.',
+				'response' => $service->toJson(),
+			]);
+		}
 
         return redirect()->route('admin.services.index');
     }

@@ -125,7 +125,10 @@
 				<div class="row">
 					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('product_id') ? 'has-error' : '' }}">
-							<label for="products">Productos</label>
+							<div>
+								<label for="products">Productos</label>
+								<a href="#" class="link-primary float-right new-item" rel="producto"><small>NUEVO <i class="fa fa-wd fa-plus"></i></small></a>
+							</div>
 							<select name="products_selected[]" class="selectize-products" multiple>
 								<option value="">Seleccione</option>
 								@foreach ($categories as $category)
@@ -185,16 +188,16 @@
 												<input type="number" name="products[{{ $prod->product->id }}][quantity]" min="1" value="{{ $prod->quantity }}" class="form-control p-0 quantity quantity_prod">
 											</td>
 											<td>
-												<input type="number" min="0" class="form-control p-0 text-right subtotal" value="{{ $prod->quantity * $prod->price }}" readonly>
+												<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $prod->quantity * $prod->price }}" readonly>
 											</td>
 											<td>
-												<input type="number" name="products[{{ $prod->product->id }}][discount]" min="0" value="{{ $prod->discount }}" class="form-control p-0 text-right discount">
+												<input type="number" name="products[{{ $prod->product->id }}][discount]" min="0" step=".01" value="{{ $prod->discount }}" class="form-control p-0 text-right discount">
 											</td>
 											<td>
-												<input type="number" min="0" class="form-control p-0 text-right provider" rel="{{ $prod->product->group }}" value="{{ $prod->quantity * $prod->product->cost }}" readonly>
+												<input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="{{ $prod->product->group }}" value="{{ $prod->quantity * $prod->product->cost }}" readonly>
 											</td>
 											<td>
-												<input type="number" name="products[{{ $prod->product->id }}][total]" min="0" value="{{ $prod->total }}" class="form-control p-0 text-right total product" rel="{{ $prod->product->group }}" readonly>
+												<input type="number" name="products[{{ $prod->product->id }}][total]" min="0" step=".01" value="{{ $prod->total }}" class="form-control p-0 text-right total product" rel="{{ $prod->product->group }}" readonly>
 											</td>
 										</tr>
 										@php
@@ -213,7 +216,10 @@
 					</div>
 					<div class="col-sm-6">
 						<div class="form-group {{ $errors->has('service_id') ? 'has-error' : '' }}">
-							<label for="services">Servicios</label>
+							<div>
+								<label for="services">Servicios</label>
+								<a href="#" class="link-primary float-right new-item" rel="servicio"><small>NUEVO <i class="fa fa-wd fa-plus"></i></small></a>
+							</div>
 							<select name="services_selected[]" class="selectize-services" multiple>
 								<option value="">Seleccione</option>
 								@foreach ($services as $service)
@@ -258,13 +264,13 @@
 												<input type="number" name="services[{{ $serv->service->id }}][quantity]" min="1" value="{{ $serv->quantity }}" class="form-control p-0 quantity quantity_serv">
 											</td>
 											<td>
-												<input type="number" min="0" class="form-control p-0 text-right subtotal" value="{{ $serv->price }}" readonly>
+												<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $serv->price }}" readonly>
 											</td>
 											<td>
-												<input type="number" name="services[{{ $serv->service->id }}][discount]" min="0" value="{{ $serv->discount }}" class="form-control p-0 text-right discount">
+												<input type="number" name="services[{{ $serv->service->id }}][discount]" min="0" step=".01" value="{{ $serv->discount }}" class="form-control p-0 text-right discount">
 											</td>
 											<td>
-												<input type="number" name="services[{{ $serv->service->id }}][total]" min="0" value="{{ $serv->total }}" class="form-control p-0 text-right total service" readonly>
+												<input type="number" name="services[{{ $serv->service->id }}][total]" min="0" step=".01" value="{{ $serv->total }}" class="form-control p-0 text-right total service" readonly>
 											</td>
 										</tr>
 										@php
@@ -282,13 +288,33 @@
 					<div class="col-12">
 						<hr>
 					</div>
+					<!-- Modal -->
+					<div id="new-item" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="new-item-title" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered modal-xl">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="new-item-title">Nuevo registro</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+									
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+									<button type="button" class="btn btn-success" id="save-item">Guardar</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
 				{{-- Totalización --}}
 				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('subtotal') ? 'has-error' : '' }}">
 							<label for="subtotal">Base Imponible <span class="text-muted">(subtotal)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="subtotal" name="subtotal" class="form-control" value="{{ old('subtotal', isset($sale) ? $sale->subtotal : 0) }}" min="0" required readonly>
+							<input type="number" id="subtotal" name="subtotal" class="form-control" value="{{ old('subtotal', isset($sale) ? $sale->subtotal : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('subtotal'))
 								<em class="invalid-feedback">
 									{{ $errors->first('subtotal') }}
@@ -299,7 +325,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('cityhall') ? 'has-error' : '' }}">
 							<label for="cityhall">Alcaldía <span class="text-muted">(9% sobre subtotal cuando factura)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="cityhall" name="cityhall" class="form-control" value="{{ old('cityhall', isset($sale) ? $sale->cityhall : 0) }}" min="0" required readonly>
+							<input type="number" id="cityhall" name="cityhall" class="form-control" value="{{ old('cityhall', isset($sale) ? $sale->cityhall : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('cityhall'))
 								<em class="invalid-feedback">
 									{{ $errors->first('cityhall') }}
@@ -310,7 +336,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('iva') ? 'has-error' : '' }}">
 							<label for="iva">IVA <span class="text-muted">(16% sobre [subtotal + alcaldía] cuando factura)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="iva" name="iva" class="form-control" value="{{ old('iva', isset($sale) ? $sale->iva : 0) }}" min="0" required readonly>
+							<input type="number" id="iva" name="iva" class="form-control" value="{{ old('iva', isset($sale) ? $sale->iva : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('iva'))
 								<em class="invalid-feedback">
 									{{ $errors->first('iva') }}
@@ -321,7 +347,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('igtf') ? 'has-error' : '' }}">
 							<label for="igtf">IGTF <span class="text-muted">(3% sobre pago en USD)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="igtf" name="igtf" class="form-control" value="{{ old('igtf', isset($sale) ? $sale->igtf : 0) }}" min="0" required readonly>
+							<input type="number" id="igtf" name="igtf" class="form-control" value="{{ old('igtf', isset($sale) ? $sale->igtf : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('igtf'))
 								<em class="invalid-feedback">
 									{{ $errors->first('igtf') }}
@@ -332,7 +358,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('total') ? 'has-error' : '' }}">
 							<label for="total">Total Venta <span class="text-muted">(subtotal + alcaldía + iva + igtf)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="total" name="total" class="form-control" value="{{ old('total', isset($sale) ? $sale->total : 0) }}" min="0" required readonly>
+							<input type="number" id="total" name="total" class="form-control" value="{{ old('total', isset($sale) ? $sale->total : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('total'))
 								<em class="invalid-feedback">
 									{{ $errors->first('total') }}
@@ -343,7 +369,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('profit') ? 'has-error' : '' }}">
 							<label for="profit">Ganancia <span class="text-muted">(total productos - costos)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="profit" name="profit" class="form-control" value="{{ old('profit', isset($sale) ? $sale->profit : 0) }}" min="0" required readonly>
+							<input type="number" id="profit" name="profit" class="form-control" value="{{ old('profit', isset($sale) ? $sale->profit : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('profit'))
 								<em class="invalid-feedback">
 									{{ $errors->first('profit') }}
@@ -357,7 +383,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('commission_perpetual') ? 'has-error' : '' }}">
 							<label for="commission_perpetual">Comisión Licencias Perpetuas <span class="text-muted">(<span id="margin_p">{{ $user_seller->commission_1 ?? 1 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_perpetual" name="commission_perpetual" class="form-control" value="{{ old('commission_perpetual', isset($sale) ? $sale->commission_perpetual : 0) }}" min="0" required readonly>
+							<input type="number" id="commission_perpetual" name="commission_perpetual" class="form-control" value="{{ old('commission_perpetual', isset($sale) ? $sale->commission_perpetual : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('commission_perpetual'))
 								<em class="invalid-feedback">
 									{{ $errors->first('commission_perpetual') }}
@@ -368,7 +394,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('commission_annual') ? 'has-error' : '' }}">
 							<label for="commission_annual">Comisión Suscripciones Anuales <span class="text-muted">(<span id="margin_p">{{ $user_seller->commission_2 ?? 1 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_annual" name="commission_annual" class="form-control" value="{{ old('commission_annual', isset($sale) ? $sale->commission_annual : 0) }}" min="0" required readonly>
+							<input type="number" id="commission_annual" name="commission_annual" class="form-control" value="{{ old('commission_annual', isset($sale) ? $sale->commission_annual : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('commission_annual'))
 								<em class="invalid-feedback">
 									{{ $errors->first('commission_annual') }}
@@ -379,7 +405,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('commission_hardware') ? 'has-error' : '' }}">
 							<label for="commission_hardware">Comisión Hardware y Otros <span class="text-muted">(<span id="margin_p">{{ $user_seller->commission_3 ?? 1 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_hardware" name="commission_hardware" class="form-control" value="{{ old('commission_hardware', isset($sale) ? $sale->commission_hardware : 0) }}" min="0" required readonly>
+							<input type="number" id="commission_hardware" name="commission_hardware" class="form-control" value="{{ old('commission_hardware', isset($sale) ? $sale->commission_hardware : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('commission_hardware'))
 								<em class="invalid-feedback">
 									{{ $errors->first('commission_hardware') }}
@@ -390,7 +416,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('commission_services') ? 'has-error' : '' }}">
 							<label for="commission_services">Comisión Servicios <span class="text-muted">(<span id="margin_s">{{ $user_seller->commission_4 ?? 50 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_services" name="commission_services" class="form-control" value="{{ old('commission_services', isset($sale) ? $sale->commission_servicesices : 0) }}" min="0" required readonly>
+							<input type="number" id="commission_services" name="commission_services" class="form-control" value="{{ old('commission_services', isset($sale) ? $sale->commission_servicesices : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('commission_services'))
 								<em class="invalid-feedback">
 									{{ $errors->first('commission_services') }}
@@ -401,7 +427,7 @@
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('commission_total') ? 'has-error' : '' }}">
 							<label for="commission_total">Comisión Total <span class="text-muted">(productos + servicios)</span>&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="commission_total" name="commission_total" class="form-control" value="{{ old('commission_total', isset($sale) ? $sale->commission : 0) }}" min="0" required readonly>
+							<input type="number" id="commission_total" name="commission_total" class="form-control" value="{{ old('commission_total', isset($sale) ? $sale->commission : 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('commission_total'))
 								<em class="invalid-feedback">
 									{{ $errors->first('commission_total') }}
@@ -429,13 +455,13 @@
 					<div class="col-md-4">
 						<div class="form-group">
 							<label for="payment_amount_usd">Monto a pagar en dólares</label>
-							<input type="number" id="payment_amount_usd" name="payment_amount_usd" class="form-control" value="{{ old('payment_amount_usd', isset($sale) ? $sale->payment_amount_usd : 0) }}" min="0" {{ $sale->payment_currency == 'usd' ? 'readonly' : '' }} onchange="calculateValues(true)">
+							<input type="number" id="payment_amount_usd" name="payment_amount_usd" class="form-control" value="{{ old('payment_amount_usd', isset($sale) ? $sale->payment_amount_usd : 0) }}" min="0" step=".01" {{ $sale->payment_currency == 'usd' ? 'readonly' : '' }} onchange="calculateValues(true)">
 						</div>
 					</div>
 					<div class="col-md-4">
 						<div class="form-group">
 							<label for="payment_amount_bsf">Monto a pagar en bolívares (expresado en USD)</label>
-							<input type="number" id="payment_amount_bsf" name="payment_amount_bsf" class="form-control" value="{{ old('payment_amount_bsf', isset($sale) ? $sale->payment_amount_bsf : 0) }}" min="0" readonly>
+							<input type="number" id="payment_amount_bsf" name="payment_amount_bsf" class="form-control" value="{{ old('payment_amount_bsf', isset($sale) ? $sale->payment_amount_bsf : 0) }}" min="0" step=".01" readonly>
 						</div>
 					</div>
 					<div class="col-12">
@@ -606,7 +632,7 @@
 					var item = arguments[0];
 					var data = this.options[item].data;
 					if (action == 'ADD') {
-						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
+						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
 						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
 					} else {
 						$('#products-list #prod-' + data.id).remove();
@@ -621,7 +647,7 @@
 					var item = arguments[0];
 					var data = this.options[item].data;
 					if (action == 'ADD') {
-						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
+						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
 						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
 					} else {
 						$('#services-list #serv-' + data.id).remove();
@@ -715,6 +741,63 @@
 							});
 						} else {
 							$('#document').removeClass('is-invalid');
+						}
+					}
+				});
+			});
+
+			$('body').on('click', '.new-item', function(e) {
+				e.preventDefault();
+				var item = $(this).attr('rel');
+				var elem = item == 'producto' ? 'products' : 'services';
+				var url = item == 'producto' ? "{{ route('admin.products.add', 'modal') }}" : "{{ route('admin.services.add', 'modal') }}";
+				$.ajax({
+					url: url,
+					type: 'GET',
+					success: function(data) {
+						$('#new-item .modal-footer #save-item').attr('rel', elem);
+						$('#new-item .modal-body').html(data);
+						$('#new-item').modal('show');
+					}
+				});
+			});
+
+			$('body').on('click', '#save-item', function() {
+				var form = $('#new-item .modal-body').find('form');
+				if (form[0].checkValidity() === false) {
+					form.find('.form-control, select').addClass('is-invalid');
+					return false;
+				}
+				var formdata = form.serialize();
+				var url = form.attr('action');
+				var elem = $(this).attr('rel');
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: formdata,
+					success: function(data) {
+						if (data.status == 'success') {
+							var item = JSON.parse(data.response);
+							var title = item.title + ' (' + item.code + ')';
+							$('.selectize-' + elem)[0].selectize.addOption({value: item.id, text: title, data: item });
+							$('.selectize-' + elem)[0].selectize.addItem(item.id);
+							$('#new-item .modal-header .close').click();
+							Swal.fire({
+								type: 'success',
+								title: 'Registro creado',
+								text: data.message,
+								showCancelButton: false,
+								showConfirmButton: false,
+								timer: 2000,
+							});
+						} else {
+							Swal.fire({
+								type: 'error',
+								title: 'Error',
+								text: 'Ocurrió un error al registrar. Intente de nuevo.',
+								showCancelButton: false,
+								showConfirmButton: true,
+							});
 						}
 					}
 				});

@@ -135,7 +135,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <!-- Core JS File. The JS code needed to make eventCalendar works -->
     <script src="{{ asset('plugins/vissitCalendar/jquery.eventCalendar.min.js') }}" type="text/javascript"></script>
     <!-- Bootstrap Maxlength -->
@@ -149,13 +148,13 @@
     {{-- Custom scripts --}}
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
-        $(function() {
+        $(function()
+		{
+			setTimeout(function() {
+				$('#splash').fadeOut('fast');
+            }, 500);
 
 			$('.quantity').inputSpinner();
-
-            setTimeout(function() {
-                $('#splash').fadeOut('fast');
-            }, 500);
 
 			$('.selectize').selectize();
 

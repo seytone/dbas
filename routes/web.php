@@ -36,6 +36,9 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::get('product_exists', 'Admin\ProductsController@exists')->name('products.exists');
 	Route::get('service_exists', 'Admin\ServicesController@exists')->name('services.exists');
 
+	Route::get('products/add/{layout?}', 'Admin\ProductsController@create')->name('products.add');
+	Route::get('services/add/{layout?}', 'Admin\ServicesController@create')->name('services.add');
+
 	Route::delete('permissions_mass_destroy', 'Admin\PermissionsController@massDestroy')->name('permissions.mass_destroy');
 	Route::delete('roles_mass_destroy', 'Admin\RolesController@massDestroy')->name('roles.mass_destroy');
 	Route::delete('users_mass_destroy', 'Admin\UsersController@massDestroy')->name('users.mass_destroy');
