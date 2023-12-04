@@ -27,8 +27,8 @@
                     <span class="btn btn-info btn-xs deselect-all">{{ trans('global.deselect_all') }}</span>
 				</label>
                 <select name="permission[]" id="permission" class="form-control select2" multiple="multiple" required>
-                    @foreach($permissions as $id => $permissions)
-                        <option value="{{ $id }}" {{ (in_array($id, old('permissions', [])) || isset($role) && $role->permissions()->get()->contains($id)) ? 'selected' : '' }}>{{ $permissions }}</option>
+                    @foreach($permissions as $id => $permission)
+                        <option value="{{ $id }}" {{ $role->hasPermissionTo($permission) ? 'selected' : '' }}>{{ $permission }}</option>
                     @endforeach
                 </select>
                 @if($errors->has('permission'))
