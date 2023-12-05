@@ -142,13 +142,18 @@ class SalesController extends Controller
 		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
 			$clientData = $request->validate([
-				'title' => 'required|string|max:100',
-				'document' => 'required|string|max:20|unique:clients',
-				'email' => 'required|email',
-				'phone' => 'required|integer',
+				'cli_document' => 'required|string|max:20|unique:clients,document',
+				'cli_title' => 'required|string|max:100',
+				'cli_email' => 'required|email',
+				'cli_phone' => 'required|integer',
 			]);
-			$clientData['code'] = 'CLI-' . time();
-			$client = Client::create($clientData);
+			$client = Client::create([
+				'code' => 'CLI-' . time(),
+				'title' => $clientData['cli_title'],
+				'document' => $clientData['cli_document'],
+				'email' => $clientData['cli_email'],
+				'phone' => $clientData['cli_phone'],
+			]);
 			$validatedData['client_id'] = $client->id;
 		} else {
 			$validatedData['client_id'] = $request->client_id;
@@ -275,12 +280,18 @@ class SalesController extends Controller
 
 		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
+			$clientData = $request->validate([
+				'cli_document' => 'required|string|max:20|unique:clients,document',
+				'cli_title' => 'required|string|max:100',
+				'cli_email' => 'required|email',
+				'cli_phone' => 'required|integer',
+			]);
 			$client = Client::create([
 				'code' => 'CLI-' . time(),
-				'title' => $request->cli_title,
-				'document' => $request->cli_document,
-				'email' => $request->cli_email,
-				'phone' => $request->cli_phone,
+				'title' => $clientData['cli_title'],
+				'document' => $clientData['cli_document'],
+				'email' => $clientData['cli_email'],
+				'phone' => $clientData['cli_phone'],
 			]);
 			$validatedData['client_id'] = $client->id;
 		} else {

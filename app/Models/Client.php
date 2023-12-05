@@ -34,6 +34,6 @@ class Client extends Model
 
 	public function getIdentification()
 	{
-		return $this->code . ' :: ' . $this->title;
+		return $this->title . ' - ' . $this->document;
 	}
 }
