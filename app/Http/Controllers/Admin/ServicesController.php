@@ -41,7 +41,7 @@ class ServicesController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20|unique:services',
+            'code' => 'required|string|max:20|unique:services,deleted_at,NULL',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
             'price' => 'required|numeric|between:0,999999.99',
@@ -93,7 +93,7 @@ class ServicesController extends Controller
     public function update(Request $request, Service $service)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20|unique:services,code,' . $service->id,
+            'code' => 'required|string|max:20|unique:services,code,' . $service->id . ',id,deleted_at,NULL',
             'title' => 'required|string|max:100',
             'description' => 'required|string|max:140',
             'price' => 'required|numeric|between:0,999999.99',

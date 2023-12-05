@@ -142,7 +142,7 @@ class SalesController extends Controller
 		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
 			$clientData = $request->validate([
-				'cli_document' => 'required|string|max:20|unique:clients,document',
+				'cli_document' => 'required|string|max:20|unique:clients,document,NULL,NULL,deleted_at,NULL',
 				'cli_title' => 'required|string|max:100',
 				'cli_email' => 'required|email',
 				'cli_phone' => 'required|numeric',
@@ -281,7 +281,7 @@ class SalesController extends Controller
 		if (!is_numeric($request->client_id) && $request->cli_title)
 		{
 			$clientData = $request->validate([
-				'cli_document' => 'required|string|max:20|unique:clients,document',
+				'cli_document' => 'required|string|max:20|unique:clients,document,deleted_at,NULL',
 				'cli_title' => 'required|string|max:100',
 				'cli_email' => 'required|email',
 				'cli_phone' => 'required|numeric',

@@ -43,7 +43,7 @@ class ClientsController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:100',
-            'document' => 'required|string|max:20|unique:clients',
+            'document' => 'required|string|max:20|unique:clients,deleted_at,NULL',
             'email' => 'required|email',
             'phone' => 'required|numeric',
             'address' => 'required|string|max:140',
@@ -88,7 +88,7 @@ class ClientsController extends Controller
     {
         $validatedData = $request->validate([
             'title' => 'required|string|max:100',
-            'document' => 'required|string|max:20|unique:clients,document,' . $client->id,
+            'document' => 'required|string|max:20|unique:clients,document,' . $client->id . ',id,deleted_at,NULL',
             'email' => 'required|email',
             'phone' => 'required|numeric',
             'address' => 'required|string|max:140',
