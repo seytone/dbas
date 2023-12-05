@@ -145,7 +145,7 @@ class SalesController extends Controller
 				'cli_document' => 'required|string|max:20|unique:clients,document',
 				'cli_title' => 'required|string|max:100',
 				'cli_email' => 'required|email',
-				'cli_phone' => 'required|integer',
+				'cli_phone' => 'required|numeric',
 			]);
 			$client = Client::create([
 				'code' => 'CLI-' . time(),
@@ -284,7 +284,7 @@ class SalesController extends Controller
 				'cli_document' => 'required|string|max:20|unique:clients,document',
 				'cli_title' => 'required|string|max:100',
 				'cli_email' => 'required|email',
-				'cli_phone' => 'required|integer',
+				'cli_phone' => 'required|numeric',
 			]);
 			$client = Client::create([
 				'code' => 'CLI-' . time(),

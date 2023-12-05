@@ -45,7 +45,7 @@ class ClientsController extends Controller
             'title' => 'required|string|max:100',
             'document' => 'required|string|max:20|unique:clients',
             'email' => 'required|email',
-            'phone' => 'required|integer',
+            'phone' => 'required|numeric',
             'address' => 'required|string|max:140',
         ]);
 		$validatedData['code'] = 'CLI-' . time();
@@ -90,7 +90,7 @@ class ClientsController extends Controller
             'title' => 'required|string|max:100',
             'document' => 'required|string|max:20|unique:clients,document,' . $client->id,
             'email' => 'required|email',
-            'phone' => 'required|integer',
+            'phone' => 'required|numeric',
             'address' => 'required|string|max:140',
         ]);
 
