@@ -42,7 +42,9 @@ class SalesController extends Controller
 
 		if ($request->isMethod('post'))
 		{
-			if ($request->has('seller') && $request->seller != 'all')
+			if ($user->hasRole('Vendedor'))
+				$query->where('seller_id', $user->seller->id);
+			else if ($request->has('seller') && $request->seller != 'all')
 				$query->where('seller_id', $request->seller);
 
 			if ($request->has('client') && $request->client != 'all')

@@ -220,20 +220,20 @@
 			data: {
 				labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
 				datasets: [
-					{
-						type: 'line',
-						label: 'Total Ventas',
-						data: [
-							@foreach ($months as $month)
-								{{ $month['total'] }},
-							@endforeach
-						],
-						backgroundColor: '#20a8d8',
-						borderColor: '#20a8d8',
-						lineTension: 0.3,
-						borderWidth: 1,
-						order: 1
-					},
+					// {
+					// 	type: 'line',
+					// 	label: 'Total Ventas',
+					// 	data: [
+					// 		@foreach ($months as $month)
+					// 			{{ $month['total'] }},
+					// 		@endforeach
+					// 	],
+					// 	backgroundColor: '#20a8d8',
+					// 	borderColor: '#20a8d8',
+					// 	lineTension: 0.3,
+					// 	borderWidth: 1,
+					// 	order: 1
+					// },
 					{
 						type: 'line',
 						label: 'Total Ganancias',
