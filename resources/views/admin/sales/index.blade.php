@@ -24,6 +24,8 @@
 									<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
 								@endforeach
 							</select>
+						@else
+							<input type="hidden" id="seller" name="seller" value="{{ $user->seller->id }}">
 						@endif
 						<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
 					</div>
@@ -70,7 +72,6 @@
 					<thead>
 						<tr>
 							<th width="10"></th>
-							{{-- <th class="d-table-cell d-md-none">&nbsp;</th> --}}
 							<th>Fecha</th>
 							<th>Tipo</th>
 							<th>Código</th>
@@ -86,24 +87,6 @@
 						@foreach($sales as $key => $sale)
 							<tr data-entry-id="{{ $sale->id }}">
 								<td></td>
-								{{-- <td class="d-table-cell d-md-none text-center">
-									<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.sales.show', $sale->id) }}" title="VER">
-										<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
-									</a>
-									<a class="btn btn-sm btn-warning m-1" href="{{ route('admin.sales.edit', $sale->id) }}" title="EDITAR">
-										<i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
-									</a>
-									<a class="btn btn-sm btn-dark m-1" href="{{ $sale->trello }}" target="_blank" title="TRELLO">
-										<i class="fa fa-fw fa-link" aria-hidden="true"></i>
-									</a>
-									<form action="{{ route('admin.sales.destroy', $sale->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-										<input type="hidden" name="_method" value="delete">
-										<input type="hidden" name="_token" value="{{ csrf_token() }}">
-										<button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
-											<i class="fa fa-fw fa-trash" aria-hidden="true"></i>
-										</button>
-									</form>
-								</td> --}}
 								<td>{{ date('d/m/Y', strtotime($sale->registered_at)) }}</td>
 								<td><span class="badge badge-{{ $sale->invoice_type == 'factura' ? 'warning' : 'info' }}">{{ mb_strtoupper($sale->invoice_type) }}</span></td>
 								<td>{{ $sale->invoice_number }}</td>
