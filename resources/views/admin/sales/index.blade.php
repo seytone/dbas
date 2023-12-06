@@ -24,7 +24,7 @@
 									<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
 								@endforeach
 							</select>
-						@else
+						@elseif ($user->hasRole('Vendedor'))
 							<input type="hidden" id="seller" name="seller" value="{{ $user->seller->id }}">
 						@endif
 						<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
