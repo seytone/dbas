@@ -8,9 +8,9 @@
 			max-height: 450px;
 		}
 
-		.print-hidden {
+		/* .print-hidden {
 			display: none;
-		}
+		} */
 
 		@media print {
 			#print-options,
@@ -33,7 +33,7 @@
 				</h1>
 			</div>
 			<div class="col-lg-9">
-				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-lg-flex pt-2">
+				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-lg-flex pt-2 filters-form">
 					@csrf
 					<div class="col">
 						<div class="input-group">

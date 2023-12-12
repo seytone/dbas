@@ -8,7 +8,7 @@
 			</h1>
 		</div>
 		<div class="col-md-6">
-			<form method="POST" action="{{ route('admin.sales_filter') }}" class="d-none d-md-flex pt-2">
+			<form method="POST" action="{{ route('admin.sales_filter') }}" class="d-none d-md-flex pt-2 filters-form">
 				@csrf
 				<div class="col">
 					<div class="input-group">
@@ -82,6 +82,8 @@
 							<th>Forma Pago</th>
 							<th>Total</th>
 							<th>Comisión</th>
+							<th>Productos</th>
+							<th>Servicios</th>
 							<th width="165">&nbsp;</th>
 						</tr>
 					</thead>
@@ -97,6 +99,28 @@
 								<td>{{ $sale->payment_method }}</td>
 								<td>${{ number_format($sale->total, 2, ',', '.') }} USD</td>
 								<td>${{ number_format($sale->commission, 2, ',', '.') }} USD</td>
+								<td>
+									@if (count($sale->products) > 0)
+										<div id="products-{{ $sale->id }}">
+											@foreach ($sale->products as $prod)
+												<p class="m-0">- {{ $prod->product->title }}</p>
+											@endforeach
+										</div>
+									@else
+										<p class="m-0">---</p>
+									@endif
+								</td>
+								<td>
+									@if (count($sale->services) > 0)
+										<div id="services-{{ $sale->id }}">
+											@foreach ($sale->services as $serv)
+												<p class="m-0">- {{ $serv->service->title }}</p>
+											@endforeach
+										</div>
+									@else
+										<p class="m-0">---</p>
+									@endif
+								</td>
 								<td class="text-center">
 									<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.sales.show', $sale->id) }}" title="VER">
 										<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
@@ -171,6 +195,11 @@
 
 		$('.show-filters').click(function() {
 			$('#filters').toggleClass('d-none');
+		});
+
+		$('.show-items').on('click', function() {
+			var id = $(this).attr('rel');
+			$('#' + id).toggleClass('d-none');
 		});
 	});
 </script>

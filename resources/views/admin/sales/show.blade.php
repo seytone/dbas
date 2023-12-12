@@ -193,6 +193,7 @@
 								</tfoot>
 							</table>
 						</td>
+					</tr>
                     <tr>
                         <th>
                             Subtotal

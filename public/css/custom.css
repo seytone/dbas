@@ -160,6 +160,11 @@ table.dataTable thead .sorting_desc {
 		left: auto;
 		right: 15px;
 	}
+
+	.filters-form .form-control,
+	.filters-form .form-select {
+		width: 100%;
+	}
 }
 
 .header-fixed .app-header {
