@@ -63,137 +63,151 @@
 							Productos
 						</th>
 						<td>
-							{{ count($products) }}<a class="btn btn-sm btn-dark text-light pull-right show-items" rel="products">VER</a>
+							{{ count($products) }}
+							@if (count($products) > 0)
+								<a class="btn btn-sm btn-dark text-light pull-right show-items" rel="products">VER</a>
+							@endif
 						</td>
 					</tr>
-					<tr class="d-none" id="products">
-						<td colspan="2">
-							<table class="table">
-								<thead>
-									<tr>
-										<th width="500">
-											Producto
-										</th>
-										<th>
-											Precio
-										</th>
-										<th>
-											Cantidad
-										</th>
-										<th>
-											Descuento
-										</th>
-										<th>
-											Total
-										</th>
-									</tr>
-								</thead>
-								<tbody>
-									@php
-										$total_prods = 0;
-									@endphp
-									@foreach ($products as $prod)
+					@if (count($products) > 0)
+						<tr class="d-none" id="products">
+							<td colspan="2">
+								<table class="table">
+									<thead>
 										<tr>
-											<td>
-												{{ $prod->product->title }}
-											</td>
-											<td>
-												${{ number_format($prod->price, 2, ',', '.') }} USD
-											</td>
-											<td>
-												{{ $prod->quantity }}
-											</td>
-											<td>
-												${{ number_format($prod->discount, 2, ',', '.') }} USD
-											</td>
-											<td>
-												${{ number_format($prod->total, 2, ',', '.') }} USD
-											</td>
+											<th width="500">
+												Producto
+											</th>
+											<th>
+												Precio
+											</th>
+											<th>
+												Cantidad
+											</th>
+											<th>
+												Descuento
+											</th>
+											<th>
+												Total
+											</th>
 										</tr>
+									</thead>
+									<tbody>
 										@php
-											$total_prods += $prod->total;
+											$total_prods = 0;
 										@endphp
-									@endforeach
-								</tbody>
-								<tfoot>
-									<tr>
-										<th colspan="4"></th>
-										<th>
-											${{ number_format($total_prods, 2, ',', '.') }} USD
-										</th>
-									</tr>
-								</tfoot>
-							</table>
-						</td>
-					</tr>
+										@foreach ($products as $prod)
+											@isset ($prod->product)
+												<tr>
+													<td>
+														{{ $prod->product->title }}
+													</td>
+													<td>
+														${{ number_format($prod->price, 2, ',', '.') }} USD
+													</td>
+													<td>
+														{{ $prod->quantity }}
+													</td>
+													<td>
+														${{ number_format($prod->discount, 2, ',', '.') }} USD
+													</td>
+													<td>
+														${{ number_format($prod->total, 2, ',', '.') }} USD
+													</td>
+												</tr>
+												@php
+													$total_prods += $prod->total;
+												@endphp
+											@endisset
+										@endforeach
+									</tbody>
+									<tfoot>
+										<tr>
+											<th colspan="4"></th>
+											<th>
+												${{ number_format($total_prods, 2, ',', '.') }} USD
+											</th>
+										</tr>
+									</tfoot>
+								</table>
+							</td>
+						</tr>
+					@endif
 					<tr>
 						<th>
 							Servicios
 						</th>
 						<td>
-							{{ count($services) }}<a class="btn btn-sm btn-dark text-light pull-right show-items" rel="services">VER</a>
+							{{ count($services) }}
+							@if (count($services) > 0)
+								<a class="btn btn-sm btn-dark text-light pull-right show-items" rel="services">VER</a>
+							@endif
 						</td>
 					</tr>
-					<tr class="d-none" id="services">
-						<td colspan="2">
-							<table class="table">
-								<thead>
-									<tr>
-										<th width="500">
-											Servicio
-										</th>
-										<th>
-											Precio
-										</th>
-										<th>
-											Cantidad
-										</th>
-										<th>
-											Descuento
-										</th>
-										<th>
-											Total
-										</th>
-									</tr>
-								</thead>
-								<tbody>
-									@php
-										$total_servs = 0;
-									@endphp
-									@foreach ($services as $serv)
+					@if (count($services) > 0)
+						<tr class="d-none" id="services">
+							<td colspan="2">
+								<table class="table">
+									<thead>
 										<tr>
-											<td>
-												{{ $serv->service->title }}
-											</td>
-											<td>
-												${{ number_format($serv->price, 2, ',', '.') }} USD
-											</td>
-											<td>
-												{{ $serv->quantity }}
-											</td>
-											<td>
-												${{ number_format($serv->discount, 2, ',', '.') }} USD
-											</td>
-											<td>
-												${{ number_format($serv->total, 2, ',', '.') }} USD
-											</td>
+											<th width="500">
+												Servicio
+											</th>
+											<th>
+												Precio
+											</th>
+											<th>
+												Cantidad
+											</th>
+											<th>
+												Descuento
+											</th>
+											<th>
+												Total
+											</th>
 										</tr>
+									</thead>
+									<tbody>
 										@php
-											$total_servs += $serv->total;
+											$total_servs = 0;
 										@endphp
-									@endforeach
-								</tbody>
-								<tfoot>
-									<tr>
-										<th colspan="4"></th>
-										<th>
-											${{ number_format($total_servs, 2, ',', '.') }} USD
-										</th>
-									</tr>
-								</tfoot>
-							</table>
-						</td>
-					</tr>
+										@foreach ($services as $serv)
+											@isset ($serv->service)
+												<tr>
+													<td>
+														{{ $serv->service->title }}
+													</td>
+													<td>
+														${{ number_format($serv->price, 2, ',', '.') }} USD
+													</td>
+													<td>
+														{{ $serv->quantity }}
+													</td>
+													<td>
+														${{ number_format($serv->discount, 2, ',', '.') }} USD
+													</td>
+													<td>
+														${{ number_format($serv->total, 2, ',', '.') }} USD
+													</td>
+												</tr>
+												@php
+													$total_servs += $serv->total;
+												@endphp
+											@endisset
+										@endforeach
+									</tbody>
+									<tfoot>
+										<tr>
+											<th colspan="4"></th>
+											<th>
+												${{ number_format($total_servs, 2, ',', '.') }} USD
+											</th>
+										</tr>
+									</tfoot>
+								</table>
+							</td>
+						</tr>
+					@endif
                     <tr>
                         <th>
                             Subtotal

@@ -166,43 +166,45 @@
 										$total_prods = 0;
 									@endphp
 									@foreach ($sale->products as $prod)
-										<tr class="item" id="prod-{{ $prod->product->id }}">
-											<td>
-												<b>{{ $prod->product->title }}</b>
-												<input type="hidden" name="products[{{ $prod->product->id }}][id]" value="{{ $prod->product->id }}">
-											</td>
-											<td>
-												<i>{{ $prod->product->code }}</i>
-											</td>
-											<td>
-												<span class="badge badge-secondary">{{ $prod->product->type }}</span>
-											</td>
-											<td class="text-right cost">
-												{{ $prod->product->cost }}
-											</td>
-											<td class="text-right price">
-												<input type="hidden" name="products[{{ $prod->product->id }}][price]" value="{{ $prod->price }}">
-												{{ $prod->price }}
-											</td>
-											<td>
-												<input type="number" name="products[{{ $prod->product->id }}][quantity]" min="1" value="{{ $prod->quantity }}" class="form-control p-0 quantity quantity_prod">
-											</td>
-											<td>
-												<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $prod->quantity * $prod->price }}" readonly>
-											</td>
-											<td>
-												<input type="number" name="products[{{ $prod->product->id }}][discount]" min="0" step=".01" value="{{ $prod->discount }}" class="form-control p-0 text-right discount">
-											</td>
-											<td>
-												<input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="{{ $prod->product->group }}" value="{{ $prod->quantity * $prod->product->cost }}" readonly>
-											</td>
-											<td>
-												<input type="number" name="products[{{ $prod->product->id }}][total]" min="0" step=".01" value="{{ $prod->total }}" class="form-control p-0 text-right total product" rel="{{ $prod->product->group }}" readonly>
-											</td>
-										</tr>
-										@php
-											$total_prods += $prod->total;
-										@endphp
+										@isset ($prod->product)
+											<tr class="item" id="prod-{{ $prod->product->id }}">
+												<td>
+													<b>{{ $prod->product->title }}</b>
+													<input type="hidden" name="products[{{ $prod->product->id }}][id]" value="{{ $prod->product->id }}">
+												</td>
+												<td>
+													<i>{{ $prod->product->code }}</i>
+												</td>
+												<td>
+													<span class="badge badge-secondary">{{ $prod->product->type }}</span>
+												</td>
+												<td class="text-right cost">
+													{{ $prod->product->cost }}
+												</td>
+												<td class="text-right price">
+													<input type="hidden" name="products[{{ $prod->product->id }}][price]" value="{{ $prod->price }}">
+													{{ $prod->price }}
+												</td>
+												<td>
+													<input type="number" name="products[{{ $prod->product->id }}][quantity]" min="1" value="{{ $prod->quantity }}" class="form-control p-0 quantity quantity_prod">
+												</td>
+												<td>
+													<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $prod->quantity * $prod->price }}" readonly>
+												</td>
+												<td>
+													<input type="number" name="products[{{ $prod->product->id }}][discount]" min="0" step=".01" value="{{ $prod->discount }}" class="form-control p-0 text-right discount">
+												</td>
+												<td>
+													<input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="{{ $prod->product->group }}" value="{{ $prod->quantity * $prod->product->cost }}" readonly>
+												</td>
+												<td>
+													<input type="number" name="products[{{ $prod->product->id }}][total]" min="0" step=".01" value="{{ $prod->total }}" class="form-control p-0 text-right total product" rel="{{ $prod->product->group }}" readonly>
+												</td>
+											</tr>
+											@php
+												$total_prods += $prod->total;
+											@endphp
+										@endisset
 									@endforeach
 								</tbody>
 								<tfoot class="bg-light">
@@ -248,34 +250,36 @@
 										$total_servs = 0;
 									@endphp
 									@foreach ($sale->services as $serv)
-										<tr class="item" id="serv-{{ $serv->service->id }}">
-											<td>
-												<b>{{ $serv->service->title }}</b>
-												<input type="hidden" name="services[{{ $serv->service->id }}][id]" value="{{ $serv->service->id }}">
-											</td>
-											<td>
-												<i>{{ $serv->service->code }}</i>
-											</td>
-											<td class="price text-right">
-												<input type="hidden" name="services[{{ $serv->service->id }}][price]" value="{{ $serv->price }}">
-												{{ $serv->price }}
-											</td>
-											<td>
-												<input type="number" name="services[{{ $serv->service->id }}][quantity]" min="1" value="{{ $serv->quantity }}" class="form-control p-0 quantity quantity_serv">
-											</td>
-											<td>
-												<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $serv->price }}" readonly>
-											</td>
-											<td>
-												<input type="number" name="services[{{ $serv->service->id }}][discount]" min="0" step=".01" value="{{ $serv->discount }}" class="form-control p-0 text-right discount">
-											</td>
-											<td>
-												<input type="number" name="services[{{ $serv->service->id }}][total]" min="0" step=".01" value="{{ $serv->total }}" class="form-control p-0 text-right total service" readonly>
-											</td>
-										</tr>
-										@php
-											$total_servs += $serv->total;
-										@endphp
+										@isset ($serv->service)
+											<tr class="item" id="serv-{{ $serv->service->id }}">
+												<td>
+													<b>{{ $serv->service->title }}</b>
+													<input type="hidden" name="services[{{ $serv->service->id }}][id]" value="{{ $serv->service->id }}">
+												</td>
+												<td>
+													<i>{{ $serv->service->code }}</i>
+												</td>
+												<td class="price text-right">
+													<input type="hidden" name="services[{{ $serv->service->id }}][price]" value="{{ $serv->price }}">
+													{{ $serv->price }}
+												</td>
+												<td>
+													<input type="number" name="services[{{ $serv->service->id }}][quantity]" min="1" value="{{ $serv->quantity }}" class="form-control p-0 quantity quantity_serv">
+												</td>
+												<td>
+													<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $serv->price }}" readonly>
+												</td>
+												<td>
+													<input type="number" name="services[{{ $serv->service->id }}][discount]" min="0" step=".01" value="{{ $serv->discount }}" class="form-control p-0 text-right discount">
+												</td>
+												<td>
+													<input type="number" name="services[{{ $serv->service->id }}][total]" min="0" step=".01" value="{{ $serv->total }}" class="form-control p-0 text-right total service" readonly>
+												</td>
+											</tr>
+											@php
+												$total_servs += $serv->total;
+											@endphp
+										@endisset
 									@endforeach
 								</tbody>
 								<tfoot class="bg-light">
