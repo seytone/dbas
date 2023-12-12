@@ -100,7 +100,7 @@
 								<td>${{ number_format($sale->total, 2, ',', '.') }} USD</td>
 								<td>${{ number_format($sale->commission, 2, ',', '.') }} USD</td>
 								<td>
-									@if (count($sale->products) > 0)
+									@if ($sale->products()->count() > 0)
 										<div id="products-{{ $sale->id }}">
 											@foreach ($sale->products as $prod)
 												@isset ($prod->product)
@@ -111,7 +111,7 @@
 									@endif
 								</td>
 								<td>
-									@if (count($sale->services) > 0)
+									@if ($sale->services()->count() > 0)
 										<div id="services-{{ $sale->id }}">
 											@foreach ($sale->services as $serv)
 												@isset ($serv->service)
