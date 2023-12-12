@@ -100,25 +100,25 @@
 								<td>${{ number_format($sale->total, 2, ',', '.') }} USD</td>
 								<td>${{ number_format($sale->commission, 2, ',', '.') }} USD</td>
 								<td>
-									@if (isset($sale->products))
+									@if (count($sale->products) > 0)
 										<div id="products-{{ $sale->id }}">
 											@foreach ($sale->products as $prod)
-												<p class="m-0">- {{ $prod->product->title }}</p>
+												@isset ($prod->product)
+													<p class="m-0">- {{ $prod->product->title }}</p>
+												@endisset
 											@endforeach
 										</div>
-									@else
-										<p class="m-0">---</p>
 									@endif
 								</td>
 								<td>
-									@if (isset($sale->services))
+									@if (count($sale->services) > 0)
 										<div id="services-{{ $sale->id }}">
 											@foreach ($sale->services as $serv)
-												<p class="m-0">- {{ $serv->service->title }}</p>
+												@isset ($serv->service)
+													<p class="m-0">- {{ $serv->service->title }}</p>
+												@endisset
 											@endforeach
 										</div>
-									@else
-										<p class="m-0">---</p>
 									@endif
 								</td>
 								<td class="text-center">
