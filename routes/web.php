@@ -29,7 +29,15 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::resource('services', 'Admin\ServicesController');
 	Route::resource('providers', 'Admin\ProvidersController');
 	Route::resource('sellers', 'Admin\SellersController');
+	Route::resource('employees', 'Admin\EmployeesController');
+
 	Route::get('help', 'Admin\HelpController@index')->name('help');
+	
+	Route::group(['prefix' => 'hours', 'as' => 'hours.'], function ()
+	{
+		Route::get('index', 'Admin\HoursController@index')->name('index');
+		Route::post('upload', 'Admin\HoursController@upload')->name('upload');
+	});
 
 	Route::get('sale_exists', 'Admin\SalesController@exists')->name('sales.exists');
 	Route::get('client_exists', 'Admin\ClientsController@exists')->name('clients.exists');
@@ -50,4 +58,5 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::delete('products_mass_destroy', 'Admin\ProductsController@massDestroy')->name('products.mass_destroy');
 	Route::delete('services_mass_destroy', 'Admin\ServicesController@massDestroy')->name('services.mass_destroy');
 	Route::delete('sellers_mass_destroy', 'Admin\SellersController@massDestroy')->name('sellers.mass_destroy');
+	Route::delete('employees_mass_destroy', 'Admin\EmployeesController@massDestroy')->name('employees.mass_destroy');
 });
