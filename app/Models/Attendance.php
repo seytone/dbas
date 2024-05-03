@@ -27,4 +27,24 @@ class Attendance extends Model
      */
     protected $guarded = ['id'];
     protected $guard_name = 'web';
+
+	/**
+	 * An attendance belongs to an employee.
+	 * 
+	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+	 */
+	public function employee()
+	{
+		return $this->belongsTo(Employee::class);
+	}
+
+	/**
+	 * An attendance has many records.
+	 * 
+	 * @return \Illuminate\Database\Eloquent\Relations\HasMany
+	 */
+	public function records()
+	{
+		return $this->hasMany(AttendanceRecord::class);
+	}
 }

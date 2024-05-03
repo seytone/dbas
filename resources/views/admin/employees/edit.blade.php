@@ -23,17 +23,6 @@
 						</div>
 					</div>
 					<div class="col-sm-12">
-						<div class="form-group {{ $errors->has('pin') ? 'has-error' : '' }}">
-							<label for="pin">Cédula&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="pin" name="pin" class="form-control" value="{{ old('pin', isset($employee) ? $employee->pin : '') }}" required>
-							@if ($errors->has('pin'))
-								<em class="invalid-feedback">
-									{{ $errors->first('pin') }}
-								</em>
-							@endif
-						</div>
-					</div>
-					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 							<label for="name">Nombre&nbsp;<b class="text-danger">*</b></label>
 							<input type="text" id="name" name="name" class="form-control" value="{{ old('name', isset($employee) ? $employee->name : '') }}" required>
@@ -56,9 +45,20 @@
 						</div>
 					</div>
 					<div class="col-sm-12">
+						<div class="form-group {{ $errors->has('pin') ? 'has-error' : '' }}">
+							<label for="pin">Cédula</label>
+							<input type="text" id="pin" name="pin" class="form-control" value="{{ old('pin', isset($employee) ? $employee->pin : '') }}">
+							@if ($errors->has('pin'))
+								<em class="invalid-feedback">
+									{{ $errors->first('pin') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-							<label for="email">Email&nbsp;<b class="text-danger">*</b></label>
-							<input type="email" id="email" name="email" class="form-control" value="{{ old('email', isset($employee) ? $employee->email : '') }}" required>
+							<label for="email">Email</label>
+							<input type="email" id="email" name="email" class="form-control" value="{{ old('email', isset($employee) ? $employee->email : '') }}">
 							@if ($errors->has('email'))
 								<em class="invalid-feedback">
 									{{ $errors->first('email') }}
@@ -68,8 +68,8 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-							<label for="phone">Teléfono&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="phone" name="phone" class="form-control" value="{{ old('phone', isset($employee) ? $employee->phone : '') }}" required>
+							<label for="phone">Teléfono</label>
+							<input type="text" id="phone" name="phone" class="form-control" value="{{ old('phone', isset($employee) ? $employee->phone : '') }}">
 							@if ($errors->has('phone'))
 								<em class="invalid-feedback">
 									{{ $errors->first('phone') }}
@@ -79,8 +79,8 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('department') ? 'has-error' : '' }}">
-							<label for="department">Departamento&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="department" name="department" class="form-control" value="{{ old('department', isset($employee) ? $employee->department : '') }}" required>
+							<label for="department">Departamento</label>
+							<input type="text" id="department" name="department" class="form-control" value="{{ old('department', isset($employee) ? $employee->department : '') }}">
 							@if ($errors->has('department'))
 								<em class="invalid-feedback">
 									{{ $errors->first('department') }}
@@ -90,8 +90,8 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('position') ? 'has-error' : '' }}">
-							<label for="position">Cargo&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="position" name="position" class="form-control" value="{{ old('position', isset($employee) ? $employee->position : '') }}" required>
+							<label for="position">Cargo</label>
+							<input type="text" id="position" name="position" class="form-control" value="{{ old('position', isset($employee) ? $employee->position : '') }}">
 							@if ($errors->has('position'))
 								<em class="invalid-feedback">
 									{{ $errors->first('position') }}

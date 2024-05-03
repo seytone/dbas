@@ -30,4 +30,14 @@ class Employee extends Model
      */
     protected $guarded = ['id'];
     protected $guard_name = 'web';
+
+	/**
+	 * An employee has many attendances.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\hasMany
+	 */
+	public function attendances()
+	{
+		return $this->hasMany(Attendance::class);
+	}
 }

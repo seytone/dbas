@@ -25,6 +25,8 @@ class CreateAttendanceRecordsTable extends Migration
 			$table->text('comments')->nullable();
 			$table->softDeletes();
 			$table->timestamps();
+
+			$table->foreign('attendance_id')->references('id')->on('attendances')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

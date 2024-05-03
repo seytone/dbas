@@ -41,14 +41,14 @@ class EmployeesController extends Controller
     {
         $validatedData = $request->validate([
             'number' => 'required|numeric|max:100',
-            'pin' => 'required|string|max:30',
             'name' => 'required|string|max:30',
             'lastname' => 'required|string|max:30',
-            'email' => 'required|email|max:100',
-            'phone' => 'required|string|max:30',
-            'salary' => 'required|numeric|between:0,999999.99',
-            'position' => 'required|string|max:30',
-            'department' => 'required|string|max:30'
+            'pin' => 'string|max:30',
+            'email' => 'email|max:100',
+            'phone' => 'string|max:30',
+            'department' => 'string|max:30',
+            'position' => 'string|max:30',
+            'salary' => 'required|numeric|between:0,999999.99'
         ]);
 
         Employee::create($validatedData);
@@ -89,14 +89,14 @@ class EmployeesController extends Controller
     {
         $validatedData = $request->validate([
             'number' => 'required|numeric|max:100',
-            'pin' => 'required|string|max:30',
             'name' => 'required|string|max:30',
             'lastname' => 'required|string|max:30',
-            'email' => 'required|email|max:100',
-            'phone' => 'required|string|max:30',
-            'salary' => 'required|numeric|between:0,999999.99',
-            'position' => 'required|string|max:30',
-            'department' => 'required|string|max:30'
+            'pin' => 'string|max:30',
+            'email' => 'email|max:100',
+            'phone' => 'string|max:30',
+            'department' => 'string|max:30',
+            'position' => 'string|max:30',
+            'salary' => 'required|numeric|between:0,999999.99'
         ]);
 
         $employee->update($validatedData);

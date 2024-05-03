@@ -16,14 +16,14 @@ class CreateEmployeesTable extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->bigIncrements('id')->unsigned();
             $table->integer('number')->unique()->comment('Número de empleado');
-			$table->string('pin')->unique()->comment('Cédula de identidad');
+			$table->string('pin')->nullable()->comment('Cédula de identidad');
             $table->string('name');
-            $table->string('lastname');
+            $table->string('lastname')->nullable()->default(null);
             $table->string('email')->nullable()->default(null);
             $table->string('phone')->nullable()->default(null);
             $table->string('department')->nullable()->default(null)->comment('Departamento');
             $table->string('position')->nullable()->default(null)->comment('Cargo');
-            $table->double('salary')->nullable()->default(null)->commnet('Salario');
+            $table->double('salary')->nullable()->default(1)->commnet('Tarifa por hora');
             $table->boolean('active')->default(true);
 			$table->softDeletes();
 			$table->timestamps();

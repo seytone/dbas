@@ -20,17 +20,6 @@
 						</div>
 					</div>
 					<div class="col-sm-12">
-						<div class="form-group {{ $errors->has('pin') ? 'has-error' : '' }}">
-							<label for="pin">Cédula&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="pin" name="pin" class="form-control" value="{{ old('pin') }}" required>
-							@if ($errors->has('pin'))
-								<em class="invalid-feedback">
-									{{ $errors->first('pin') }}
-								</em>
-							@endif
-						</div>
-					</div>
-					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
 							<label for="name">Nombre&nbsp;<b class="text-danger">*</b></label>
 							<input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>
@@ -53,9 +42,20 @@
 						</div>
 					</div>
 					<div class="col-sm-12">
+						<div class="form-group {{ $errors->has('pin') ? 'has-error' : '' }}">
+							<label for="pin">Cédula</label>
+							<input type="text" id="pin" name="pin" class="form-control" value="{{ old('pin') }}">
+							@if ($errors->has('pin'))
+								<em class="invalid-feedback">
+									{{ $errors->first('pin') }}
+								</em>
+							@endif
+						</div>
+					</div>
+					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('email') ? 'has-error' : '' }}">
-							<label for="email">Email&nbsp;<b class="text-danger">*</b></label>
-							<input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}" required>
+							<label for="email">Email</label>
+							<input type="email" id="email" name="email" class="form-control" value="{{ old('email') }}">
 							@if ($errors->has('email'))
 								<em class="invalid-feedback">
 									{{ $errors->first('email') }}
@@ -65,8 +65,8 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('phone') ? 'has-error' : '' }}">
-							<label for="phone">Teléfono&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="phone" name="phone" class="form-control" value="{{ old('phone') }}" required>
+							<label for="phone">Teléfono</label>
+							<input type="text" id="phone" name="phone" class="form-control" value="{{ old('phone') }}">
 							@if ($errors->has('phone'))
 								<em class="invalid-feedback">
 									{{ $errors->first('phone') }}
@@ -76,8 +76,8 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('department') ? 'has-error' : '' }}">
-							<label for="department">Departamento&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="department" name="department" class="form-control" value="{{ old('department') }}" required>
+							<label for="department">Departamento</label>
+							<input type="text" id="department" name="department" class="form-control" value="{{ old('department') }}">
 							@if ($errors->has('department'))
 								<em class="invalid-feedback">
 									{{ $errors->first('department') }}
@@ -87,8 +87,8 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('position') ? 'has-error' : '' }}">
-							<label for="position">Cargo&nbsp;<b class="text-danger">*</b></label>
-							<input type="text" id="position" name="position" class="form-control" value="{{ old('position') }}" required>
+							<label for="position">Cargo</label>
+							<input type="text" id="position" name="position" class="form-control" value="{{ old('position') }}">
 							@if ($errors->has('position'))
 								<em class="invalid-feedback">
 									{{ $errors->first('position') }}
@@ -98,7 +98,7 @@
 					</div>
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('salary') ? 'has-error' : '' }}">
-							<label for="salary">Salario&nbsp;<b class="text-danger">*</b></label>
+							<label for="salary">Tarifa horaria&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="salary" name="salary" class="form-control" value="{{ old('salary') }}" required>
 							@if ($errors->has('salary'))
 								<em class="invalid-feedback">

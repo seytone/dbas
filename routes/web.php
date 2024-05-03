@@ -35,7 +35,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	
 	Route::group(['prefix' => 'hours', 'as' => 'hours.'], function ()
 	{
-		Route::get('index', 'Admin\HoursController@index')->name('index');
+		Route::match(['get', 'post'], 'index', 'Admin\HoursController@index')->name('index');
 		Route::post('upload', 'Admin\HoursController@upload')->name('upload');
 	});
 
