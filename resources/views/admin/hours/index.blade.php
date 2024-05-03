@@ -76,7 +76,7 @@
                             <th>Horas Extras</th>
                             <th class="text-right">Total Extras</th>
                             <th class="text-center">Pago</th>
-                            <th width="120">&nbsp;</th>
+                            <th width="180">&nbsp;</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -94,14 +94,21 @@
                                 {{-- <td class="text-right">{{ $attendances->hours }}</td> --}}
                                 <td>{{ $attendances->extra }}</td>
                                 <td class="text-right">${{ number_format($totalPayment, 2, ',', '.') }} USD</td>
-                                <td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'warning' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'REALIZADO' }}</span></td>
-                                <td class="text-center">
-									<a class="btn btn-sm btn-success m-1 show-records" href="#" data-employee="{{ $employee->id }}" title="VER ASISTENCIAS">
+                                <td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'HECHO EL ' . $attendances->payment_date }}</span></td>
+                                <td class="text-right">
+									@if($attendances->payment == 'pending')
+										<a class="btn btn-sm btn-success m-1 pay-employee" href="#" data-attendance="{{ $attendances->id }}" title="MARCAR COMO PAGADO">
+											<i class="fa fa-fw fa-check" aria-hidden="true"></i>
+										</a>
+									@endif
+									<a class="btn btn-sm btn-warning m-1 show-records" href="#" data-employee="{{ $employee->id }}" title="VER ASISTENCIAS">
                                         <i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER EMPLEADO">
-                                        <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
-                                    </a>
+									@can('manage_employees')
+										<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER EMPLEADO">
+											<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
+										</a>
+									@endcan
                                 </td>
                             </tr>
 							@php
@@ -160,10 +167,10 @@
 															{{ $record->extra }}
 														</td>
 														<td>
-															{{ $record->comments }}
+															<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
 														</td>
 														<td>
-															<a class="btn btn-sm btn-secondary m-1" href="#" title="COMENTAR">
+															<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
 																<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
 															</a>
 														</td>
@@ -183,6 +190,7 @@
 @endsection
 @section('scripts')
     @parent
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script>
         $(function() {
             let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
@@ -251,6 +259,64 @@
 				event.preventDefault();
 				let employee = $(this).data('employee');
 				$('#records-' + employee).toggleClass('d-none');
+			});
+
+			$('.pay-employee').on('click', function(event) {
+				event.preventDefault();
+				Swal.fire({
+					title: '¿Estás seguro de marcar como pagado?',
+					showCancelButton: true,
+					confirmButtonText: 'Sí, marcar como pagado',
+					cancelButtonText: 'Cancelar'
+				}).then((result) => {
+					if (result.value === true) {
+						let _token = $('meta[name="csrf-token"]').attr('content');
+						let attendance = $(this).data('attendance');
+						$.ajax({
+							headers: {
+								'x-csrf-token': _token
+							},
+							method: 'POST',
+							url: "{{ route('admin.hours.pay') }}",
+							data: {
+								id: attendance
+							}
+						}).done(function() {
+							location.reload();
+						});
+					}
+				});
+			});
+
+			$('.commentTXT').on('input', function() {
+				let id = $(this).attr('rel');
+				let comment = $(this).val();
+				if (comment.length > 0) {
+					$('#commentBTN-' + id).removeClass('btn-secondary').addClass('btn-success');
+				} else {
+					$('#commentBTN-' + id).removeClass('btn-success').addClass('btn-secondary');
+				}
+			});
+
+			$('.commentBTN').on('click', function(event) {
+				event.preventDefault();
+				let id = $(this).attr('rel');
+				let comment = $('#commentTXT-' + id).val();
+				if (comment.length > 0) {
+					$.ajax({
+						headers: {
+							'x-csrf-token': _token
+						},
+						method: 'POST',
+						url: "{{ route('admin.hours.comment') }}",
+						data: {
+							id: id,
+							comment: comment
+						}
+					}).done(function() {
+						$('#commentBTN-' + id).removeClass('btn-success').addClass('btn-secondary');
+					});
+				}
 			});
         })
         $('[data-toggle="tooltip"]').tooltip()

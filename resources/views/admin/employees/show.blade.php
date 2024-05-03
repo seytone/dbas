@@ -81,9 +81,11 @@
 				<a class="btn btn-dark" href="{{ url()->previous() }}">
                     Regresar
                 </a>
-				<a class="btn btn-warning" href="{{ route('admin.employees.edit', $employee->id) }}">
-					Editar
-				</a>
+				@can('manage_employees')
+					<a class="btn btn-warning" href="{{ route('admin.employees.edit', $employee->id) }}">
+						Editar
+					</a>
+				@endcan
 			</div>
         </div>
 

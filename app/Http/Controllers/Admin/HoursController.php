@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Imports\AttendanceImport;
 use App\Models\Attendance;
+use App\Models\AttendanceRecord;
 use App\Models\Employee;
 use Carbon\Carbon;
 use Exception;
@@ -62,5 +63,24 @@ class HoursController extends Controller
 		}
 
 		return redirect()->route('admin.hours.index', ['success' => 'Archivo importado correctamente']);
+	}
+
+	public function comment(Request $request)
+	{
+		$attendance = AttendanceRecord::find($request->id);
+		$attendance->comments = $request->comment;
+		$attendance->save();
+
+		return response()->json(['success' => 'Comentario guardado correctamente']);
+	}
+
+	public function pay(Request $request)
+	{
+		$attendance = Attendance::find($request->id);
+		$attendance->payment = 'completed';
+		$attendance->payment_date = Carbon::now()->format('Y-m-d');
+		$attendance->save();
+
+		return response()->json(['success' => 'Pago guardado correctamente']);
 	}
 }

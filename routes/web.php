@@ -37,6 +37,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	{
 		Route::match(['get', 'post'], 'index', 'Admin\HoursController@index')->name('index');
 		Route::post('upload', 'Admin\HoursController@upload')->name('upload');
+		Route::post('comment', 'Admin\HoursController@comment')->name('comment');
+		Route::post('pay', 'Admin\HoursController@pay')->name('pay');
 	});
 
 	Route::get('sale_exists', 'Admin\SalesController@exists')->name('sales.exists');

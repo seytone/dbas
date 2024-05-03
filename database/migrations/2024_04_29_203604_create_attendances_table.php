@@ -20,7 +20,8 @@ class CreateAttendancesTable extends Migration
 			$table->string('month');
 			$table->double('hours')->default(0);
 			$table->double('extra')->default(0);
-			$table->enum('payment', ['pending', 'complete'])->default('pending')->comment('Estado del pago = pendiente | completado');
+			$table->enum('payment', ['pending', 'completed'])->default('pending')->comment('Estado del pago = pendiente | completado');
+			$table->date('payment_date')->nullable()->default(null)->comment('Fecha de pago');
 			$table->text('comments')->nullable();
 			$table->softDeletes();
 			$table->timestamps();

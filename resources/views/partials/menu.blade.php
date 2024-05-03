@@ -59,19 +59,21 @@
 					</ul>
 				</li>
 			@endcan
-			@can('manage_employees')
+			@can('manage_payroll')
                 <li class="nav-item nav-dropdown">
                     <a class="nav-link  nav-dropdown-toggle" href="#">
                         <i class="fa-fw fas fa-users nav-icon"></i>
                         RRHH
                     </a>
 					<ul class="nav-dropdown-items">
-						<li class="nav-item">
-							<a href="{{ route("admin.employees.index") }}" class="nav-link {{ request()->is('admin/employees') || request()->is('admin/employees/*') ? 'active' : '' }}">
-								<i class="fa-fw fas fa-user-tie nav-icon ml-4"></i>
-								Empleados
-							</a>
-						</li>
+						@can('manage_employees')
+							<li class="nav-item">
+								<a href="{{ route("admin.employees.index") }}" class="nav-link {{ request()->is('admin/employees') || request()->is('admin/employees/*') ? 'active' : '' }}">
+									<i class="fa-fw fas fa-user-tie nav-icon ml-4"></i>
+									Empleados
+								</a>
+							</li>
+						@endcan
 						{{-- <li class="nav-item">
 							<a href="{{ route("admin.brands.index") }}" class="nav-link {{ request()->is('admin/brands') || request()->is('admin/brands/*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-receipt nav-icon ml-4"></i>

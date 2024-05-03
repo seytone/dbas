@@ -6,15 +6,15 @@
 		</div>
 		<div class="col-12"><hr></div>
 	</div>
-    {{-- @can('create_employees') --}}
-    <div style="margin-bottom: 10px;" class="row">
-        <div class="col-lg-12">
-            <a class="btn btn-success" href="{{ route('admin.employees.create') }}">
-                <i class="fa fa-fw fa-plus mr-2 d-inline"></i>Nuevo Empleado
-            </a>
-        </div>
-    </div>
-    {{-- @endcan --}}
+    @can('manage_employees')
+		<div style="margin-bottom: 10px;" class="row">
+			<div class="col-lg-12">
+				<a class="btn btn-success" href="{{ route('admin.employees.create') }}">
+					<i class="fa fa-fw fa-plus mr-2 d-inline"></i>Nuevo Empleado
+				</a>
+			</div>
+		</div>
+    @endcan
     <div class="card">
         <div class="card-header">
             Gestión de Empleados
@@ -44,16 +44,18 @@
                                     <a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER">
                                         <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
                                     </a>
-                                    <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.employees.edit', $employee->id) }}" title="EDITAR">
-                                        <i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
-                                    </a>
-                                    <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-                                        <input type="hidden" name="_method" value="delete">
-                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                        <button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
-                                            <i class="fa fa-fw fa-trash" aria-hidden="true"></i>
-                                        </button>
-                                    </form>
+									@can('manage_employees')
+										<a class="btn btn-sm btn-warning m-1" href="{{ route('admin.employees.edit', $employee->id) }}" title="EDITAR">
+											<i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
+										</a>
+										<form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
+											<input type="hidden" name="_method" value="delete">
+											<input type="hidden" name="_token" value="{{ csrf_token() }}">
+											<button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
+												<i class="fa fa-fw fa-trash" aria-hidden="true"></i>
+											</button>
+										</form>
+									@endcan
                                 </td>
                             </tr>
                         @endforeach
