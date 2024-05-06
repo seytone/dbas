@@ -27,7 +27,7 @@ class HoursController extends Controller
 		$periods = Attendance::selectRaw("CONCAT(year, '-', month) AS period")->distinct()->orderBy('period', 'desc')->get();
 		$periodYear = explode('-', $period)[0];
 		$periodMonth = explode('-', $period)[1];
-		$employees = Employee::orderBy('number', 'asc')->all();
+		$employees = Employee::orderBy('number', 'asc')->get();
 
 		// $employees = Employee::with(['attendances' => function ($attendances) use ($periodYear, $periodMonth) {
 		// 	$attendances->where('year', $periodYear)->where('month', $periodMonth)->first();
