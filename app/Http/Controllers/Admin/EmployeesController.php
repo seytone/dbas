@@ -43,11 +43,11 @@ class EmployeesController extends Controller
             'number' => 'required|numeric|max:100',
             'name' => 'required|string|max:30',
             'lastname' => 'required|string|max:30',
-            'pin' => 'string|max:30',
-            'email' => 'email|max:100',
-            'phone' => 'string|max:30',
-            'department' => 'string|max:30',
-            'position' => 'string|max:30',
+            'pin' => 'nullable|sometimes|string|max:30',
+            'email' => 'nullable|sometimes|email|max:100',
+            'phone' => 'nullable|sometimes|string|max:30',
+            'department' => 'nullable|sometimes|string|max:30',
+            'position' => 'nullable|sometimes|string|max:30',
             'salary' => 'required|numeric|between:0,999999.99'
         ]);
 
@@ -91,11 +91,11 @@ class EmployeesController extends Controller
             'number' => 'required|numeric|max:100',
             'name' => 'required|string|max:30',
             'lastname' => 'required|string|max:30',
-            'pin' => 'string|max:30',
-            'email' => 'email|max:100',
-            'phone' => 'string|max:30',
-            'department' => 'string|max:30',
-            'position' => 'string|max:30',
+            'pin' => 'nullable|sometimes|string|max:30',
+            'email' => 'nullable|sometimes|email|max:100',
+            'phone' => 'nullable|sometimes|string|max:30',
+            'department' => 'nullable|sometimes|string|max:30',
+            'position' => 'nullable|sometimes|string|max:30',
             'salary' => 'required|numeric|between:0,999999.99'
         ]);
 
