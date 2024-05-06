@@ -32,127 +32,131 @@
 					<a class="btn btn-sm btn-dark text-light pull-right d-block d-lg-none mt-2 show-filters print-hidden" rel="filters">FILTROS</a>
 				</h1>
 			</div>
-			<div class="col-lg-9">
-				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-lg-flex pt-2 filters-form">
-					@csrf
-					<div class="col">
-						<div class="input-group">
-							<label class="input-group-text" for="start_date">Desde</label>
-							<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
-							<label class="input-group-text" for="final_date">Hasta</label>
-							<input type="date" id="final_date" name="final_date" class="form-control" value="{{ old('final_date', date('Y-m-d', strtotime($final_date))) }}">
-							@if ($user->hasRole('Superadmin'))
-								<label class="input-group-text" for="seller">Vendedor</label>
-								<select class="form-select" id="seller" name="seller">
-									<option value="all">Todos</option>
-									@foreach ($sellers as $seller)
-										<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
-									@endforeach
-								</select>
-							@elseif ($user->hasRole('Vendedor'))
-								<input type="hidden" id="seller" name="seller" value="{{ $user->seller->id }}">
-							@endif
+			@can('manage_sales')
+				<div class="col-lg-9">
+					<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none d-lg-flex pt-2 filters-form">
+						@csrf
+						<div class="col">
+							<div class="input-group">
+								<label class="input-group-text" for="start_date">Desde</label>
+								<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
+								<label class="input-group-text" for="final_date">Hasta</label>
+								<input type="date" id="final_date" name="final_date" class="form-control" value="{{ old('final_date', date('Y-m-d', strtotime($final_date))) }}">
+								@if ($user->hasRole('Superadmin'))
+									<label class="input-group-text" for="seller">Vendedor</label>
+									<select class="form-select" id="seller" name="seller">
+										<option value="all">Todos</option>
+										@foreach ($sellers as $seller)
+											<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
+										@endforeach
+									</select>
+								@elseif ($user->hasRole('Vendedor'))
+									<input type="hidden" id="seller" name="seller" value="{{ $user->seller->id }}">
+								@endif
+								<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
+							</div>
+						</div>
+					</form>
+					<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none pt-2" id="filters">
+						@csrf
+						<label class="input-group-text" for="start_date">Desde</label>
+						<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
+						<label class="input-group-text" for="final_date">Hasta</label>
+						<input type="date" id="final_date" name="final_date" class="form-control" value="{{ old('final_date', date('Y-m-d', strtotime($final_date))) }}">
+						@if ($user->hasRole('Superadmin'))
+							<label class="input-group-text" for="seller">Vendedor</label>
+							<select class="form-control" id="seller" name="seller">
+								<option value="all">Todos</option>
+								@foreach ($sellers as $seller)
+									<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
+								@endforeach
+							</select>
+						@elseif ($user->hasRole('Vendedor'))
+							<input type="hidden" id="seller" name="seller" value="{{ $user->seller->id }}">
+						@endif
+						<div class="col text-right mt-3 print-hidden">
 							<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
 						</div>
-					</div>
-				</form>
-				<form method="POST" action="{{ route('admin.dashboard') }}" class="d-none pt-2" id="filters">
-					@csrf
-					<label class="input-group-text" for="start_date">Desde</label>
-					<input type="date" id="start_date" name="start_date" class="form-control" value="{{ old('start_date', date('Y-m-d', strtotime($start_date))) }}">
-					<label class="input-group-text" for="final_date">Hasta</label>
-					<input type="date" id="final_date" name="final_date" class="form-control" value="{{ old('final_date', date('Y-m-d', strtotime($final_date))) }}">
-					@if ($user->hasRole('Superadmin'))
-						<label class="input-group-text" for="seller">Vendedor</label>
-						<select class="form-control" id="seller" name="seller">
-							<option value="all">Todos</option>
-							@foreach ($sellers as $seller)
-								<option value="{{ $seller->id }}" {{ $seller->id == $vendedor ? 'selected' : '' }}>{{ $seller->user->getFullname() }}</option>
-							@endforeach
-						</select>
-					@elseif ($user->hasRole('Vendedor'))
-						<input type="hidden" id="seller" name="seller" value="{{ $user->seller->id }}">
-					@endif
-					<div class="col text-right mt-3 print-hidden">
-						<button class="btn btn-default" type="submit"><b>Filtrar</b></button>
-					</div>
-				</form>
-			</div>
+					</form>
+				</div>
+			@endcan
 			<div class="col-12"><hr></div>
 		</div>
-		<div class="row stats">
-			<div class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-ventas">
-				<div class="callout callout-secondary">
-				<h3 class="text-muted mb-0">
-					<span class="d-none d-lg-block">Ventas</span>
-					<span class="d-block d-lg-none">Número de Ventas</span>
-				</h3><br>
-				<strong class="h4">{{ $sales }}</strong>
-				</div>
-			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-facturacion">
-				<div class="callout callout-dark">
-					<h3 class="text-muted mb-0">Facturación</h3><br>
-					<strong class="h4">${{ number_format($total_amount, 2, ',', '.') }}</strong>
-				</div>
-			</div>
-			@if ($user->hasRole('Superadmin'))
-				<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-ganancia">
-					<div class="callout callout-success">
-					<h3 class="text-muted mb-0">Ganancia</h3><br>
-					<strong class="h4">${{ number_format($total_profit, 2, ',', '.') }}</strong>
+		@can('manage_sales')
+			<div class="row stats">
+				<div class="col-12 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-ventas">
+					<div class="callout callout-secondary">
+					<h3 class="text-muted mb-0">
+						<span class="d-none d-lg-block">Ventas</span>
+						<span class="d-block d-lg-none">Número de Ventas</span>
+					</h3><br>
+					<strong class="h4">{{ $sales }}</strong>
 					</div>
 				</div>
-			@endif
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-comision">
-				<div class="callout callout-warning">
-				<h3 class="text-muted mb-0">Comisión</h3><br>
-				<strong class="h4">${{ number_format($total_commission, 2, ',', '.') }}</strong>
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-facturacion">
+					<div class="callout callout-dark">
+						<h3 class="text-muted mb-0">Facturación</h3><br>
+						<strong class="h4">${{ number_format($total_amount, 2, ',', '.') }}</strong>
+					</div>
+				</div>
+				@if ($user->hasRole('Superadmin'))
+					<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-ganancia">
+						<div class="callout callout-success">
+						<h3 class="text-muted mb-0">Ganancia</h3><br>
+						<strong class="h4">${{ number_format($total_profit, 2, ',', '.') }}</strong>
+						</div>
+					</div>
+				@endif
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3" id="stats-comision">
+					<div class="callout callout-warning">
+					<h3 class="text-muted mb-0">Comisión</h3><br>
+					<strong class="h4">${{ number_format($total_commission, 2, ',', '.') }}</strong>
+					</div>
+				</div>
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-servicios">
+					<div class="callout callout-danger">
+					<h3 class="text-muted mb-0">Servicios</h3><br>
+					<strong class="h4">{{ $total_services }}</strong>
+					</div>
+				</div>
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3 d-none d-lg-block" id="stats-productos">
+					<div class="callout callout-info">
+					<h3 class="text-muted mb-0">Productos</h3><br>
+					<strong class="h4">{{ $total_products }}</strong>
+					</div>
+				</div>
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-hardware">
+					<div class="callout callout-primary">
+					<h3 class="text-muted mb-0">Hardware</h3><br>
+					<strong class="h4">{{ $total_hardware }}</strong>
+					</div>
+				</div>
+				<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-software">
+					<div class="callout callout-primary">
+					<h3 class="text-muted mb-0">Software</h3><br>
+					<strong class="h4">{{ $total_software }}</strong>
+					</div>
+				</div>
+				<div class="col-12"><hr></div>
+			</div>
+			<div class="row charts">
+				<div class="col-md-12" id="stats-grafica-1">
+					<br>
+					<canvas id="myChart0"></canvas>
+					<br>
+				</div>
+				<div class="col-md-9" id="stats-grafica-2">
+					<br>
+					<canvas id="myChart1"></canvas>
+					<br>
+				</div>
+				<div class="col-md-3" id="stats-grafica-3">
+					<br>
+					<canvas id="myChart2"></canvas>
+					<br>
 				</div>
 			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-servicios">
-				<div class="callout callout-danger">
-				<h3 class="text-muted mb-0">Servicios</h3><br>
-				<strong class="h4">{{ $total_services }}</strong>
-				</div>
-			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3 d-none d-lg-block" id="stats-productos">
-				<div class="callout callout-info">
-				<h3 class="text-muted mb-0">Productos</h3><br>
-				<strong class="h4">{{ $total_products }}</strong>
-				</div>
-			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-hardware">
-				<div class="callout callout-primary">
-				<h3 class="text-muted mb-0">Hardware</h3><br>
-				<strong class="h4">{{ $total_hardware }}</strong>
-				</div>
-			</div>
-			<div class="col-6 col-sm-4 col-md-3 col-lg-3 col-xl-3" id="stats-software">
-				<div class="callout callout-primary">
-				<h3 class="text-muted mb-0">Software</h3><br>
-				<strong class="h4">{{ $total_software }}</strong>
-				</div>
-			</div>
-			<div class="col-12"><hr></div>
-		</div>
-		<div class="row charts">
-			<div class="col-md-12" id="stats-grafica-1">
-				<br>
-				<canvas id="myChart0"></canvas>
-				<br>
-			</div>
-			<div class="col-md-9" id="stats-grafica-2">
-				<br>
-				<canvas id="myChart1"></canvas>
-				<br>
-			</div>
-			<div class="col-md-3" id="stats-grafica-3">
-				<br>
-				<canvas id="myChart2"></canvas>
-				<br>
-			</div>
-		</div>
+		@endcan
 	</div>
 	@if ($user->hasRole('Superadmin'))
 		<div class="row mb-3" id="print-options">
