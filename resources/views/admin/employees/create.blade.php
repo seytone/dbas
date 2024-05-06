@@ -99,7 +99,7 @@
 					<div class="col-sm-12">
 						<div class="form-group {{ $errors->has('salary') ? 'has-error' : '' }}">
 							<label for="salary">Tarifa horaria&nbsp;<b class="text-danger">*</b></label>
-							<input type="number" id="salary" name="salary" class="form-control" value="{{ old('salary') }}" required>
+							<input type="number" id="salary" name="salary" class="form-control" value="{{ old('salary') }}" min="0" step=".01" required>
 							@if ($errors->has('salary'))
 								<em class="invalid-feedback">
 									{{ $errors->first('salary') }}

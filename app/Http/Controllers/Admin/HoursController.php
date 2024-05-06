@@ -44,8 +44,8 @@ class HoursController extends Controller
 		$file = $request->file('excel');
 		$file->storeAs('public', $file->getClientOriginalName());
 		$excel = storage_path('app/public/' . $file->getClientOriginalName());
-		$message = 'Archivo importado correctamente';
 		$result = 'success';
+		$message = 'Archivo importado correctamente';
 
 		try {
 			Excel::import(new AttendanceImport, $excel);

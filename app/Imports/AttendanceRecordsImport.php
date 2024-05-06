@@ -19,6 +19,12 @@ class AttendanceRecordsImport implements ToCollection
     public function collection(Collection $collection)
     {
 		try {
+			// Check if the file is valid
+			if (empty($collection) || $collection->count() < 3) {
+				throw new Exception('Error en registros del archivo');
+				return false;
+			}
+
 			// Extract date range
 			$date = explode(' ~ ', $collection[2][2]);
 			$register = Carbon::createFromFormat('Y-m-d', $date[0]);
