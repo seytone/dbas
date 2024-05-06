@@ -193,6 +193,30 @@
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
     <script>
         $(function() {
+			@if ($request->session()->has('success'))
+				Swal.fire({
+					toast: true,
+					position: 'bottom-end',
+					icon: 'success',
+					title: '¡Éxito!',
+					text: '{{ $request->session()->get('success') }}',
+					timer: 2000,
+					showConfirmButton: false
+				});
+			@endif
+
+			@if ($request->session()->has('error'))
+				Swal.fire({
+					toast: true,
+					position: 'bottom-end',
+					icon: 'error',
+					title: 'Error!',
+					text: '{{ $request->session()->get('error') }}',
+					timer: 3000,
+					showConfirmButton: false
+				});
+			@endif
+
             let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
             let deleteButtonTrans = 'Eliminar seleccionados'
             let deleteButton = {
@@ -237,9 +261,11 @@
                 ],
                 pageLength: 100,
             });
+
             $('.datatable-employees:not(.ajaxTable)').DataTable({
                 buttons: dtButtons
-            })
+            });
+
             $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
                 $($.fn.dataTable.tables(true)).DataTable()
                     .columns.adjust();

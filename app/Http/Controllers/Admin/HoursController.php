@@ -32,7 +32,7 @@ class HoursController extends Controller
 			$attendances->where('year', $periodYear)->where('month', $periodMonth)->first();
 		}])->get();
 
-		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth'));
+		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request'));
 	}
 
 	public function upload(Request $request)
@@ -44,25 +44,30 @@ class HoursController extends Controller
 		$file = $request->file('excel');
 		$file->storeAs('public', $file->getClientOriginalName());
 		$excel = storage_path('app/public/' . $file->getClientOriginalName());
+		$message = 'Archivo importado correctamente';
+		$result = 'success';
 
 		try {
 			Excel::import(new AttendanceImport, $excel);
-			@unlink($excel);
 		} catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
 			$errors = $e->failures();
 			foreach ($errors as $error) {
 				$errorRow = $error->row();
 				$errorColumn = $error->attribute();
 				$errorValue = $error->errors()[0];
-				Log::error("Error importing row $errorRow, column $errorColumn: $errorValue");
+				Log::error("Error processing row $errorRow, column $errorColumn: $errorValue");
 			}
-			dd($e);
+			$result = 'error';
+			$message = 'Error al procesar el archivo';
 		} catch (Exception $e) {
 			Log::error('Error importing excel', [$e]);
-			dd($e);
+			$result = 'error';
+			$message = 'Error al importar el archivo';
 		}
+		
+		@unlink($excel);
 
-		return redirect()->route('admin.hours.index', ['success' => 'Archivo importado correctamente']);
+		return redirect()->route('admin.hours.index')->with($result, $message);
 	}
 
 	public function comment(Request $request)
