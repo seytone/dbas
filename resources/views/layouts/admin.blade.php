@@ -88,14 +88,36 @@
                 @if(session('message'))
                     <div class="row mb-2">
                         <div class="col-lg-12">
-                            <div class="alert alert-success" role="alert">{{ session('message') }}</div>
+                            <div class="alert alert-success" role="alert">
+								{{ session('message') }}
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+                        </div>
+                    </div>
+                @endif
+                @if(session('success'))
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <div class="alert alert-success" role="alert">
+								{{ session('success') }}
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
                         </div>
                     </div>
                 @endif
                 @if(session('error'))
                     <div class="row mb-2">
                         <div class="col-lg-12">
-                            <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
+                            <div class="alert alert-danger" role="alert">
+								{{ session('error') }}
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
                         </div>
                     </div>
                 @endif
@@ -106,6 +128,9 @@
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
                     </div>
                 @endif
                 @yield('content')
