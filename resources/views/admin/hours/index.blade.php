@@ -34,7 +34,6 @@
 							<option value="{{ $val->period }}" {{ $val->period == $period ? 'selected' : '' }}>{{ $val->period }}</option>
 						@endforeach
 					</select>
-					{{-- <button class="btn btn-default" type="submit"><b>Filtrar</b></button> --}}
 				</div>
 			</form>
 		</div>

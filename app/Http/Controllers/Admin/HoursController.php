@@ -29,10 +29,6 @@ class HoursController extends Controller
 		$periodMonth = explode('-', $period)[1];
 		$employees = Employee::orderBy('number', 'asc')->get();
 
-		// $employees = Employee::with(['attendances' => function ($attendances) use ($periodYear, $periodMonth) {
-		// 	$attendances->where('year', $periodYear)->where('month', $periodMonth)->first();
-		// }])->get();
-
 		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request'));
 	}
 

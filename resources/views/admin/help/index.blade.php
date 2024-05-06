@@ -550,6 +550,174 @@
                         </div>
                     </div>
 				@endcan --}}
+				@can('manage_payroll')
+                    <div class="row">
+                        <div class="card w-100">
+                            <div class="card-header">
+                                RRHH
+                            </div>
+                            <div class="card-body">
+                                <div id="accordion-sales">
+                                    <div class="card">
+                                        <div class="card-header" id="heading-hours-1">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link" data-toggle="collapse" data-target="#collapse-hours-1" aria-expanded="false" aria-controls="collapse-hours-1">
+                                                    Importar archivo de asistencias
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-hours-1" class="collapse" aria-labelledby="heading-hours-1" data-parent="#accordion-sales">
+                                            <div class="card-body">
+												<p>Primero, busca la opción "RRHH" en el menú principal. Está ubicado en la parte lateral izquierda de la plataforma.</p>
+												<p>Una vez que encuentres la opción "RRHH", haz clic en ella. Esto te llevará a una nueva página con varias opciones. Busca y haz clic en en el botón "Importar Registros". Esto te permitirá bucar en tu equipo y seleccionar el archivo excel que vas a importar.</p>
+												<p>El sistema se encargará de hacer todos los cálculos necesarios de forma automática basado en los registros del archivo importado. Al final, podrás ver los valores correspondiente a cada uno de los empleados.</p>
+												<p>A continuación, tienes algunas imágenes de referencia.</p>
+												<div class="row">
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour1.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour1.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour2.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour2.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header" id="heading-hours-2">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse-hours-2" aria-expanded="false" aria-controls="collapse-hours-2">
+                                                    Visualizar listado de horas extras
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-hours-2" class="collapse" aria-labelledby="heading-hours-2" data-parent="#accordion-sales">
+                                            <div class="card-body">
+												<p>Una vez que hayas cargado por primera vez el archivo de registro de asistencias, verás la lista de empleados con su respectivo control de horas del periodo para cada uno.</p>
+												<p>En este listado verás varios datos por cada empleado y 2 opciones para ejecutar.</p>
+												<p>La columna "Horas Extras" muestra el total de horas extras del periodo según el registro de asistencia. Mientras que la columna "Total Extras" muestra el monto total a pagar en función de la cantidad de horas extras calculadas y la tárifa horaria de cada empleado. Este útimo dato es administrado desde la sección de empleados y DEBE existir previamente antes de importar el archivo excel.</p> 
+												<p>A continuación, tienes algunas imágenes de referencia.</p>
+												<div class="row">
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour1.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour1.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour3.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour3.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour7.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour7.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header" id="heading-hours-3">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse-hours-3" aria-expanded="false" aria-controls="collapse-hours-3">
+                                                    Ver detalle del registro de horas extras
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-hours-3" class="collapse" aria-labelledby="heading-hours-3" data-parent="#accordion-sales">
+                                            <div class="card-body">
+												<p>Cuando ya tengas registros importados, vas a poder visualizar el detalle de asistencias diarias de cada empleado. Para esto, situate en la lista y ubica el botón amarillo para ver las asistencias.</p>
+												<p>Una vez haces click sobre este botón, verás que se despliega un nuevo listado justo debajo del empleado seleccionado.</p>
+												<p>En este listado podrás ver la fecha, la hora de entrada, la hora de salida, las horas trabajadas, las horas extras y el total a pagar por horas extras.</p>
+												<p>Recuerda que este listado es solo para visualización y no permite realizar modificaciones. Si necesitas hacer ajustes, deberás hacerlo desde el archivo de registro de asistencias y volver a importarlo.</p>
+												<p>A continuación, tienes algunas imágenes de referencia.</p>
+												<div class="row">
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour1.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour1.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour4.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour4.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-header" id="heading-hours-4">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse-hours-4" aria-expanded="false" aria-controls="collapse-hours-4">
+                                                    Añadir observaciones en el registro de asistencia
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-hours-4" class="collapse" aria-labelledby="heading-hours-4" data-parent="#accordion-sales">
+                                            <div class="card-body">
+												<p>Una vez tienes acceso al detalle de registros por empleado, verás un campo de texto en el que podrás añadir comentarios a cada registro de asistencia. Esto es útil para llevar un control de las horas extras que han sido justificadas o para añadir cualquier observación que consideres necesaria.</p>
+												<p>Para añadir un comentario, comienza a escribir sobre el campo al lado del registro diario que quieras comentar. Una vez que hayas terminado de escribir, presiona el botón verde de al lado para guardar el comentario.</p>
+												<p>Recuerda que este campo es opcional y puedes añadir comentarios a todos los registros que consideres necesarios.</p>
+												<p>Ten en cuenta que debes guardar uno a uno en la medida que vas escribiendo comentarios a distintos registros.</p>
+												<p>A continuación, tienes algunas imágenes de referencia.</p>
+												<div class="row">
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour1.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour1.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour4.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour4.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour5.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour5.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+								<div class="card">
+                                        <div class="card-header" id="heading-hours-5">
+                                            <h5 class="mb-0">
+                                                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapse-hours-5" aria-expanded="false" aria-controls="collapse-hours-5">
+                                                    Marcar horas extras como pagadas
+                                                </button>
+                                            </h5>
+                                        </div>
+                                        <div id="collapse-hours-5" class="collapse" aria-labelledby="heading-hours-5" data-parent="#accordion-sales">
+                                            <div class="card-body">
+												<p>En el listado de registros encontrarás un botón verde con el que podrás marcar las horas extras como pagadas. Esto es útil para llevar un control de las horas extras que ya han sido pagadas y las que aún están pendientes de pago.</p>
+												<p>A continuación, tienes algunas imágenes de referencia.</p>
+												<div class="row">
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour1.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour1.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+													<div class="col-md-4">
+														<a href="{{ asset('img/help/hour6.jpg') }}" data-fancybox data-caption="Help Image">
+															<img src="{{ asset('img/help/hour6.jpg') }}" alt="Hours" class="my-2 img-fluid w-100">
+														</a>
+													</div>
+												</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                @endcan
             </div>
         </div>
     @endsection
