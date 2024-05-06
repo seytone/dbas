@@ -23,14 +23,15 @@ class HoursController extends Controller
 	public function index(Request $request)
 	{
 		$now = Carbon::now();
-		$period = $request->period ?? $now->format('Y-m');
+		$period = ($request->period && $request->period != 'all') ? $request->period : $now->subMonth()->format('Y-n');
 		$periods = Attendance::selectRaw("CONCAT(year, '-', month) AS period")->distinct()->orderBy('period', 'desc')->get();
 		$periodYear = explode('-', $period)[0];
 		$periodMonth = explode('-', $period)[1];
+		$employees = Employee::all();
 
-		$employees = Employee::with(['attendances' => function ($attendances) use ($periodYear, $periodMonth) {
-			$attendances->where('year', $periodYear)->where('month', $periodMonth)->first();
-		}])->get();
+		// $employees = Employee::with(['attendances' => function ($attendances) use ($periodYear, $periodMonth) {
+		// 	$attendances->where('year', $periodYear)->where('month', $periodMonth)->first();
+		// }])->get();
 
 		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request'));
 	}
