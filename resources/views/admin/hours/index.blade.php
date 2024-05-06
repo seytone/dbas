@@ -59,124 +59,140 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($employees as $key => $employee)
-							@php
-								$attendances = Attendance::where('employee_id', $employee->id)->where('year', $periodYear)->where('month', $periodMonth)->orderBy('id', 'desc')->first();
-							@endphp
-							@if ($attendances == null)
-								<tr>
-									<td>{{ $employee->number }}</td>
-									<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
-									<td>{{ $employee->department }}</td>
-									<td>---</td>
-									<td>---</td>
-									<td class="text-right">---</td>
-									<td class="text-center">---</td>
-									<td class="text-right">
-										@can('manage_employees')
-											<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER EMPLEADO">
-												<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
-											</a>
-										@endcan
-									</td>
-								</tr>
-							@else
-								<tr data-entry-id="{{ $employee->id }}">
-									<td>{{ $employee->number }}</td>
-									<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
-									<td>{{ $employee->department ?? '---' }}</td>
-									<td>{{ $attendances->year . '-' . $attendances->month }}</td>
-									<td>{{ $attendances->extra }}</td>
-									<td class="text-right">${{ number_format(($employee->salary * $attendances->extra) ?? 0, 2, ',', '.') }} USD</td>
-									<td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'HECHO EL ' . $attendances->payment_date }}</span></td>
-									<td class="text-right">
-										@if($attendances->payment == 'pending')
-											<a class="btn btn-sm btn-success m-1 pay-employee" href="#" data-attendance="{{ $attendances->id }}" title="MARCAR COMO PAGADO">
-												<i class="fa fa-fw fa-check" aria-hidden="true"></i>
-											</a>
-										@endif
-										<a class="btn btn-sm btn-warning m-1 show-records" href="#" data-employee="{{ $employee->id }}" title="VER ASISTENCIAS">
-											<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
-										</a>
-										@can('manage_employees')
-											<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER EMPLEADO">
-												<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
-											</a>
-										@endcan
-									</td>
-								</tr>
+						@if (count($employees) == 0)
+							<tr>
+								<td colspan="8" class="text-center">--- No hay registros ---</td>
+							</tr>
+						@else
+							@foreach ($employees as $key => $employee)
 								@php
-									// $records = AttendanceRecord::where('attendance_id', $attendances->id)->orderBy('id', 'asc')->get();
-									$records = $attendances->records()->get();
+									$attendances = Attendance::where('employee_id', $employee->id)->where('year', $periodYear)->where('month', $periodMonth)->orderBy('id', 'desc')->first();
 								@endphp
-								@if (count($records) > 0)
-									<tr class="d-none" id="records-{{ $employee->id }}">
-										<td colspan="8">
-											<table class="table table-sm table-hover">
-												<thead>
-													<tr>
-														<th>
-															Fecha
-														</th>
-														<th>
-															Día
-														</th>
-														<th>
-															Entrada
-														</th>
-														<th>
-															Salida
-														</th>
-														<th>
-															Horas Registradas
-														</th>
-														<th>
-															Horas Extras
-														</th>
-														<th>
-															Comentarios
-														</th>
-														<th width="60">&nbsp;</th>
-													</tr>
-												</thead>
-												<tbody>
-													@foreach ($records as $record)
-														<tr class="{{ $record->day == 'sábado' || $record->day == 'domingo' ? 'table-secondary text-muted' : '' }}">
-															<td>
-																{{ $record->date }}
-															</td>
-															<td>
-																{{ ucwords($record->day) }}
-															</td>
-															<td>
-																{{ $record->entry }}
-															</td>
-															<td>
-																{{ $record->exit }}
-															</td>
-															<td>
-																{{ $record->hours }}
-															</td>
-															<td class="{{ $record->extra > 0 ? 'font-weight-bold' : '' }}">
-																{{ $record->extra }}
-															</td>
-															<td>
-																<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
-															</td>
-															<td>
-																<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
-																	<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
-																</a>
-															</td>
-														</tr>
-													@endforeach
-												</tbody>
-											</table>
+								@if ($attendances == null)
+									<tr>
+										<td>{{ $employee->number }}</td>
+										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
+										<td>{{ $employee->department }}</td>
+										<td>---</td>
+										<td>---</td>
+										<td class="text-right">---</td>
+										<td class="text-center">---</td>
+										<td class="text-right">
+											@can('manage_employees')
+												<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER EMPLEADO">
+													<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
+												</a>
+											@endcan
 										</td>
 									</tr>
+								@else
+									@php
+										// $hourlyRate = ($employee->salary / 30) / 8;
+										// $hourlyRate = $employee->salary / 160;
+										$hourlyRate = $employee->salary;
+									@endphp
+									<tr data-entry-id="{{ $employee->id }}">
+										<td>{{ $employee->number }}</td>
+										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
+										<td>{{ $employee->department ?? '---' }}</td>
+										<td>{{ $attendances->year . '-' . $attendances->month }}</td>
+										<td>{{ $attendances->extra }}</td>
+										<td class="text-right">${{ number_format(($hourlyRate * $attendances->extra) ?? 0, 2, ',', '.') }} USD</td>
+										<td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'HECHO EL ' . $attendances->payment_date }}</span></td>
+										<td class="text-right">
+											@if($attendances->payment == 'pending')
+												<a class="btn btn-sm btn-success m-1 pay-employee" href="#" data-attendance="{{ $attendances->id }}" title="MARCAR COMO PAGADO">
+													<i class="fa fa-fw fa-check" aria-hidden="true"></i>
+												</a>
+											@endif
+											<a class="btn btn-sm btn-warning m-1 show-records" href="#" data-employee="{{ $employee->id }}" title="VER ASISTENCIAS">
+												<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
+											</a>
+											@can('manage_employees')
+												<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER EMPLEADO">
+													<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
+												</a>
+											@endcan
+										</td>
+									</tr>
+									@php
+										// $records = AttendanceRecord::where('attendance_id', $attendances->id)->orderBy('id', 'asc')->get();
+										$records = $attendances->records()->get();
+									@endphp
+									@if (count($records) > 0)
+										<tr class="d-none" id="records-{{ $employee->id }}">
+											<td colspan="8">
+												<table class="table table-sm table-hover">
+													<thead>
+														<tr>
+															<th>
+																Fecha
+															</th>
+															<th>
+																Día
+															</th>
+															<th>
+																Entrada
+															</th>
+															<th>
+																Salida
+															</th>
+															<th>
+																Horas Registradas
+															</th>
+															<th>
+																Horas Extras
+															</th>
+															<th>
+																Comentarios
+															</th>
+															<th width="60">&nbsp;</th>
+														</tr>
+													</thead>
+													<tbody>
+														@foreach ($records as $record)
+															@php
+																$entryT = explode(':', $record->entry);
+																$entryH = intval($entryT[0]);
+																$entryM = count($entryT) > 1 ? intval($entryT[1]) : 0;
+															@endphp
+															<tr class="{{ $record->day == 'sábado' || $record->day == 'domingo' ? 'table-secondary text-muted' : '' }}">
+																<td>
+																	{{ $record->date }}
+																</td>
+																<td>
+																	{{ ucwords($record->day) }}
+																</td>
+																<td class="{{ ($entryH >= 8 && $entryM >= 10) || $entryH >= 9 ? 'text-danger' : '' }}" rel="{{ $entryH . ':' . $entryM }}">
+																	{{ $record->entry }}
+																</td>
+																<td>
+																	{{ $record->exit }}
+																</td>
+																<td class="{{ floatval($record->hours) >= 8.2 ? 'text-primary font-weight-bold' : '' }}">
+																	{{ $record->hours }}
+																</td>
+																<td class="{{ $record->extra > 0 ? 'font-weight-bold' : '' }}">
+																	{{ $record->extra }}
+																</td>
+																<td>
+																	<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
+																</td>
+																<td>
+																	<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
+																		<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
+																	</a>
+																</td>
+															</tr>
+														@endforeach
+													</tbody>
+												</table>
+											</td>
+										</tr>
+									@endif
 								@endif
-							@endif
-                        @endforeach
+							@endforeach
+						@endif
                     </tbody>
                 </table>
             </div>
