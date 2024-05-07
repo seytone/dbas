@@ -52,8 +52,8 @@
                             <th>Empleado</th>
                             <th>Departamento</th>
                             <th>Período</th>
-                            <th>Horas Extras</th>
-                            <th class="text-right">Total Extras</th>
+                            <th>Tiempo Extra</th>
+                            <th class="text-right pr-5">Costo Extra</th>
                             <th class="text-center">Pago</th>
                             <th width="180">&nbsp;</th>
                         </tr>
@@ -75,7 +75,7 @@
 										<td>{{ $employee->department }}</td>
 										<td>---</td>
 										<td>---</td>
-										<td class="text-right">---</td>
+										<td class="text-right pr-5">---</td>
 										<td class="text-center">---</td>
 										<td class="text-right">
 											@can('manage_employees')
@@ -90,14 +90,15 @@
 										// $hourlyRate = ($employee->salary / 30) / 8;
 										// $hourlyRate = $employee->salary / 160;
 										$hourlyRate = $employee->salary;
+										$minuteRate = $hourlyRate / 60;
 									@endphp
-									<tr data-entry-id="{{ $employee->id }}">
+									<tr class="text-primary" data-entry-id="{{ $employee->id }}">
 										<td>{{ $employee->number }}</td>
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department ?? '---' }}</td>
 										<td>{{ $attendances->year . '-' . $attendances->month }}</td>
-										<td>{{ $attendances->extra }}</td>
-										<td class="text-right">${{ number_format(($hourlyRate * $attendances->extra) ?? 0, 2, ',', '.') }} USD</td>
+										<td>{{ $attendances->extra }} min</td>
+										<td class="text-right pr-5">${{ number_format(($minuteRate * $attendances->extra) ?? 0, 2, ',', '.') }} USD</td>
 										<td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'HECHO EL ' . $attendances->payment_date }}</span></td>
 										<td class="text-right">
 											@if($attendances->payment == 'pending')
@@ -124,24 +125,27 @@
 											<td colspan="8">
 												<table class="table table-sm table-hover">
 													<thead>
-														<tr>
-															<th>
+														<tr class="bg-dark text-white">
+															<th class="text-center">
 																Fecha
 															</th>
 															<th>
 																Día
 															</th>
-															<th>
-																Entrada
+															<th class="text-center">
+																Hora Entrada
 															</th>
-															<th>
-																Salida
+															<th class="text-center">
+																Hora Salida
 															</th>
-															<th>
-																Horas Registradas
+															{{-- <th>
+																Tiempo Registrado
+															</th> --}}
+															<th class="text-center">
+																Minutos Adicionales
 															</th>
-															<th>
-																Horas Extras
+															<th class="text-right pr-5">
+																Pago Adicional
 															</th>
 															<th>
 																Comentarios
@@ -155,25 +159,31 @@
 																$entryT = explode(':', $record->entry);
 																$entryH = intval($entryT[0]);
 																$entryM = count($entryT) > 1 ? intval($entryT[1]) : 0;
+																$exitT = !empty($record->exit) ? explode(':', $record->exit) : [0,0];
+																$exitH = intval($exitT[0]);
+																$exitM = count($exitT) > 1 ? intval($exitT[1]) : 0;
 															@endphp
 															<tr class="{{ $record->day == 'sábado' || $record->day == 'domingo' ? 'table-secondary text-muted' : '' }}">
-																<td>
+																<td class="text-center">
 																	{{ $record->date }}
 																</td>
 																<td>
 																	{{ ucwords($record->day) }}
 																</td>
-																<td class="{{ ($entryH >= 8 && $entryM >= 10) || $entryH >= 9 ? 'text-danger' : '' }}" rel="{{ $entryH . ':' . $entryM }}">
-																	{{ $record->entry }}
+																<td class="{{ ($entryH >= 8 && $entryM >= 1) || $entryH >= 9 ? 'text-danger' : '' }} {{ empty($record->entry) ? 'text-black-50' : '' }} text-center" rel="{{ $entryH . ':' . $entryM }}">
+																	{{ !empty($record->entry) ? $record->entry : '---' }}
 																</td>
-																<td>
-																	{{ $record->exit }}
+																<td class="{{ ($exitH >= 17 && $exitM >= 21) || $exitH >= 18 ? 'text-danger' : '' }} {{ empty($record->exit) ? 'text-black-50' : '' }} text-center" rel="{{ $exitH . ':' . $exitM }}">
+																	{{ !empty($record->exit) ? $record->exit : '---' }}
 																</td>
-																<td class="{{ floatval($record->hours) >= 8.2 ? 'text-primary font-weight-bold' : '' }}">
+																{{-- <td class="{{ floatval($record->hours) >= 8.2 ? 'text-primary font-weight-bold' : '' }}">
 																	{{ $record->hours }}
+																</td> --}}
+																<td class="{{ $record->extra > 20 ? 'font-weight-bold' : 'text-black-50' }} text-center">
+																	{{ $record->extra > 20 ? $record->extra : 'N/A'}}
 																</td>
-																<td class="{{ $record->extra > 0 ? 'font-weight-bold' : '' }}">
-																	{{ $record->extra }}
+																<td class="{{ $record->extra > 20 ? 'text-dark' : 'text-black-50' }} text-right pr-5" rel="{{ $minuteRate }}">
+																	${{ number_format(($minuteRate * $record->extra) ?? 0, 2, ',', '.') }} USD
 																</td>
 																<td>
 																	<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">

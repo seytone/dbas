@@ -82,21 +82,26 @@ class AttendanceRecordsImport implements ToCollection
 						$fecha = $date->format('Y-m-d');
 						$ini = $logs != [''] ? Carbon::createFromFormat('Y-m-d H:i', $fecha . ' ' . $logs[0]) : false;
 						$end = $logs != [''] ? Carbon::createFromFormat('Y-m-d H:i', $fecha . ' ' . end($logs)) : false;
+						$final = Carbon::createFromFormat('Y-m-d H:i', $fecha . ' 17:00');
 						$start = $ini ? $ini->format('H:i') : null;
 						$exit = count($logs) > 1 ? $end->format('H:i') : null;
 						$quantity = count($logs) > 1 ? $ini->diff($end)->format('%H:%I') : '00:00';
 						$hours = floatval(str_replace(':', '.', $quantity)) - 1; // Rest 1 hour for lunch
-						$extras = floatval($hours > 8 ? $hours - 8 : 0);
-						$base = floor($extras);
-						$decimals = floatval(number_format($extras - $base, 2));
-						$extra = $decimals >= 0.20 ? $base + 1 : $base;
+						// $extras = floatval($hours > 8 ? $hours - 8 : 0);
+						// $base = floor($extras);
+						// $decimals = floatval(number_format($extras - $base, 2));
+						// $extra = $decimals >= 0.20 ? $base + 1 : $base;
+						// TODO: Calculate extra minutes instead of hours. The extra time is considered from 17:21 onwards, no matter the entry time.
+						$extraMinutes = $end && $end > $final ? $final->diffInMinutes($end) : 0;
+						$extra = $extraMinutes > 20 ? $extraMinutes : 0;
 						$latest['logs'][$key] = [
 							'date' => $date->format('Y-m-d'),			// Date
 							'entry' => $start,							// Entry time
 							'exit' => $exit,							// Exit time
 							'day' => $date->locale('es_ES')->dayName, 	// Day of the week
 							'hours' => $hours > 0 ? $hours : 0,			// Worked hours
-							'extra' => $extra > 0 ? $extra : 0,			// Extra hours
+							'extra' => $extra,							// Extra time (min)
+							// 'extra' => $extra > 0 ? $extra : 0,		// Extra time (hours)
 						];
 					}
 					$employeeData[$last] = $latest;
