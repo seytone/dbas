@@ -7,9 +7,10 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Controllers\Controller;
 use App\Imports\AttendanceImport;
-use App\Models\Attendance;
 use App\Models\AttendanceRecord;
+use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Config;
 use Carbon\Carbon;
 use Exception;
 
@@ -28,8 +29,9 @@ class HoursController extends Controller
 		$periodYear = explode('-', $period)[0];
 		$periodMonth = explode('-', $period)[1];
 		$employees = Employee::orderBy('number', 'asc')->get();
+		$extraTimeIni = Config::where('key', 'extra_time_ini')->first()->value ?? 20;
 
-		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request'));
+		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request','extraTimeIni'));
 	}
 
 	public function upload(Request $request)
@@ -67,11 +69,25 @@ class HoursController extends Controller
 		return redirect()->route('admin.hours.index')->with($result, $message);
 	}
 
+	public function apply(Request $request)
+	{
+		$record = AttendanceRecord::find($request->id);
+		$record->apply = $request->apply;
+		$record->extra = $request->extra;
+		$record->save();
+
+		$attendance = Attendance::find($record->attendance_id);
+		$attendance->extra = $attendance->records()->sum('extra');
+		$attendance->save();
+
+		return response()->json(['success' => 'Registro actualizado correctamente']);
+	}
+
 	public function comment(Request $request)
 	{
-		$attendance = AttendanceRecord::find($request->id);
-		$attendance->comments = $request->comment;
-		$attendance->save();
+		$record = AttendanceRecord::find($request->id);
+		$record->comments = $request->comment;
+		$record->save();
 
 		return response()->json(['success' => 'Comentario guardado correctamente']);
 	}

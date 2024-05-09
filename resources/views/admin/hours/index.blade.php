@@ -6,8 +6,25 @@
 @extends('layouts.admin')
 @section('content')
 	<div class="row mb-2">
-        <div class="col-12">
+        <div class="col-8">
             <h1>Horas Extras</h1>
+		</div>
+		<div class="col-4">
+			@if (Auth::user()->hasRole('Superadmin'))
+				<div class="float-right">
+					<form class="form-inline" action="{{ route('admin.update_config') }}" method="post" title="NOTA: Recuerda que si actualizas este dato debes volver a importar el reporte de asistencia.">
+						@csrf
+						<input type="hidden" name="key" value="extra_time_ini">
+						<div class="input-group">
+							<span class="input-group-addon btn bg-light px-2" id="basic-addon2"><i class="fa fa-fw fa-cog mr-2 d-inline"></i>Minutos tiempo extra</span>
+							<input type="text" class="form-control text-center" placeholder="20" name="value" value="{{ $extraTimeIni }}" aria-describedby="basic-addon2" min="0" required>
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-dark btn-sm" id="basic-addon2"><i class="fa fa-fw fa-save"></i></button>
+							</div>
+						</div>
+					</form>
+				</div>
+			@endif
 		</div>
 		<div class="col-12"><hr></div>
 	</div>
@@ -17,7 +34,7 @@
 			<form class="form-inline" action="{{ route('admin.hours.upload') }}" method="post" enctype="multipart/form-data">
 				@csrf
 				<div class="input-group">
-					<span class="input-group-addon btn bg-light p-2" id="basic-file"><i class="fa fa-fw fa-plus mr-2 d-inline"></i>Importar Registros</span>
+					<span class="input-group-addon btn bg-light px-2" id="basic-file"><i class="fa fa-fw fa-plus mr-2 d-inline"></i>Importar Registros</span>
 					<input type="text" class="form-control" placeholder="Archivo exel..." id="placetext" aria-describedby="basic-addon2" disabled='true'>
 					<input type="file" class="d-none" name="excel" id="excel"/>
 				</div>
@@ -28,7 +45,7 @@
 			<form class="filters-form pt-2" action="{{ route('admin.hours.index') }}" method="POST" id="filters">
 				@csrf
 				<div class="input-group justify-content-end">
-					<label class="input-group-text" for="start_date">Periodo</label>
+					<label class="input-group-text" for="start_date"><i class="fa fa-fw fa-calendar mr-2 d-inline"></i>Periodo</label>
 					<select class="form-control text-right period" name="period" rel="{{ $period }}">
 						@foreach ($periods as $val)
 							<option value="{{ $val->period }}" {{ $val->period == $period ? 'selected' : '' }}>{{ $val->period }}</option>
@@ -87,8 +104,6 @@
 									</tr>
 								@else
 									@php
-										// $hourlyRate = ($employee->salary / 30) / 8;
-										// $hourlyRate = $employee->salary / 160;
 										$hourlyRate = $employee->salary;
 										$minuteRate = $hourlyRate / 60;
 									@endphp
@@ -98,7 +113,7 @@
 										<td>{{ $employee->department ?? '---' }}</td>
 										<td>{{ $attendances->year . '-' . $attendances->month }}</td>
 										<td>{{ $attendances->extra }} min</td>
-										<td class="text-right pr-5">${{ number_format(($minuteRate * $attendances->extra) ?? 0, 2, ',', '.') }} USD</td>
+										<td class="text-right pr-5" id="extraCost-{{ $employee->id }}" data-total="{{ $minuteRate * $attendances->extra }}">${{ number_format(($minuteRate * $attendances->extra) ?? 0, 2, '.', ',') }} USD</td>
 										<td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'HECHO EL ' . $attendances->payment_date }}</span></td>
 										<td class="text-right">
 											@if($attendances->payment == 'pending')
@@ -117,8 +132,7 @@
 										</td>
 									</tr>
 									@php
-										// $records = AttendanceRecord::where('attendance_id', $attendances->id)->orderBy('id', 'asc')->get();
-										$records = $attendances->records()->get();
+										$records = AttendanceRecord::where('attendance_id', $attendances->id)->orderBy('id', 'asc')->get();
 									@endphp
 									@if (count($records) > 0)
 										<tr class="d-none" id="records-{{ $employee->id }}">
@@ -138,16 +152,16 @@
 															<th class="text-center">
 																Hora Salida
 															</th>
-															{{-- <th>
-																Tiempo Registrado
-															</th> --}}
 															<th class="text-center">
 																Minutos Adicionales
+															</th>
+															<th class="text-center">
+																Corresponde
 															</th>
 															<th class="text-right pr-5">
 																Pago Adicional
 															</th>
-															<th>
+															<th width="300">
 																Comentarios
 															</th>
 															<th width="60">&nbsp;</th>
@@ -173,25 +187,44 @@
 																<td class="{{ ($entryH >= 8 && $entryM >= 1) || $entryH >= 9 ? 'text-danger' : '' }} {{ empty($record->entry) ? 'text-black-50' : '' }} text-center" rel="{{ $entryH . ':' . $entryM }}">
 																	{{ !empty($record->entry) ? $record->entry : '---' }}
 																</td>
-																<td class="{{ ($exitH >= 17 && $exitM >= 21) || $exitH >= 18 ? 'text-danger' : '' }} {{ empty($record->exit) ? 'text-black-50' : '' }} text-center" rel="{{ $exitH . ':' . $exitM }}">
+																<td class="{{ ($exitH >= 17 && $exitM >= ($extraTimeIni + 1)) || $exitH >= 18 ? 'text-danger' : '' }} {{ empty($record->exit) ? 'text-black-50' : '' }} text-center" rel="{{ $exitH . ':' . $exitM }}">
 																	{{ !empty($record->exit) ? $record->exit : '---' }}
 																</td>
-																{{-- <td class="{{ floatval($record->hours) >= 8.2 ? 'text-primary font-weight-bold' : '' }}">
-																	{{ $record->hours }}
-																</td> --}}
-																<td class="{{ $record->extra > 20 ? 'font-weight-bold' : 'text-black-50' }} text-center">
-																	{{ $record->extra > 20 ? $record->extra : 'N/A'}}
+																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
+																	{{ $record->extra_time > $extraTimeIni ? $record->extra_time : 'N/A'}}
 																</td>
-																<td class="{{ $record->extra > 20 ? 'text-dark' : 'text-black-50' }} text-right pr-5" rel="{{ $minuteRate }}">
-																	${{ number_format(($minuteRate * $record->extra) ?? 0, 2, ',', '.') }} USD
+																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
+																	@if ($record->extra_time > 0)
+																		<div class="form-check form-check-inline">
+																			<label class="form-check-label" for="applyExtraNo-{{ $record->id }}">
+																				<input type="radio" id="applyExtraNo-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="0" rel="{{ $record->id }}" class="form-check-input applyPayment" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->apply ? '' : 'checked' }}>
+																				<span style="position: relative; top: -2px;">NO</span>
+																			</label>
+																		</div>
+																		<div class="form-check form-check-inline">
+																			<label class="form-check-label" for="applyExtraSi-{{ $record->id }}">
+																				<input type="radio" id="applyExtraSi-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="1" rel="{{ $record->id }}" class="form-check-input applyPayment" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->apply ? 'checked' : '' }}>
+																				<span style="position: relative; top: -2px;">SI</span>
+																			</label>
+																		</div>
+																	@else
+																		N/A
+																	@endif
+																</td>
+																<td class="{{ $record->extra_time > $extraTimeIni ? 'text-dark' : 'text-black-50' }} text-right pr-5" id="payExtra-{{ $record->id }}" rel="{{ $minuteRate }}">
+																	{{ $record->extra_time > $extraTimeIni ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }}
 																</td>
 																<td>
-																	<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
+																	@if ($record->extra_time > 0)
+																		<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
+																	@endif
 																</td>
 																<td>
-																	<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
-																		<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
-																	</a>
+																	@if ($record->extra_time > 0)
+																		<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
+																			<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
+																		</a>
+																	@endif
 																</td>
 															</tr>
 														@endforeach
@@ -368,6 +401,42 @@
 						$('#commentBTN-' + id).removeClass('btn-success').addClass('btn-secondary');
 					});
 				}
+			});
+
+			$('.applyPayment').on('change', function() {
+				let id = $(this).attr('rel');
+				let value = $(this).val();
+				let time = $(this).data('time');
+				let payment = $(this).data('payment');
+				let employee = $(this).data('employee');
+				let total = $('#extraCost-' + employee).data('total');
+				
+				if (value == 1) {
+					total = total + payment;
+					$('#payExtra-' + id).text('$' + parseFloat(payment).toFixed(2) + ' USD');
+				} else {
+					total = total - payment;
+					$('#payExtra-' + id).text('$0.00 USD');
+				}
+
+				total = total < 0 ? 0 : total;
+				
+				// Change the Extra Cost Column value according to the extra time
+				$('#extraCost-' + employee).text('$' + parseFloat(total).toFixed(2) + ' USD').data('total', total);
+
+				// Update record in database to apply or not the extra time, and update the total payment
+				$.ajax({
+					headers: {
+						'x-csrf-token': _token
+					},
+					method: 'POST',
+					url: "{{ route('admin.hours.apply') }}",
+					data: {
+						id: id,
+						apply: value,
+						extra: value == 1 ? time : 0
+					}
+				});
 			});
         })
         $('[data-toggle="tooltip"]').tooltip()

@@ -18,6 +18,8 @@ class AttendanceRecord extends Model
 		'exit',
 		'hours',
 		'extra',
+		'extra_time',
+		'apply',
 		'comments',
 	];
 

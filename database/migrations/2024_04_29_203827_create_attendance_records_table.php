@@ -22,6 +22,8 @@ class CreateAttendanceRecordsTable extends Migration
 			$table->time('exit')->nullable();
 			$table->double('hours')->default(0);
 			$table->double('extra')->default(0);
+			$table->double('extra_time')->default(0);
+			$table->tinyInteger('apply')->default(0);
 			$table->text('comments')->nullable();
 			$table->softDeletes();
 			$table->timestamps();

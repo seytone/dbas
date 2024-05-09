@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Config;
 use App\Models\Employee;
 use App\Models\Attendance;
 use App\Models\AttendanceRecord;
@@ -13,6 +14,13 @@ use Exception;
 
 class AttendanceRecordsImport implements ToCollection
 {
+	protected $extraTimeIni;
+
+	public function __construct()
+	{
+		$this->extraTimeIni = Config::where('key', 'extra_time_ini')->first()->value ?? 20;
+	}
+
     /**
     * @param Collection $collection
     */
@@ -76,7 +84,6 @@ class AttendanceRecordsImport implements ToCollection
 					$latest['logs'] = [];
 					foreach ($record as $key => $hours)
 					{
-						
 						$logs = explode("\n", trim($hours));
 						$date = $register->copy()->addDays($key);
 						$fecha = $date->format('Y-m-d');
@@ -87,13 +94,8 @@ class AttendanceRecordsImport implements ToCollection
 						$exit = count($logs) > 1 ? $end->format('H:i') : null;
 						$quantity = count($logs) > 1 ? $ini->diff($end)->format('%H:%I') : '00:00';
 						$hours = floatval(str_replace(':', '.', $quantity)) - 1; // Rest 1 hour for lunch
-						// $extras = floatval($hours > 8 ? $hours - 8 : 0);
-						// $base = floor($extras);
-						// $decimals = floatval(number_format($extras - $base, 2));
-						// $extra = $decimals >= 0.20 ? $base + 1 : $base;
-						// TODO: Calculate extra minutes instead of hours. The extra time is considered from 17:21 onwards, no matter the entry time.
 						$extraMinutes = $end && $end > $final ? $final->diffInMinutes($end) : 0;
-						$extra = $extraMinutes > 20 ? $extraMinutes : 0;
+						$extra = $extraMinutes > $this->extraTimeIni ? $extraMinutes : 0;
 						$latest['logs'][$key] = [
 							'date' => $date->format('Y-m-d'),			// Date
 							'entry' => $start,							// Entry time
@@ -150,6 +152,8 @@ class AttendanceRecordsImport implements ToCollection
 						'exit' => $log['exit'],
 						'hours' => $log['hours'],
 						'extra' => $log['extra'],
+						'extra_time' => $log['extra'],
+						'apply' => $log['extra'] > $this->extraTimeIni ? 1 : 0,
 					]);
 				}
 			}

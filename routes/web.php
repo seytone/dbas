@@ -38,8 +38,11 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 		Route::match(['get', 'post'], 'index', 'Admin\HoursController@index')->name('index');
 		Route::post('upload', 'Admin\HoursController@upload')->name('upload');
 		Route::post('comment', 'Admin\HoursController@comment')->name('comment');
+		Route::post('apply', 'Admin\HoursController@apply')->name('apply');
 		Route::post('pay', 'Admin\HoursController@pay')->name('pay');
 	});
+
+	Route::post('update_config', 'Admin\ConfigController@updateConfig')->name('update_config');
 
 	Route::get('sale_exists', 'Admin\SalesController@exists')->name('sales.exists');
 	Route::get('client_exists', 'Admin\ClientsController@exists')->name('clients.exists');
