@@ -102,8 +102,8 @@ class AttendanceRecordsImport implements ToCollection
 							'exit' => $exit,							// Exit time
 							'day' => $date->locale('es_ES')->dayName, 	// Day of the week
 							'hours' => $hours > 0 ? $hours : 0,			// Worked hours
-							'extra' => $extra,							// Extra time (min)
-							// 'extra' => $extra > 0 ? $extra : 0,		// Extra time (hours)
+							'extra' => $extra,							// Extra time (min) apply
+							'extra_time' => $extraMinutes,				// Extra time (min) less than 20 min
 						];
 					}
 					$employeeData[$last] = $latest;
@@ -152,7 +152,7 @@ class AttendanceRecordsImport implements ToCollection
 						'exit' => $log['exit'],
 						'hours' => $log['hours'],
 						'extra' => $log['extra'],
-						'extra_time' => $log['extra'],
+						'extra_time' => $log['extra_time'],
 						'apply' => $log['extra'] > $this->extraTimeIni ? 1 : 0,
 					]);
 				}

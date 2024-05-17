@@ -191,10 +191,11 @@
 																	{{ !empty($record->exit) ? $record->exit : '---' }}
 																</td>
 																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
-																	{{ $record->extra_time > $extraTimeIni ? $record->extra_time : 'N/A'}}
+																	{{-- {{ $record->extra_time > $extraTimeIni ? $record->extra_time : 'N/A'}} --}}
+																	{{ $record->extra_time }}
 																</td>
 																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
-																	@if ($record->extra_time > 0)
+																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18)
 																		<div class="form-check form-check-inline">
 																			<label class="form-check-label" for="applyExtraNo-{{ $record->id }}">
 																				<input type="radio" id="applyExtraNo-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="0" rel="{{ $record->id }}" class="form-check-input applyPayment" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->apply ? '' : 'checked' }}>
@@ -211,16 +212,19 @@
 																		N/A
 																	@endif
 																</td>
-																<td class="{{ $record->extra_time > $extraTimeIni ? 'text-dark' : 'text-black-50' }} text-right pr-5" id="payExtra-{{ $record->id }}" rel="{{ $minuteRate }}">
-																	{{ $record->extra_time > $extraTimeIni ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }}
+																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-right pr-5" id="payExtra-{{ $record->id }}" rel="{{ $minuteRate }}">
+																	{{-- {{ $record->extra_time > $extraTimeIni ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }} --}}
+																	{{ $record->extra_time > 0 ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }}
 																</td>
-																<td>
-																	@if ($record->extra_time > 0)
+																<td class="text-center text-black-50">
+																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18)
 																		<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
+																	@else
+																		N/A
 																	@endif
 																</td>
 																<td>
-																	@if ($record->extra_time > 0)
+																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18)
 																		<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
 																			<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
 																		</a>
@@ -411,14 +415,15 @@
 				let employee = $(this).data('employee');
 				let total = $('#extraCost-' + employee).data('total');
 				
-				if (value == 1) {
-					total = total + payment;
-					$('#payExtra-' + id).text('$' + parseFloat(payment).toFixed(2) + ' USD');
-				} else {
-					total = total - payment;
-					$('#payExtra-' + id).text('$0.00 USD');
-				}
+				// if (value == 1) {
+				// 	total = total + payment;
+				// 	$('#payExtra-' + id).text('$' + parseFloat(payment).toFixed(2) + ' USD');
+				// } else {
+				// 	total = total - payment;
+				// 	$('#payExtra-' + id).text('$0.00 USD');
+				// }
 
+				total = value == 1 ? total + payment : total - payment;
 				total = total < 0 ? 0 : total;
 				
 				// Change the Extra Cost Column value according to the extra time
