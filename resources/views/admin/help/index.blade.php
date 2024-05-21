@@ -570,6 +570,7 @@
                                             <div class="card-body">
 												<p>Primero, busca la opción "RRHH" en el menú principal. Está ubicado en la parte lateral izquierda de la plataforma.</p>
 												<p>Una vez que encuentres la opción "RRHH", haz clic en ella. Esto te llevará a una nueva página con varias opciones. Busca y haz clic en en el botón "Importar Registros". Esto te permitirá bucar en tu equipo y seleccionar el archivo excel que vas a importar.</p>
+												<p><b>Ten en cuenta que el formato permitido es xlsx, por lo que antes de cargar el archivo debes validar que esté en ese formato.</b></p>
 												<p>El sistema se encargará de hacer todos los cálculos necesarios de forma automática basado en los registros del archivo importado. Al final, podrás ver los valores correspondiente a cada uno de los empleados.</p>
 												<p>A continuación, tienes algunas imágenes de referencia.</p>
 												<div class="row">

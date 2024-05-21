@@ -37,7 +37,7 @@ class HoursController extends Controller
 	public function upload(Request $request)
 	{
 		$request->validate([
-			'excel' => 'required|file|mimes:xlsx,xls|max:2048'
+			'excel' => 'required|file|mimes:xlsx|max:2048'
 		]);
 
 		$file = $request->file('excel');
