@@ -30,18 +30,18 @@
 	</div>
     {{-- @can('create_employees') --}}
     <div style="margin-bottom: 10px;" class="row">
-        <div class="col-md-8">
+        <div class="col-md-9">
 			<form class="form-inline" action="{{ route('admin.hours.upload') }}" method="post" enctype="multipart/form-data">
 				@csrf
 				<div class="input-group">
 					<span class="input-group-addon btn bg-light px-2" id="basic-file"><i class="fa fa-fw fa-plus mr-2 d-inline"></i>Importar Registros</span>
-					<input type="text" class="form-control" placeholder="Archivo exel..." id="placetext" aria-describedby="basic-addon2" disabled='true'>
-					<input type="file" class="d-none" name="excel" id="excel"/>
+					<input type="text" class="form-control" placeholder="Archivo en formato .xlsx" id="placetext" aria-describedby="basic-addon2" disabled='true'>
+					<input type="file" class="d-none" name="excel" id="excel" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
 				</div>
 				<button type="submit" class="btn btn-success d-none ml-2 my-1" id="submit"><i class="fa fa-fw fa-upload mr-2 d-inline"></i>Cargar</button>
 			</form>
         </div>
-		<div class="col-md-4">
+		<div class="col-md-3">
 			<form class="filters-form pt-2" action="{{ route('admin.hours.index') }}" method="POST" id="filters">
 				@csrf
 				<div class="input-group justify-content-end">
@@ -187,7 +187,7 @@
 																<td class="{{ ($entryH >= 8 && $entryM >= 1) || $entryH >= 9 ? 'text-danger' : '' }} {{ empty($record->entry) ? 'text-black-50' : '' }} text-center" rel="{{ $entryH . ':' . $entryM }}">
 																	{{ !empty($record->entry) ? $record->entry : '---' }}
 																</td>
-																<td class="{{ ($exitH >= 17 && $exitM >= ($extraTimeIni + 1)) || $exitH >= 18 ? 'text-danger' : '' }} {{ empty($record->exit) ? 'text-black-50' : '' }} text-center" rel="{{ $exitH . ':' . $exitM }}">
+																<td class="{{ $exitH < 17 ? 'text-warning' : (($exitH >= 17 && $exitM >= ($extraTimeIni + 1)) || $exitH >= 18 ? 'text-danger' : '') }} {{ empty($record->exit) ? 'text-black-50' : '' }} text-center" rel="{{ $exitH . ':' . $exitM }}">
 																	{{ !empty($record->exit) ? $record->exit : '---' }}
 																</td>
 																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
