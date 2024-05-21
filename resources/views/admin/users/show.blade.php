@@ -44,38 +44,40 @@
                             {{ $user->email }}
                         </td>
                     </tr>
-                    <tr class="{{ $user->hasRole('Vendedor') ? '' : 'd-none' }}">
-                        <th>
-                            Comisión Licencias Perpetuas
-                        </th>
-                        <td>
-                            {{ $user->seller->commission_1 }}%
-                        </td>
-                    </tr>
-                    <tr class="{{ $user->hasRole('Vendedor') ? '' : 'd-none' }}">
-                        <th>
-                            Comisión Suscripciones Anuales
-                        </th>
-                        <td>
-                            {{ $user->seller->commission_2 }}%
-                        </td>
-                    </tr>
-                    <tr class="{{ $user->hasRole('Vendedor') ? '' : 'd-none' }}">
-                        <th>
-                            Comisión Hardware y Otros
-                        </th>
-                        <td>
-                            {{ $user->seller->commission_3 }}%
-                        </td>
-                    </tr>
-                    <tr class="{{ $user->hasRole('Vendedor') ? '' : 'd-none' }}">
-                        <th>
-                            Comisión Servicios
-                        </th>
-                        <td>
-                            {{ $user->seller->commission_4 }}%
-                        </td>
-                    </tr>
+					@if ($user->hasRole('Vendedor'))
+						<tr>
+							<th>
+								Comisión Licencias Perpetuas
+							</th>
+							<td>
+								{{ $user->seller->commission_1 }}%
+							</td>
+						</tr>
+						<tr>
+							<th>
+								Comisión Suscripciones Anuales
+							</th>
+							<td>
+								{{ $user->seller->commission_2 }}%
+							</td>
+						</tr>
+						<tr>
+							<th>
+								Comisión Hardware y Otros
+							</th>
+							<td>
+								{{ $user->seller->commission_3 }}%
+							</td>
+						</tr>
+						<tr>
+							<th>
+								Comisión Servicios
+							</th>
+							<td>
+								{{ $user->seller->commission_4 }}%
+							</td>
+						</tr>
+					@endif
                 </tbody>
             </table>
             <a style="margin-top:20px;" class="btn btn-dark" href="{{ url()->previous() }}">
