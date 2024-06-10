@@ -47,6 +47,7 @@
 				<div class="input-group justify-content-end">
 					<label class="input-group-text" for="start_date"><i class="fa fa-fw fa-calendar mr-2 d-inline"></i>Periodo</label>
 					<select class="form-control text-right period" name="period" rel="{{ $period }}">
+						<option value="all">Todos</option>
 						@foreach ($periods as $val)
 							<option value="{{ $val->period }}" {{ $val->period == $period ? 'selected' : '' }}>{{ $val->period }}</option>
 						@endforeach
