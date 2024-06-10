@@ -38,8 +38,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 		Route::match(['get', 'post'], 'index', 'Admin\HoursController@index')->name('index');
 		Route::post('upload', 'Admin\HoursController@upload')->name('upload');
 		Route::post('comment', 'Admin\HoursController@comment')->name('comment');
-		Route::post('apply', 'Admin\HoursController@apply')->name('apply');
+		Route::post('apply-extra', 'Admin\HoursController@applyExtra')->name('apply_extra');
+		Route::post('apply-missing', 'Admin\HoursController@applyMissing')->name('apply_missing');
 		Route::post('pay', 'Admin\HoursController@pay')->name('pay');
+		Route::delete('payment_delete/{id}', 'Admin\HoursController@payment_delete')->name('payment_delete');
 	});
 
 	Route::post('update_config', 'Admin\ConfigController@updateConfig')->name('update_config');

@@ -69,8 +69,11 @@
                             <th>Empleado</th>
                             <th>Departamento</th>
                             <th>Período</th>
-                            <th>Tiempo Extra</th>
+                            <th class="text-right pr-5">Tiempo Extra</th>
+                            <th class="text-right pr-5">Tiempo Deducible</th>
                             <th class="text-right pr-5">Costo Extra</th>
+                            <th class="text-right pr-5">Costo Deducible</th>
+                            <th class="text-right pr-5">Costo Total</th>
                             <th class="text-center">Pago</th>
                             <th width="180">&nbsp;</th>
                         </tr>
@@ -91,7 +94,10 @@
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department }}</td>
 										<td>---</td>
-										<td>---</td>
+										<td class="text-right pr-5">---</td>
+										<td class="text-right pr-5">---</td>
+										<td class="text-right pr-5">---</td>
+										<td class="text-right pr-5">---</td>
 										<td class="text-right pr-5">---</td>
 										<td class="text-center">---</td>
 										<td class="text-right">
@@ -106,20 +112,65 @@
 									@php
 										$hourlyRate = $employee->salary;
 										$minuteRate = $hourlyRate / 60;
+										$extraCost = $minuteRate * $attendances->extra;
+										$missingCost = $minuteRate * $attendances->missing;
+										$totalCost = $extraCost - $missingCost;
 									@endphp
 									<tr class="text-primary" data-entry-id="{{ $employee->id }}">
 										<td>{{ $employee->number }}</td>
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department ?? '---' }}</td>
 										<td>{{ $attendances->year . '-' . $attendances->month }}</td>
-										<td>{{ $attendances->extra }} min</td>
-										<td class="text-right pr-5" id="extraCost-{{ $employee->id }}" data-total="{{ $minuteRate * $attendances->extra }}">${{ number_format(($minuteRate * $attendances->extra) ?? 0, 2, '.', ',') }} USD</td>
-										<td class="text-center"><span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'HECHO EL ' . $attendances->payment_date }}</span></td>
+										<td class="text-right pr-5">{{ $attendances->extra }} min</td>
+										<td class="text-right pr-5">{{ $attendances->missing ?? 0 }} min</td>
+										<td class="text-right pr-5" id="extraCost-{{ $employee->id }}" data-total="{{ $extraCost }}">
+											${{ number_format(($extraCost) ?? 0, 2, '.', ',') }} USD
+										</td>
+										<td class="text-right pr-5" id="missingCost-{{ $employee->id }}" data-total="{{ $missingCost }}">
+											${{ number_format(($missingCost) ?? 0, 2, '.', ',') }} USD
+										</td>
+										<td class="text-right pr-5" id="totalCost-{{ $employee->id }}" data-total="{{ $totalCost }}">
+											${{ number_format(($totalCost) ?? 0, 2, '.', ',') }} USD
+										</td>
+										<td class="text-center">
+											<span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">
+												{{ $attendances->payment == 'pending' ? 'PENDIENTE' : 'PAGADO EL ' . $attendances->payment_date }}
+											</span>
+										</td>
 										<td class="text-right">
 											@if($attendances->payment == 'pending')
 												<a class="btn btn-sm btn-success m-1 pay-employee" href="#" data-attendance="{{ $attendances->id }}" title="MARCAR COMO PAGADO">
 													<i class="fa fa-fw fa-check" aria-hidden="true"></i>
 												</a>
+											@else
+												<a class="btn btn-sm btn-dark m-1" data-toggle="modal" data-target="#imageModal{{ $attendances->id }}" title="VER COMPROBANTE DE PAGO">
+													<i class="fa fa-fw fa-file" aria-hidden="true"></i>
+												</a>
+												<!-- Modal -->
+												<div class="modal fade" id="imageModal{{ $attendances->id }}" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
+													<div class="modal-dialog modal-lg" role="document">
+														<div class="modal-content">
+															<div class="modal-header">
+																<h5 class="modal-title" id="imageModalLabel">Comprobante de Pago</h5>
+																<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+																	<span aria-hidden="true">&times;</span>
+																</button>
+															</div>
+															<div class="modal-body">
+																<img src="{{ asset('storage/payments/' . $attendances->payment_evidence) }}" class="img-fluid" alt="Comprobante de Pago">
+															</div>
+															@can('manage_employees')
+																<div class="modal-footer">
+																	<form action="{{ route('admin.hours.payment_delete', $attendances->id) }}" method="POST">
+																		@csrf
+																		@method('DELETE')
+																		<button type="submit" class="btn btn-danger">Eliminar Pago</button>
+																	</form>
+																</div>
+															@endcan
+														</div>
+													</div>
+												</div>
 											@endif
 											<a class="btn btn-sm btn-warning m-1 show-records" href="#" data-employee="{{ $employee->id }}" title="VER ASISTENCIAS">
 												<i class="fa fa-fw fa-calendar" aria-hidden="true"></i>
@@ -136,7 +187,7 @@
 									@endphp
 									@if (count($records) > 0)
 										<tr class="d-none" id="records-{{ $employee->id }}">
-											<td colspan="8">
+											<td colspan="11">
 												<table class="table table-sm table-hover">
 													<thead>
 														<tr class="bg-dark text-white">
@@ -156,10 +207,16 @@
 																Minutos Adicionales
 															</th>
 															<th class="text-center">
-																Corresponde
+																¿Corresponde Pagar?
+															</th>
+															<th class="text-center">
+																Minutos Faltantes
+															</th>
+															<th class="text-center">
+																¿Corresponde Descontar?
 															</th>
 															<th class="text-right pr-5">
-																Pago Adicional
+																Pago Total
 															</th>
 															<th width="300">
 																Comentarios
@@ -190,21 +247,41 @@
 																<td class="{{ $exitH < 17 ? 'text-warning' : (($exitH >= 17 && $exitM >= ($extraTimeIni + 1)) || $exitH >= 18 ? 'text-danger' : '') }} {{ empty($record->exit) ? 'text-black-50' : '' }} text-center" rel="{{ $exitH . ':' . $exitM }}">
 																	{{ !empty($record->exit) ? $record->exit : '---' }}
 																</td>
-																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
-																	{{-- {{ $record->extra_time > $extraTimeIni ? $record->extra_time : 'N/A'}} --}}
+																<td class="{{ $record->extra_time > 0 ? 'font-weight-bold' : 'text-black-50' }} text-center">
 																	{{ $record->extra_time }}
 																</td>
-																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
+																<td class="{{ $record->extra_time > 0 ? 'font-weight-bold' : 'text-black-50' }} text-center">
 																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18)
 																		<div class="form-check form-check-inline">
 																			<label class="form-check-label" for="applyExtraNo-{{ $record->id }}">
-																				<input type="radio" id="applyExtraNo-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="0" rel="{{ $record->id }}" class="form-check-input applyPayment" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->apply ? '' : 'checked' }}>
+																				<input type="radio" id="applyExtraNo-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="0" rel="{{ $record->id }}" class="form-check-input applyExtra" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->extra_apply ? '' : 'checked' }}>
 																				<span style="position: relative; top: -2px;">NO</span>
 																			</label>
 																		</div>
 																		<div class="form-check form-check-inline">
 																			<label class="form-check-label" for="applyExtraSi-{{ $record->id }}">
-																				<input type="radio" id="applyExtraSi-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="1" rel="{{ $record->id }}" class="form-check-input applyPayment" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->apply ? 'checked' : '' }}>
+																				<input type="radio" id="applyExtraSi-{{ $record->id }}" name="applyExtra-{{ $record->id }}" value="1" rel="{{ $record->id }}" class="form-check-input applyExtra" data-employee="{{ $employee->id }}" data-time="{{ $record->extra_time }}" data-payment="{{ $minuteRate * $record->extra_time }}" {{ $record->extra_apply ? 'checked' : '' }}>
+																				<span style="position: relative; top: -2px;">SI</span>
+																			</label>
+																		</div>
+																	@else
+																		N/A
+																	@endif
+																</td>
+																<td class="{{ $record->missing_time > $missingTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
+																	{{ $record->missing_time }}
+																</td>
+																<td class="{{ $record->missing_time > $missingTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-center">
+																	@if ($record->missing_time > $missingTimeIni)
+																		<div class="form-check form-check-inline">
+																			<label class="form-check-label" for="applyMissingNo-{{ $record->id }}">
+																				<input type="radio" id="applyMissingNo-{{ $record->id }}" name="applyMissing-{{ $record->id }}" value="0" rel="{{ $record->id }}" class="form-check-input applyMissing" data-employee="{{ $employee->id }}" data-time="{{ $record->missing_time }}" data-payment="{{ $minuteRate * $record->missing_time }}" {{ $record->missing_apply ? '' : 'checked' }}>
+																				<span style="position: relative; top: -2px;">NO</span>
+																			</label>
+																		</div>
+																		<div class="form-check form-check-inline">
+																			<label class="form-check-label" for="applyMissingSi-{{ $record->id }}">
+																				<input type="radio" id="applyMissingSi-{{ $record->id }}" name="applyMissing-{{ $record->id }}" value="1" rel="{{ $record->id }}" class="form-check-input applyMissing" data-employee="{{ $employee->id }}" data-time="{{ $record->missing_time }}" data-payment="{{ $minuteRate * $record->missing_time }}" {{ $record->missing_apply ? 'checked' : '' }}>
 																				<span style="position: relative; top: -2px;">SI</span>
 																			</label>
 																		</div>
@@ -213,7 +290,6 @@
 																	@endif
 																</td>
 																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-right pr-5" id="payExtra-{{ $record->id }}" rel="{{ $minuteRate }}">
-																	{{-- {{ $record->extra_time > $extraTimeIni ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }} --}}
 																	{{ $record->extra_time > 0 ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }}
 																</td>
 																<td class="text-center text-black-50">
@@ -352,26 +428,57 @@
 			$('.pay-employee').on('click', function(event) {
 				event.preventDefault();
 				Swal.fire({
-					title: '¿Estás seguro de marcar como pagado?',
+					title: 'Adjuntar comprobante de pago',
 					showCancelButton: true,
-					confirmButtonText: 'Sí, marcar como pagado',
-					cancelButtonText: 'Cancelar'
-				}).then((result) => {
-					if (result.value === true) {
-						let _token = $('meta[name="csrf-token"]').attr('content');
-						let attendance = $(this).data('attendance');
-						$.ajax({
-							headers: {
-								'x-csrf-token': _token
-							},
-							method: 'POST',
-							url: "{{ route('admin.hours.pay') }}",
-							data: {
-								id: attendance
-							}
-						}).done(function() {
-							location.reload();
+					cancelButtonText: 'Cancelar',
+					confirmButtonText: 'Registrar Pago',
+					input: 'file',
+					inputAttributes: {
+						'accept': 'image/*',
+						'aria-label': 'Adjuntar comprobante de pago'
+					},
+					onBeforeOpen: () => {
+						$('.swal2-file').change(function () {
+							var reader = new FileReader();
+							reader.readAsDataURL(this.files[0]);
 						});
+					}
+				}).then((result) => {
+					let file = $('.swal2-file');
+					if (result.value !== undefined) {
+						if (file.val() != '') {
+							let _token = $('meta[name="csrf-token"]').attr('content');
+							let attendance = $(this).data('attendance');
+							let attachment = file[0].files[0];
+							let formData = new FormData();
+							formData.append('id', attendance);
+							formData.append('evidence', attachment);
+							$.ajax({
+								headers: {
+									'x-csrf-token': _token
+								},
+								method: 'POST',
+								url: "{{ route('admin.hours.pay') }}",
+								data: formData,
+								processData: false,
+								contentType: false
+							}).done(function() {
+								console.log(attendance, attachment, formData);
+								Swal.fire({
+									type: 'success',
+									title: '¡Éxito!',
+									text: 'Pago registrado correctamente'
+								}).then(() => {
+									location.reload();
+								});
+							});
+						} else {
+							Swal.fire({
+								type: 'error',
+								title: '¡Error!',
+								text: 'Debe adjuntar el comprobante de pago'
+							});
+						}
 					}
 				});
 			});
@@ -407,27 +514,24 @@
 				}
 			});
 
-			$('.applyPayment').on('change', function() {
+			$('.applyExtra').on('change', function() {
 				let id = $(this).attr('rel');
 				let value = $(this).val();
 				let time = $(this).data('time');
 				let payment = $(this).data('payment');
 				let employee = $(this).data('employee');
-				let total = $('#extraCost-' + employee).data('total');
-				
-				// if (value == 1) {
-				// 	total = total + payment;
-				// 	$('#payExtra-' + id).text('$' + parseFloat(payment).toFixed(2) + ' USD');
-				// } else {
-				// 	total = total - payment;
-				// 	$('#payExtra-' + id).text('$0.00 USD');
-				// }
+				let extraCost = $('#extraCost-' + employee).data('total');
+				let missingCost = $('#missingCost-' + employee).data('total');
 
-				total = value == 1 ? total + payment : total - payment;
-				total = total < 0 ? 0 : total;
+				extraCost = value == 1 ? extraCost + payment : extraCost - payment;
+				extraCost = extraCost < 0 ? 0 : extraCost;
+
+				let totalCost = extraCost - missingCost;
 				
 				// Change the Extra Cost Column value according to the extra time
-				$('#extraCost-' + employee).text('$' + parseFloat(total).toFixed(2) + ' USD').data('total', total);
+				$('#extraCost-' + employee).text('$' + parseFloat(extraCost).toFixed(2) + ' USD').data('total', extraCost);
+				// Change the Total Cost Column value according to the extra time
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(2) + ' USD').data('total', totalCost);
 
 				// Update record in database to apply or not the extra time, and update the total payment
 				$.ajax({
@@ -435,11 +539,45 @@
 						'x-csrf-token': _token
 					},
 					method: 'POST',
-					url: "{{ route('admin.hours.apply') }}",
+					url: "{{ route('admin.hours.apply_extra') }}",
 					data: {
 						id: id,
 						apply: value,
 						extra: value == 1 ? time : 0
+					}
+				});
+			});
+
+			$('.applyMissing').on('change', function() {
+				let id = $(this).attr('rel');
+				let value = $(this).val();
+				let time = $(this).data('time');
+				let payment = $(this).data('payment');
+				let employee = $(this).data('employee');
+				let extraCost = $('#extraCost-' + employee).data('total');
+				let missingCost = $('#missingCost-' + employee).data('total');
+
+				missingCost = value == 1 ? missingCost - payment : missingCost + payment;
+				missingCost = missingCost < 0 ? 0 : missingCost;
+
+				let totalCost = extraCost - missingCost;
+				
+				// Change the Missing Cost Column value according to the missing time
+				$('#missingCost-' + employee).text('$' + parseFloat(missingCost).toFixed(2) + ' USD').data('total', missingCost);
+				// Change the Total Cost Column value according to the missing time
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(2) + ' USD').data('total', totalCost);
+
+				// Update record in database to apply or not the missing time, and update the total payment
+				$.ajax({
+					headers: {
+						'x-csrf-token': _token
+					},
+					method: 'POST',
+					url: "{{ route('admin.hours.apply_missing') }}",
+					data: {
+						id: id,
+						apply: value,
+						missing: value == 1 ? time : 0
 					}
 				});
 			});

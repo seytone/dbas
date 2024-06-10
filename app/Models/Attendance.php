@@ -16,7 +16,11 @@ class Attendance extends Model
 		'month',
 		'hours',
 		'extra',
+		'missing',
+		'total',
 		'payment',
+		'payment_date',
+		'payment_evidence',
 		'comments',
 	];
 

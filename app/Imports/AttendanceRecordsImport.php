@@ -15,10 +15,12 @@ use Exception;
 class AttendanceRecordsImport implements ToCollection
 {
 	protected $extraTimeIni;
+	protected $missingTimeIni;
 
 	public function __construct()
 	{
-		$this->extraTimeIni = Config::where('key', 'extra_time_ini')->first()->value ?? 20;
+		$this->extraTimeIni = intval(Config::where('key', 'extra_time_ini')->first()->value ?? 20);
+		$this->missingTimeIni = intval(Config::where('key', 'missing_time_ini')->first()->value ?? 0);
 	}
 
     /**
@@ -60,13 +62,14 @@ class AttendanceRecordsImport implements ToCollection
 		try {
 			$employeeData = [];
 			$attendanceData = false;
+			$maxDays = $register->daysInMonth;
 
-			foreach ($records as $key => $record)
+			foreach ($records as $index => $record)
 			{
-				if ($record[0] == '1')
+				if ($record[0] == '1') // Skip first row related to month days
 					continue;
 
-				if ($record[0] == 'ID :')
+				if ($record[0] == 'ID :') // Extract employee data
 				{
 					$employeeData[] = [
 						'id' => intval($record[2]),
@@ -77,33 +80,43 @@ class AttendanceRecordsImport implements ToCollection
 					continue;
 				}
 
-				if ($attendanceData)
+				if ($attendanceData) // If the row contains attendance data
 				{
 					$last = count($employeeData) - 1;
 					$latest = $employeeData[$last];
 					$latest['logs'] = [];
-					foreach ($record as $key => $hours)
+
+					foreach ($record as $key => $hours) // Iterate over daily hours logs
 					{
-						$logs = explode("\n", trim($hours));
-						$date = $register->copy()->addDays($key);
+						if ($key >= $maxDays) // Stop when the month days finish to avoid extra rows
+							break;
+
+						$logs = explode("\n", trim($hours));																										// Extract daily hours logs
+						$date = $register->copy()->addDays($key);																									// Calculate date based on register date and day number
 						$fecha = $date->format('Y-m-d');
-						$ini = $logs != [''] ? Carbon::createFromFormat('Y-m-d H:i', $fecha . ' ' . $logs[0]) : false;
-						$end = $logs != [''] ? Carbon::createFromFormat('Y-m-d H:i', $fecha . ' ' . end($logs)) : false;
-						$final = Carbon::createFromFormat('Y-m-d H:i', $fecha . ' 17:00');
-						$start = $ini ? $ini->format('H:i') : null;
-						$exit = count($logs) > 1 ? $end->format('H:i') : null;
-						$quantity = count($logs) > 1 ? $ini->diff($end)->format('%H:%I') : '00:00';
-						$hours = floatval(str_replace(':', '.', $quantity)) - 1; // Rest 1 hour for lunch
-						$extraMinutes = $end && $end > $final ? $final->diffInMinutes($end) : 0;
-						$extra = $extraMinutes > $this->extraTimeIni ? $extraMinutes : 0;
+						$ini = $logs != [''] ? Carbon::createFromFormat('Y-m-d H:i', $fecha . ' ' . $logs[0]) : false;												// Entry time
+						$end = $logs != [''] ? Carbon::createFromFormat('Y-m-d H:i', $fecha . ' ' . end($logs)) : false;											// Exit time
+						$begin = Carbon::createFromFormat('Y-m-d H:i', $fecha . ' 08:00');																			// Journey start at
+						$final = Carbon::createFromFormat('Y-m-d H:i', $fecha . ' 17:00');																			// Journey end at
+						$start = $ini ? $ini->format('H:i') : null;																									// Entry hour:minutes
+						$exit = count($logs) > 1 ? $end->format('H:i') : null;																						// Exit hour:minutes
+						$quantity = count($logs) > 1 ? $ini->diff($end)->format('%H:%I') : '00:00';																	// Journey hours
+						$hours = floatval(str_replace(':', '.', $quantity)) - 1;																					// Worked hours (minus 1 hour for lunch)
+						$extraMinutes = $end && $end > $final ? $final->diffInMinutes($end) : 0;																	// Total extra minutes
+						$extra = $extraMinutes > $this->extraTimeIni ? $extraMinutes : 0;																			// Extra minutes that apply (more than 20 min)
+						$missingMinutes = ($ini && $ini > $begin ? $begin->diffInMinutes($ini) : 0) + ($end && $end < $final ? $end->diffInMinutes($final) : 0);	// Total missing minutes
+						$missing = $missingMinutes > $this->missingTimeIni ? $missingMinutes : 0;																	// Missing minutes that apply (more than 0 min)
 						$latest['logs'][$key] = [
-							'date' => $date->format('Y-m-d'),			// Date
-							'entry' => $start,							// Entry time
-							'exit' => $exit,							// Exit time
-							'day' => $date->locale('es_ES')->dayName, 	// Day of the week
-							'hours' => $hours > 0 ? $hours : 0,			// Worked hours
-							'extra' => $extra,							// Extra time (min) apply
-							'extra_time' => $extraMinutes,				// Extra time (min) less than 20 min
+							'date' => $date->format('Y-m-d'),																										// Date
+							'entry' => $start,																														// Entry time
+							'exit' => $exit,																														// Exit time
+							'day' => $date->locale('es_ES')->dayName, 																								// Day of the week
+							'hours' => $hours > 0 ? $hours : 0,																										// Worked hours
+							'extra' => $extra,																														// Extra time (min) when apply
+							'extra_time' => $extraMinutes,																											// Extra time (min) less than 20 min
+							'missing' => $missing,																													// Missing time (min) when apply
+							'missing_time' => $missingMinutes,																										// Missing time (min) less than 20 min
+							'total' => 0																															// Validate if is needed to calculate here
 						];
 					}
 					$employeeData[$last] = $latest;
@@ -139,6 +152,8 @@ class AttendanceRecordsImport implements ToCollection
 				], [
 					'hours' => array_sum(array_column($employee['logs'], 'hours')),
 					'extra' => array_sum(array_column($employee['logs'], 'extra')),
+					'missing' => array_sum(array_column($employee['logs'], 'missing')),
+					'total' => array_sum(array_column($employee['logs'], 'total')),
 				]);
 
 				foreach ($employee['logs'] as $log)
@@ -153,7 +168,10 @@ class AttendanceRecordsImport implements ToCollection
 						'hours' => $log['hours'],
 						'extra' => $log['extra'],
 						'extra_time' => $log['extra_time'],
-						'apply' => $log['extra'] > $this->extraTimeIni ? 1 : 0,
+						'extra_apply' => $log['extra'] > $this->extraTimeIni ? 1 : 0,
+						'missing' => $log['missing'],
+						'missing_time' => $log['missing_time'],
+						'missing_apply' => $log['missing'] > $this->missingTimeIni ? 1 : 0,
 					]);
 				}
 			}

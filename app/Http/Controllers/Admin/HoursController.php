@@ -30,8 +30,9 @@ class HoursController extends Controller
 		$periodMonth = explode('-', $period)[1];
 		$employees = Employee::orderBy('number', 'asc')->get();
 		$extraTimeIni = Config::where('key', 'extra_time_ini')->first()->value ?? 20;
+		$missingTimeIni = Config::where('key', 'missing_time_ini')->first()->value ?? 20;
 
-		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request','extraTimeIni'));
+		return view('admin.hours.index', compact('now','period','periods','employees','periodYear','periodMonth','request','extraTimeIni','missingTimeIni'));
 	}
 
 	public function upload(Request $request)
@@ -69,15 +70,29 @@ class HoursController extends Controller
 		return redirect()->route('admin.hours.index')->with($result, $message);
 	}
 
-	public function apply(Request $request)
+	public function applyExtra(Request $request)
 	{
 		$record = AttendanceRecord::find($request->id);
-		$record->apply = $request->apply;
 		$record->extra = $request->extra;
+		$record->extra_apply = $request->apply;
 		$record->save();
 
 		$attendance = Attendance::find($record->attendance_id);
 		$attendance->extra = $attendance->records()->sum('extra');
+		$attendance->save();
+
+		return response()->json(['success' => 'Registro actualizado correctamente']);
+	}
+
+	public function applyMissing(Request $request)
+	{
+		$record = AttendanceRecord::find($request->id);
+		$record->missing = $request->missing;
+		$record->missing_apply = $request->apply;
+		$record->save();
+
+		$attendance = Attendance::find($record->attendance_id);
+		$attendance->missing = $attendance->records()->sum('missing');
 		$attendance->save();
 
 		return response()->json(['success' => 'Registro actualizado correctamente']);
@@ -94,11 +109,29 @@ class HoursController extends Controller
 
 	public function pay(Request $request)
 	{
+		// upload payment evidence
+		$file = $request->file('evidence');
+		$extension = $file->getClientOriginalExtension();
+		$filename = uniqid() . '.' . $extension;
+		$file->storeAs('public/payments/', $filename);
+
 		$attendance = Attendance::find($request->id);
 		$attendance->payment = 'completed';
 		$attendance->payment_date = Carbon::now()->format('Y-m-d');
+		$attendance->payment_evidence = $filename;
 		$attendance->save();
 
-		return response()->json(['success' => 'Pago guardado correctamente']);
+		return response()->json(['success' => 'Pago registrado correctamente']);
+	}
+
+	public function payment_delete($id)
+	{
+		$attendance = Attendance::find($id);
+		$attendance->payment = 'pending';
+		$attendance->payment_date = null;
+		$attendance->payment_evidence = null;
+		$attendance->save();
+
+		return redirect()->route('admin.hours.index');
 	}
 }
