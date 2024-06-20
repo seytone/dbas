@@ -105,7 +105,8 @@ class AttendanceRecordsImport implements ToCollection
 						$extraMinutes = $end && $end > $final ? $final->diffInMinutes($end) : 0;																	// Total extra minutes
 						$extra = $extraMinutes > $this->extraTimeIni ? $extraMinutes : 0;																			// Extra minutes that apply (more than 20 min)
 						$missingMinutes = ($ini && $ini > $begin ? $begin->diffInMinutes($ini) : 0) + ($end && $end < $final ? $end->diffInMinutes($final) : 0);	// Total missing minutes
-						$missing = $missingMinutes > $this->missingTimeIni ? $missingMinutes : 0;																	// Missing minutes that apply (more than 0 min)
+						$missing = 0;																																// Missing minutes that apply (more than 0 min)
+						// $missing = $missingMinutes > $this->missingTimeIni ? $missingMinutes : 0;
 						$latest['logs'][$key] = [
 							'date' => $date->format('Y-m-d'),																										// Date
 							'entry' => $start,																														// Entry time

@@ -19,8 +19,10 @@ class AttendanceRecord extends Model
 		'hours',
 		'extra',
 		'extra_time',
+		'extra_apply',
 		'missing',
 		'missing_time',
+		'missing_apply',
 		'apply',
 		'comments',
 	];

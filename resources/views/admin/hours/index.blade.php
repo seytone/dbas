@@ -74,8 +74,8 @@
                             <th class="text-right pr-5">Tiempo Deducible</th>
                             <th class="text-right pr-5">Costo Extra</th>
                             <th class="text-right pr-5">Costo Deducible</th>
-                            <th class="text-right pr-5">Costo Total</th>
-                            <th class="text-center">Pago</th>
+                            <th class="text-right pr-5">Pago Total</th>
+                            <th class="text-center">Ejecución</th>
                             <th width="180">&nbsp;</th>
                         </tr>
                     </thead>
@@ -125,13 +125,13 @@
 										<td class="text-right pr-5">{{ $attendances->extra }} min</td>
 										<td class="text-right pr-5">{{ $attendances->missing ?? 0 }} min</td>
 										<td class="text-right pr-5" id="extraCost-{{ $employee->id }}" data-total="{{ $extraCost }}">
-											${{ number_format(($extraCost) ?? 0, 2, '.', ',') }} USD
+											${{ number_format(($extraCost) ?? 0, 4, '.', ',') }} USD
 										</td>
 										<td class="text-right pr-5" id="missingCost-{{ $employee->id }}" data-total="{{ $missingCost }}">
-											${{ number_format(($missingCost) ?? 0, 2, '.', ',') }} USD
+											${{ number_format(($missingCost) ?? 0, 4, '.', ',') }} USD
 										</td>
 										<td class="text-right pr-5" id="totalCost-{{ $employee->id }}" data-total="{{ $totalCost }}">
-											${{ number_format(($totalCost) ?? 0, 2, '.', ',') }} USD
+											${{ number_format(($totalCost) ?? 0, 4, '.', ',') }} USD
 										</td>
 										<td class="text-center">
 											<span class="badge badge-{{ $attendances->payment == 'pending' ? 'danger' : 'success' }}">
@@ -216,10 +216,10 @@
 															<th class="text-center">
 																¿Corresponde Descontar?
 															</th>
-															<th class="text-right pr-5">
-																Pago Total
-															</th>
-															<th width="300">
+															{{-- <th class="text-right pr-5">
+																Total
+															</th> --}}
+															<th class="text-center" width="300">
 																Comentarios
 															</th>
 															<th width="60">&nbsp;</th>
@@ -290,18 +290,23 @@
 																		N/A
 																	@endif
 																</td>
-																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-right pr-5" id="payExtra-{{ $record->id }}" rel="{{ $minuteRate }}">
-																	{{ $record->extra_time > 0 ? '$' . number_format(($minuteRate * $record->extra_time) ?? 0, 2, '.', ',') . ' USD' : 'N/A' }}
-																</td>
+																{{-- @php
+																	$total_extra = $minuteRate * $record->extra_time;
+																	$total_missing = $minuteRate * $record->missing_time;
+																	$total = $total_extra - $total_missing;
+																@endphp
+																<td class="{{ $record->extra_time > $extraTimeIni ? 'font-weight-bold' : 'text-black-50' }} text-right pr-5" id="payExtra-{{ $record->id }}" rel="{{ $minuteRate }}" title="{{ '= ' . number_format($minuteRate, 4, '.', ',') . ' x ' . $record->extra_time . ' - ' . number_format($minuteRate, 4, '.', ',') . ' x ' . $record->missing_time }}">
+																	{{ $total != 0 ? '$' . number_format(($total) ?? 0, 4, '.', ',') . ' USD' : 'N/A' }}
+																</td> --}}
 																<td class="text-center text-black-50">
-																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18)
+																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18 || $record->missing_time > $missingTimeIni)
 																		<input type="text" name="comment" class="form-control form-control-sm commentTXT" id="commentTXT-{{ $record->id }}" rel="{{ $record->id }}" value="{{ $record->comments }}">
 																	@else
 																		N/A
 																	@endif
 																</td>
 																<td>
-																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18)
+																	@if (($exitH >= 17 && $exitM >= 1) || $exitH >= 18 || $record->missing_time > $missingTimeIni)
 																		<a href="#" title="COMENTAR" class="btn btn-sm btn-secondary m-1 commentBTN" id="commentBTN-{{ $record->id }}" rel="{{ $record->id }}">
 																			<i class="fa fa-fw fa-comment" aria-hidden="true"></i>
 																		</a>
@@ -530,9 +535,9 @@
 				let totalCost = extraCost - missingCost;
 				
 				// Change the Extra Cost Column value according to the extra time
-				$('#extraCost-' + employee).text('$' + parseFloat(extraCost).toFixed(2) + ' USD').data('total', extraCost);
+				$('#extraCost-' + employee).text('$' + parseFloat(extraCost).toFixed(4) + ' USD').data('total', extraCost);
 				// Change the Total Cost Column value according to the extra time
-				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(2) + ' USD').data('total', totalCost);
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').data('total', totalCost);
 
 				// Update record in database to apply or not the extra time, and update the total payment
 				$.ajax({
@@ -558,15 +563,15 @@
 				let extraCost = $('#extraCost-' + employee).data('total');
 				let missingCost = $('#missingCost-' + employee).data('total');
 
-				missingCost = value == 1 ? missingCost - payment : missingCost + payment;
+				missingCost = value == 1 ? missingCost + payment : missingCost - payment;
 				missingCost = missingCost < 0 ? 0 : missingCost;
 
 				let totalCost = extraCost - missingCost;
 				
 				// Change the Missing Cost Column value according to the missing time
-				$('#missingCost-' + employee).text('$' + parseFloat(missingCost).toFixed(2) + ' USD').data('total', missingCost);
+				$('#missingCost-' + employee).text('$' + parseFloat(missingCost).toFixed(4) + ' USD').data('total', missingCost);
 				// Change the Total Cost Column value according to the missing time
-				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(2) + ' USD').data('total', totalCost);
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').data('total', totalCost);
 
 				// Update record in database to apply or not the missing time, and update the total payment
 				$.ajax({
