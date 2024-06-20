@@ -235,7 +235,7 @@
 																$exitH = intval($exitT[0]);
 																$exitM = count($exitT) > 1 ? intval($exitT[1]) : 0;
 															@endphp
-															<tr class="{{ $record->day == 'sábado' || $record->day == 'domingo' ? 'table-secondary text-muted' : '' }}">
+															<tr class="{{ $record->day == 'sábado' || $record->day == 'domingo' ? 'table-secondary text-muted' : '' }}" rel="{{ $record->id }}">
 																<td class="text-center">
 																	{{ $record->date }}
 																</td>
