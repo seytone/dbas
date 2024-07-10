@@ -125,7 +125,7 @@
 										$missingCost = $fixedTime > 0 ? $missingCost : $missingCost - $fixedCost;
 										$totalCost = $extraCost - $missingCost;
 									@endphp
-									<tr class="text-primary" data-entry-id="{{ $employee->id }}" title="{{ $minuteRate }}">
+									<tr class="text-primary" data-entry-id="{{ $employee->id }}" data-rate="{{ $minuteRate }}">
 										<td>{{ $employee->number }}</td>
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department ?? '---' }}</td>
