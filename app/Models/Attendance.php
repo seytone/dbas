@@ -17,6 +17,7 @@ class Attendance extends Model
 		'hours',
 		'extra',
 		'missing',
+		'manual_fix',
 		'total',
 		'payment',
 		'payment_date',

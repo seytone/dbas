@@ -72,6 +72,7 @@
                             <th>Período</th>
                             <th class="text-right pr-5">Tiempo Extra</th>
                             <th class="text-right pr-5">Tiempo Deducible</th>
+							<th class="text-center" width="120">Ajuste</th>
                             <th class="text-right pr-5">Costo Extra</th>
                             <th class="text-right pr-5">Costo Deducible</th>
                             <th class="text-right pr-5">Pago Total</th>
@@ -82,7 +83,7 @@
                     <tbody>
 						@if (count($employees) == 0)
 							<tr>
-								<td colspan="8" class="text-center">--- No hay registros ---</td>
+								<td colspan="9" class="text-center">--- No hay registros ---</td>
 							</tr>
 						@else
 							@foreach ($employees as $key => $employee)
@@ -95,6 +96,7 @@
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department }}</td>
 										<td>---</td>
+										<td class="text-right pr-5">---</td>
 										<td class="text-right pr-5">---</td>
 										<td class="text-right pr-5">---</td>
 										<td class="text-right pr-5">---</td>
@@ -113,24 +115,42 @@
 									@php
 										$hourlyRate = $employee->salary;
 										$minuteRate = $hourlyRate / 60;
-										$extraCost = $minuteRate * $attendances->extra;
-										$missingCost = $minuteRate * $attendances->missing;
+										$extraTime = $attendances->extra ?? 0;
+										$missingTime = $attendances->missing ?? 0;
+										$fixedTime = $attendances->manual_fix ?? 0;
+										$fixedCost = $minuteRate * $fixedTime;
+										$extraCost = $minuteRate * $extraTime;
+										$extraCost = $fixedTime < 0 ? $extraCost : $extraCost + $fixedCost;
+										$missingCost = $minuteRate * $missingTime;
+										$missingCost = $fixedTime > 0 ? $missingCost : $missingCost - $fixedCost;
 										$totalCost = $extraCost - $missingCost;
 									@endphp
-									<tr class="text-primary" data-entry-id="{{ $employee->id }}">
+									<tr class="text-primary" data-entry-id="{{ $employee->id }}" title="{{ $minuteRate }}">
 										<td>{{ $employee->number }}</td>
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department ?? '---' }}</td>
 										<td>{{ $attendances->year . '-' . $attendances->month }}</td>
-										<td class="text-right pr-5">{{ $attendances->extra }} min</td>
-										<td class="text-right pr-5">{{ $attendances->missing ?? 0 }} min</td>
-										<td class="text-right pr-5" id="extraCost-{{ $employee->id }}" data-total="{{ $extraCost }}">
-											${{ number_format(($extraCost) ?? 0, 4, '.', ',') }} USD
+										<td class="text-right pr-5" id="extraTime-{{ $employee->id }}" data-time="{{ $fixedTime > 0 ? $extraTime + $fixedTime : $extraTime }}" data-time-db="{{ $extraTime }}" data-time-fixed="{{ $fixedTime > 0 ? $fixedTime : 0 }}">
+											{{ $fixedTime > 0 ? $extraTime + $fixedTime : $extraTime }} min
 										</td>
-										<td class="text-right pr-5" id="missingCost-{{ $employee->id }}" data-total="{{ $missingCost }}">
-											${{ number_format(($missingCost) ?? 0, 4, '.', ',') }} USD
+										<td class="text-right pr-5" id="missingTime-{{ $employee->id }}" data-time="{{ $fixedTime < 0 ? $missingTime - $fixedTime : $missingTime }}" data-time-db="{{ $missingTime }}" data-time-fixed="{{ $fixedTime < 0 ? $fixedTime : 0 }}">
+											{{ $fixedTime < 0 ? $missingTime - $fixedTime : $missingTime }} min
 										</td>
-										<td class="text-right pr-5" id="totalCost-{{ $employee->id }}" data-total="{{ $totalCost }}">
+										<td class="text-center" title="Sumar o restar minutos de forma manual. Valor positivo para minutos extras (SUMAR). Valor negativo para minutos deducibles (RESTAR).">
+											<div class="input-group">
+												<input type="number" name="fix" class="form-control form-control-sm manualFIX" id="manualFIX-{{ $employee->id }}" rel="{{ $attendances->id }}" value="{{ $attendances->manual_fix ?? 0 }}" data-employee="{{ $employee->id }}" data-rate="{{ $minuteRate }}" data-payment="{{ $minuteRate * ($attendances->manual_fix ?? 0) }}">
+												<div class="input-group-append">
+													<button class="btn btn-sm btn-outline-secondary applyManual" type="button" id="button-addon2"><i class="fa fa-wd fa-check"></i></button>
+												</div>
+											</div>
+										</td>
+										<td class="text-right pr-5" id="extraCost-{{ $employee->id }}" data-total="{{ $extraCost }}" data-base="{{ $minuteRate * $extraTime }}">
+											${{ number_format($extraCost ?? 0, 4, '.', ',') }} USD
+										</td>
+										<td class="text-right pr-5" id="missingCost-{{ $employee->id }}" data-total="{{ $missingCost }}" data-base="{{ $minuteRate * $missingTime }}">
+											${{ number_format($missingCost ?? 0, 4, '.', ',') }} USD
+										</td>
+										<td class="text-right pr-5" id="totalCost-{{ $employee->id }}" data-total="{{ $totalCost }}" data-base="{{ $totalCost }}">
 											${{ number_format(($totalCost) ?? 0, 4, '.', ',') }} USD
 										</td>
 										<td class="text-center">
@@ -188,7 +208,7 @@
 									@endphp
 									@if (count($records) > 0)
 										<tr class="d-none" id="records-{{ $employee->id }}">
-											<td colspan="11">
+											<td colspan="12">
 												<table class="table table-sm table-hover">
 													<thead>
 														<tr class="bg-dark text-white">
@@ -219,6 +239,7 @@
 															{{-- <th class="text-right pr-5">
 																Total
 															</th> --}}
+															{{-- TODO: Incluir campo para añadir o restar minutos de forma manual --}}
 															<th class="text-center" width="300">
 																Comentarios
 															</th>
@@ -522,22 +543,32 @@
 
 			$('.applyExtra').on('change', function() {
 				let id = $(this).attr('rel');
-				let value = $(this).val();
-				let time = $(this).data('time');
-				let payment = $(this).data('payment');
-				let employee = $(this).data('employee');
-				let extraCost = $('#extraCost-' + employee).data('total');
-				let missingCost = $('#missingCost-' + employee).data('total');
+				let value = parseInt($(this).val());
+				let time = parseInt($(this).attr('data-time'));
+				let payment = parseFloat($(this).attr('data-payment'));
+				let employee = parseInt($(this).attr('data-employee'));
+				let extraTime = parseInt($('#extraTime-' + employee).attr('data-time'));
+				let extraTimeO = parseInt($('#extraTime-' + employee).attr('data-time-db'));
+				let extraTimeF = parseInt($('#extraTime-' + employee).attr('data-time-fixed'));
+				let extraCost = parseFloat($('#extraCost-' + employee).attr('data-total'));
+				let missingCost = parseFloat($('#missingCost-' + employee).attr('data-total'));
 
+				extraTime = value == 1 ? extraTime + time : extraTime - time;
 				extraCost = value == 1 ? extraCost + payment : extraCost - payment;
 				extraCost = extraCost < 0 ? 0 : extraCost;
-
-				let totalCost = extraCost - missingCost;
 				
+				let totalCost = extraCost - missingCost;
+
+				// console.log('Time: ' + time + ' ExtraTime: ' + extraTime);
+				// console.log('Payment: ' + payment + ' ExtraCost: ' + extraCost + ' MissingCost: ' + missingCost);
+
+				// Change the Extra Time Column value according to the extra time
+				$('#extraTime-' + employee).text(extraTime + ' min').attr('data-time', extraTime);
+				// $('#extraTime-' + employee).text(extraTime + ' min').attr({'data-time': extraTime, 'data-time-db': extraTimeO});
 				// Change the Extra Cost Column value according to the extra time
-				$('#extraCost-' + employee).text('$' + parseFloat(extraCost).toFixed(4) + ' USD').data('total', extraCost);
+				$('#extraCost-' + employee).text('$' + parseFloat(extraCost).toFixed(4) + ' USD').attr('data-total', extraCost);
 				// Change the Total Cost Column value according to the extra time
-				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').data('total', totalCost);
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').attr('data-total', totalCost);
 
 				// Update record in database to apply or not the extra time, and update the total payment
 				$.ajax({
@@ -555,23 +586,33 @@
 			});
 
 			$('.applyMissing').on('change', function() {
-				let id = $(this).attr('rel');
-				let value = $(this).val();
-				let time = $(this).data('time');
-				let payment = $(this).data('payment');
-				let employee = $(this).data('employee');
-				let extraCost = $('#extraCost-' + employee).data('total');
-				let missingCost = $('#missingCost-' + employee).data('total');
+				let id = $(this).attr('rel');														// Record ID
+				let value = parseInt($(this).val());												// Radio button value
+				let time = parseInt($(this).attr('data-time'));										// Original missing time on radio button
+				let payment = parseFloat($(this).attr('data-payment'));								// Payment for the missing time on radio button
+				let employee = parseInt($(this).attr('data-employee'));								// Employee ID
+				let missingTime = parseInt($('#missingTime-' + employee).attr('data-time'));		// Current missing time including manual fix
+				let missingTimeO = parseInt($('#missingTime-' + employee).attr('data-time-db'));	// Original missing time from DB without manual fix
+				let missingTimeF = parseInt($('#missingTime-' + employee).attr('data-time-fixed'));	// Applied missing manual fix time
+				let extraCost = parseFloat($('#extraCost-' + employee).attr('data-total'));			// Total cost for the extra time
+				let missingCost = parseFloat($('#missingCost-' + employee).attr('data-total'));		// Total cost for the missing time
 
-				missingCost = value == 1 ? missingCost + payment : missingCost - payment;
-				missingCost = missingCost < 0 ? 0 : missingCost;
+				missingTime = value == 1 ? missingTime + time : missingTime - time;					// Calculate the missing time according to the radio button value // TODO: Funciona bien con los radio buttons, pero no con el ajuste manual
+				missingCost = value == 1 ? missingCost + payment : missingCost - payment;			// Calculate the missing cost according to the radio button value
+				missingCost = missingCost < 0 ? 0 : missingCost;									// If the missing cost is negative, set it to 0
 
-				let totalCost = extraCost - missingCost;
-				
+				let totalCost = extraCost - missingCost;											// Calculate the total cost
+
+				// console.log('Time: ' + time + ' MissingTime: ' + missingTime);
+				// console.log('Payment: ' + payment + ' ExtraCost: ' + extraCost + ' MissingCost: ' + missingCost);
+
+				// Change the Missing Time Column value according to the missing time
+				$('#missingTime-' + employee).text(missingTime + ' min').attr('data-time', missingTime);
+				// $('#missingTime-' + employee).text(missingTime + ' min').attr({'data-time': missingTime, 'data-time-db': missingTimeO});
 				// Change the Missing Cost Column value according to the missing time
-				$('#missingCost-' + employee).text('$' + parseFloat(missingCost).toFixed(4) + ' USD').data('total', missingCost);
+				$('#missingCost-' + employee).text('$' + parseFloat(missingCost).toFixed(4) + ' USD').attr('data-total', missingCost);
 				// Change the Total Cost Column value according to the missing time
-				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').data('total', totalCost);
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').attr('data-total', totalCost);
 
 				// Update record in database to apply or not the missing time, and update the total payment
 				$.ajax({
@@ -587,7 +628,86 @@
 					}
 				});
 			});
-        })
+
+			$('.applyManual').on('click', function() {
+				// Add or substract minutes from the total cost depending on the value
+				// If the value is a negative number, substract minutes from the total, so a deduction is applied
+				// If the value is a positive number, add minutes to the total, so an extra time is applied
+				// If the value is 0, keep the original values
+				let input = $(this).parent().siblings('input');
+				let fix = parseInt(input.val());
+				let id = input.attr('rel');
+				let rate = input.attr('data-rate');
+				let payment = parseFloat(input.attr('data-payment'));
+				let employee = parseInt(input.attr('data-employee'));
+				let extraTime = parseInt($('#extraTime-' + employee).attr('data-time'));
+				let extraTimeO = parseInt($('#extraTime-' + employee).attr('data-time-db'));
+				let extraTimeF = parseInt($('#extraTime-' + employee).attr('data-time-fixed'));
+				let missingTime = parseInt($('#missingTime-' + employee).attr('data-time'));
+				let missingTimeO = parseInt($('#missingTime-' + employee).attr('data-time-db'));
+				let missingTimeF = parseInt($('#missingTime-' + employee).attr('data-time-fixed'));
+				let extraCost = parseFloat($('#extraCost-' + employee).attr('data-total'));
+				let extraCostO = parseFloat($('#extraCost-' + employee).attr('data-base'));
+				let missingCost = parseFloat($('#missingCost-' + employee).attr('data-total'));
+				let missingCostO = parseFloat($('#missingCost-' + employee).attr('data-base'));
+				let baseCost = parseFloat($('#totalCost-' + employee).attr('data-base'));
+				let fixedCost = fix * rate;
+				let realFix = fix >= 0 ? (extraTime - extraTimeF) + fix : (missingTime + missingTimeF) - fix;
+				
+				if (fix == 0) {
+					extraTime = realFix;
+					extraCost = extraCostO;
+					missingCost = missingCostO;
+					missingTime = missingTimeO;
+				} else if (fix < 0) {
+					missingTime = realFix;
+					missingCost = missingCost - fixedCost;
+					missingCost = missingCost < 0 ? 0 : missingCost;
+					extraCost = extraCostO;
+					extraTime = extraTimeO;
+				} else if (fix > 0) {
+					extraTime = realFix;
+					extraCost = extraCost + fixedCost;
+					extraCost = extraCost < 0 ? 0 : extraCost;
+					missingCost = missingCostO;
+					missingTime = missingTimeO;
+				}
+
+				let totalCost = extraCost - missingCost;
+
+				// console.log('Fix: ' + fix + ' ExtraTime: ' + extraTime);
+				// console.log('Payment: ' + payment + ' ExtraCost: ' + extraCost + ' MissingCost: ' + missingCost);
+
+				// Change the Extra Time Column value according to the extra time
+				$('#extraTime-' + employee).text(extraTime + ' min').attr({'data-time': extraTime, 'data-time-fixed': (fix > 0 ? fix : 0)});
+				// Change the Missing Time Column value according to the missing time
+				$('#missingTime-' + employee).text(missingTime + ' min').attr({'data-time': missingTime, 'data-time-fixed': (fix < 0 ? fix : 0)});
+				// Change the Extra Cost Column value according to the extra time
+				$('#extraCost-' + employee).text('$' + parseFloat(extraCost).toFixed(4) + ' USD').attr('data-total', extraCost);
+				// Change the Missing Cost Column value according to the missing time
+				$('#missingCost-' + employee).text('$' + parseFloat(missingCost).toFixed(4) + ' USD').attr('data-total', missingCost);
+				// Change the Total Cost Column value according to the manual fix
+				$('#totalCost-' + employee).text('$' + parseFloat(totalCost).toFixed(4) + ' USD').attr('data-total', totalCost);
+
+				// Update the manual fix input total payment property
+				input.attr('data-payment', fixedCost);
+
+				// Update record in database to apply the manual fix, and update the total payment
+				$.ajax({
+					headers: {
+						'x-csrf-token': _token
+					},
+					method: 'POST',
+					url: "{{ route('admin.hours.manual_fix') }}",
+					data: {
+						id: id,
+						fix: fix
+					}
+				}).then(function() {
+					// window.location.reload();
+				});
+			});
+        });
         $('[data-toggle="tooltip"]').tooltip()
     </script>
 @endsection

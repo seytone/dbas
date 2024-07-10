@@ -98,6 +98,17 @@ class HoursController extends Controller
 		return response()->json(['success' => 'Registro actualizado correctamente']);
 	}
 
+	public function manualFix(Request $request)
+	{
+		$record = Attendance::find($request->id);
+		$record->manual_fix = $request->fix;
+		$record->save();
+
+		// TODO: considerar añadir un campo en la tabla de asistencias para guardar el total de minutos ajustasdos de forma manual (positivo o negativo)
+
+		return response()->json(['success' => 'Registro actualizado correctamente']);
+	}
+
 	public function comment(Request $request)
 	{
 		$record = AttendanceRecord::find($request->id);

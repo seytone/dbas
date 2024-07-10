@@ -23,7 +23,6 @@ class AttendanceRecord extends Model
 		'missing',
 		'missing_time',
 		'missing_apply',
-		'apply',
 		'comments',
 	];
 

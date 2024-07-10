@@ -117,7 +117,7 @@ class AttendanceRecordsImport implements ToCollection
 							'extra_time' => $extraMinutes,																											// Extra time (min) less than 20 min
 							'missing' => $missing,																													// Missing time (min) when apply
 							'missing_time' => $missingMinutes,																										// Missing time (min) less than 20 min
-							'total' => 0																															// Validate if is needed to calculate here
+							'total' => 0
 						];
 					}
 					$employeeData[$last] = $latest;
@@ -155,6 +155,7 @@ class AttendanceRecordsImport implements ToCollection
 					'extra' => array_sum(array_column($employee['logs'], 'extra')),
 					'missing' => array_sum(array_column($employee['logs'], 'missing')),
 					'total' => array_sum(array_column($employee['logs'], 'total')),
+					'manual_fix' => 0,
 				]);
 
 				foreach ($employee['logs'] as $log)
