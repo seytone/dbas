@@ -652,7 +652,7 @@
 				let missingCostO = parseFloat($('#missingCost-' + employee).attr('data-base'));
 				let baseCost = parseFloat($('#totalCost-' + employee).attr('data-base'));
 				let fixedCost = fix * rate;
-				let realFix = fix >= 0 ? (extraTime - extraTimeF) + fix : (missingTime + missingTimeF) - fix;
+				let realFix = fix >= 0 ? (extraTime - extraTimeF) + fix : (missingTime + missingTimeF) + fix;
 				
 				if (fix == 0) {
 					extraTime = realFix;
@@ -661,7 +661,7 @@
 					missingTime = missingTimeO;
 				} else if (fix < 0) {
 					missingTime = realFix;
-					missingCost = missingCost - fixedCost;
+					missingCost = missingCost + fixedCost;
 					missingCost = missingCost < 0 ? 0 : missingCost;
 					extraCost = extraCostO;
 					extraTime = extraTimeO;
