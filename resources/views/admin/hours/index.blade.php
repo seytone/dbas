@@ -704,7 +704,7 @@
 						fix: fix
 					}
 				}).then(function() {
-					// window.location.reload();
+					window.location.reload();
 				});
 			});
         });
