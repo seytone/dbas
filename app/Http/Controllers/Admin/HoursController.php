@@ -44,11 +44,13 @@ class HoursController extends Controller
 		$file = $request->file('excel');
 		$file->storeAs('public', $file->getClientOriginalName());
 		$excel = storage_path('app/public/' . $file->getClientOriginalName());
-		$result = 'success';
-		$message = 'Archivo importado correctamente';
+		$result = 'warning';
+		$message = 'No se ha procesado el archivo.';
 
 		try {
 			Excel::import(new AttendanceImport, $excel);
+			$result = 'success';
+			$message = 'Archivo importado correctamente';
 		} catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
 			$errors = $e->failures();
 			foreach ($errors as $error) {
@@ -58,11 +60,11 @@ class HoursController extends Controller
 				Log::error("Error processing row $errorRow, column $errorColumn: $errorValue");
 			}
 			$result = 'error';
-			$message = 'Error al procesar el archivo';
+			$message = 'Error de validación al procesar el archivo';
 		} catch (Exception $e) {
 			Log::error('Error importing excel', [$e]);
 			$result = 'error';
-			$message = 'Error al importar el archivo';
+			$message = 'Error desconocido al importar el archivo';
 		}
 		
 		@unlink($excel);

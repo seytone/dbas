@@ -360,8 +360,20 @@
 					position: 'bottom-end',
 					icon: 'success',
 					title: '¡Éxito!',
-					text: '{{ $request->session()->get('success') }}',
+					text: '{{ $request->session()->get("success") }}',
 					timer: 2000,
+					showConfirmButton: false
+				});
+			@endif
+
+			@if ($request->session()->has('warning'))
+				Swal.fire({
+					toast: true,
+					position: 'bottom-end',
+					icon: 'warning',
+					title: 'Atención!',
+					text: '{{ $request->session()->get("warning") }}',
+					timer: 3000,
 					showConfirmButton: false
 				});
 			@endif
@@ -372,7 +384,7 @@
 					position: 'bottom-end',
 					icon: 'error',
 					title: 'Error!',
-					text: '{{ $request->session()->get('error') }}',
+					text: '{{ $request->session()->get("error") }}',
 					timer: 3000,
 					showConfirmButton: false
 				});
