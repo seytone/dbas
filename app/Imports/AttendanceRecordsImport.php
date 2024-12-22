@@ -53,7 +53,7 @@ class AttendanceRecordsImport implements ToCollection
 			return true;
 		} catch (Exception $e) {
 			Log::error('Error al importar registros de asistencia', [$e]);
-			return false;
+			throw $e;
 		}
     }
 
@@ -128,8 +128,8 @@ class AttendanceRecordsImport implements ToCollection
 			return $employeeData;
 
 		} catch (Exception $e) {
-			Log::error('Error al extraer tiempos en', [$records, $e]);
-			return false;
+			Log::error('Error al extraer tiempos en', [$e, $records]);
+			throw $e;
 		}
 	}
 
@@ -178,8 +178,8 @@ class AttendanceRecordsImport implements ToCollection
 				}
 			}
 		} catch (Exception $e) {
-			Log::error('Error al registrar tiempos en', [$data, $e]);
-			return false;
+			Log::error('Error al registrar tiempos en', [$e, $data]);
+			throw $e;
 		}
 	}
 }

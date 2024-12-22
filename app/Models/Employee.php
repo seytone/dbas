@@ -11,7 +11,7 @@ class Employee extends Model
     use HasFactory, SoftDeletes;
 
 	protected $fillable = [
-		'number',
+		'number', // TODO: Consider use a unique identifier for employees instead of number
 		'pin',
 		'name',
 		'lastname',

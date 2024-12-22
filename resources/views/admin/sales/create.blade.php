@@ -1,5 +1,31 @@
 @extends('layouts.admin')
 @section('content')
+	<div class="row mb-2">
+		<div class="col-8">
+			<h1>Nueva Venta</h1>
+		</div>
+		<div class="col-4">
+			@if (Auth::user()->hasRole('Superadmin'))
+				<div class="float-right">
+					<form class="form-inline" action="{{ route('admin.update_config') }}" method="post" title="NOTA: La actualización de este dato aplica unicamente a las nuevas ventas que se registren a partir del momento en que este dato sea modificado.">
+						@csrf
+						<input type="hidden" name="key" value="fee_mercadolibre">
+						<div class="input-group">
+							<span class="input-group-addon btn bg-light px-2" id="basic-addon2"><i class="fa fa-fw fa-cog mr-2 d-inline"></i>Comisión Mercado Libre</span>
+							<input type="number" id="fee_mercadolibre" class="form-control text-center" placeholder="10" name="value" value="{{ $feeMercadolibre }}" aria-describedby="basic-addon2"  min="0" max="100" step=".01" required>
+							<div class="input-group-append">
+								<span class="input-group-text">%</span>
+							</div>
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-dark btn-sm" id="basic-addon2"><i class="fa fa-fw fa-save"></i></button>
+							</div>
+						</div>
+					</form>
+				</div>
+			@endif
+		</div>
+		<div class="col-12"><hr></div>
+	</div>
     <div class="card">
         <div class="card-header">
             Registrar Venta
@@ -122,7 +148,7 @@
 				</div>
 				{{-- Productos/Servicios --}}
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-12">
 						<div class="form-group {{ $errors->has('product_id') ? 'has-error' : '' }}">
 							<div>
 								<label for="products">Productos</label>
@@ -156,13 +182,14 @@
 									<th class="text-right">Precio</th>
 									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
 									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
+									<th class="text-center" width="80" style="min-width: 80px" title="Mercado Libre">ML</th>
 									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Prov.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Total</th>
 								</thead>
 								<tbody id="products-list"></tbody>
 								<tfoot class="bg-light">
-									<th colspan="8"></th>
+									<th colspan="9"></th>
 									<th class="text-right">Costo<br><strong id="costo_prods">0.00</strong></th>
 									<th class="text-right">Total<br><strong id="total_prods">0.00</strong></th>
 								</tfoot>
@@ -170,7 +197,7 @@
 							<input type="hidden" id="provider" name="provider" value="0">
 						</div>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-12">
 						<div class="form-group {{ $errors->has('service_id') ? 'has-error' : '' }}">
 							<div>
 								<label for="services">Servicios</label>
@@ -196,6 +223,7 @@
 									<th class="text-right">Precio</th>
 									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
 									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
+									{{-- <th class="text-center" width="80" style="min-width: 80px" title="Mercado Libre">ML</th> --}}
 									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Total</th>
 								</thead>
@@ -547,7 +575,7 @@
 					var item = arguments[0];
 					var data = this.options[item].data;
 					if (action == 'ADD') {
-						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
+						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><div class="form-check"><input type="checkbox" name="products[' + item + '][ml]" class="form-check-input fee_mercadolibre mt-0 ml-0" title="Comisión: 0.00" style="top: -6px;"></div></td><td><input type="number" name="products[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
 						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
 						$('#products-cont').removeClass('d-none');
 					} else {
@@ -606,16 +634,47 @@
 				};
 			}
 
+			$('body').on('input', '.discount', function() {
+				var discount = $(this).val();
+				var parent = $(this).parents('.item');
+				var subtotal = parent.find('.subtotal').val();
+				var total = parseFloat(subtotal) - parseFloat(discount);
+				parent.find('.total').val(total);
+				calculateValues();
+			});
+
 			$('body').on('change', '.quantity_prod', function() {
 				var quantity = $(this).val();
 				var parent = $(this).parents('.item');
 				var cost = parent.find('.cost').text();
 				var price = parent.find('.price').text();
+				var discount = parent.find('.discount').val();
+				var mercadolibre = $('#fee_mercadolibre').val();
 				var total = parseFloat(price) * parseInt(quantity);
 				var provider = parseFloat(cost) * parseInt(quantity);
-				parent.find('.provider').val(provider);
+				var fee_ml = parent.find('.fee_mercadolibre').is(':checked') ? total * (mercadolibre / 100) : 0;
+				total = total - parseFloat(discount);
+				provider += fee_ml;
 				parent.find('.subtotal').val(total);
+				parent.find('.provider').val(provider.toFixed(0));
 				parent.find('.product').val(total);
+				calculateValues();
+			});
+
+			$('body').on('change', '.fee_mercadolibre', function() {
+				var parent = $(this).parents('.item');
+				var cost = parent.find('.cost').html();
+				var discount = parent.find('.discount').val();
+				var subtotal = parent.find('.subtotal').val();
+				var mercadolibre = $('#fee_mercadolibre').val();
+				var quantity = parent.find('.quantity_prod').val();
+				var provider = parseFloat(cost) * parseInt(quantity);
+				var fee_ml = $(this).is(':checked') ? subtotal * (mercadolibre / 100) : 0;
+				var total = parseFloat(subtotal) - parseFloat(discount);
+				$(this).attr({'title': 'Comisión: ' + fee_ml.toFixed(2), 'data-previous-fee': fee_ml});
+				provider += fee_ml;
+				parent.find('.provider').val(provider.toFixed(0));
+				parent.find('.total').val(total);
 				calculateValues();
 			});
 
@@ -626,15 +685,6 @@
 				var total = parseFloat(price) * parseInt(quantity);
 				parent.find('.subtotal').val(total);
 				parent.find('.service').val(total);
-				calculateValues();
-			});
-
-			$('body').on('input', '.discount', function() {
-				var discount = $(this).val();
-				var parent = $(this).parents('.item');
-				var subtotal = parent.find('.subtotal').val();
-				var total = parseFloat(subtotal) - parseFloat(discount);
-				parent.find('.total').val(total);
 				calculateValues();
 			});
 

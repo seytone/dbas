@@ -5,14 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
 use App\User;
 use App\Models\Sale;
 use App\Models\Seller;
 use App\Models\Client;
-use App\Models\Product;
+use App\Models\Config;
 use App\Models\Service;
 use App\Models\Category;
 use App\Models\SaleProduct;
@@ -91,8 +90,9 @@ class SalesController extends Controller
         $clients = Client::all();
         $services = Service::all();
         $categories = Category::with('products')->get();
+		$feeMercadolibre = Config::where('key', 'fee_mercadolibre')->first()->value ?? 10;
 
-        return view('admin.sales.create', compact('user', 'sellers', 'clients', 'services', 'categories'));
+        return view('admin.sales.create', compact('user', 'sellers', 'clients', 'services', 'categories', 'feeMercadolibre'));
     }
 
     /**

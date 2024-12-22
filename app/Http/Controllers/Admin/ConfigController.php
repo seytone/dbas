@@ -26,10 +26,8 @@ class ConfigController extends Controller
 
 	public function updateConfig(Request $request)
 	{
-		$key = $request->key;
-		$value = $request->value;
-		$config = Config::where('key', $key)->first();
-		$config->value = $value;
+		$config = Config::firstOrNew(['key' => $request->key]);
+		$config->value = $request->value;
 		$config->save();
 
 		return back()->with('success', 'Configuración actualizada correctamente');

@@ -109,6 +109,18 @@
                         </div>
                     </div>
                 @endif
+                @if(session('warning'))
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <div class="alert alert-warning" role="alert">
+								{{ session('warning') }}
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+                        </div>
+                    </div>
+                @endif
                 @if(session('error'))
                     <div class="row mb-2">
                         <div class="col-lg-12">
