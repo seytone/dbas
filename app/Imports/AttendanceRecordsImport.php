@@ -141,13 +141,18 @@ class AttendanceRecordsImport implements ToCollection
 				$fullname = explode(' ', $employee['name']);
 				$name = ucwords(mb_strtolower($fullname[0]));
 				$lastname = ucwords(mb_strtolower($fullname[1] ?? $name));
-				$employeeID = Employee::firstOrCreate(['number' => $employee['id']], [
+				$employeeData = Employee::withTrashed()->firstOrCreate(['number' => $employee['id']], [
 					'name' => $name,
 					'lastname' => $lastname,
 					'department' => $employee['dept'],
-				])->id;
+				]);
+
+				// Restore the employee if it was soft deleted and is the same person
+				if ($employeeData->deleted_at && $employeeData->name == $name && $employeeData->lastname == $lastname)
+					$employeeData->restore();
+
 				$attendance = Attendance::updateOrCreate([
-					'employee_id' => $employeeID,
+					'employee_id' => $employeeData->id,
 					'year' => $year,
 					'month' => $month,
 				], [
