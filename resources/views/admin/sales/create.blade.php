@@ -22,6 +22,8 @@
 						</div>
 					</form>
 				</div>
+			@else
+				<input type="hidden" id="fee_mercadolibre" value="{{ $feeMercadolibre }}">
 			@endif
 		</div>
 		<div class="col-12"><hr></div>
