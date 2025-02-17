@@ -134,12 +134,22 @@ class UsersController extends Controller
 
 		if ($user->hasRole('Vendedor'))
 		{
-			$user->seller->update([
-				'commission_1' => $request->input('commission_1') ?? 1,
-				'commission_2' => $request->input('commission_2') ?? 1,
-				'commission_3' => $request->input('commission_3') ?? 1,
-				'commission_4' => $request->input('commission_4') ?? 50,
-			]);
+			if ($user->seller) {
+				$user->seller->update([
+					'commission_1' => $request->input('commission_1') ?? 1,
+					'commission_2' => $request->input('commission_2') ?? 1,
+					'commission_3' => $request->input('commission_3') ?? 1,
+					'commission_4' => $request->input('commission_4') ?? 50,
+				]);
+			} else {
+				Seller::create([
+					'user_id' => $user->id,
+					'commission_1' => $request->input('commission_1') ?? 1,
+					'commission_2' => $request->input('commission_2') ?? 1,
+					'commission_3' => $request->input('commission_3') ?? 1,
+					'commission_4' => $request->input('commission_4') ?? 50,
+				]);
+			}
 		}
 
         return redirect()->route('admin.users.index');
