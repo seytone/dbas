@@ -5,6 +5,7 @@
             Edición de Venta
         </div>
         <div class="card-body">
+			<input type="hidden" id="fee_mercadolibre" value="{{ $feeMercadolibre }}">
             <form action="{{ route('admin.sales.update', [$sale->id]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
 				@method('PUT')
@@ -123,7 +124,7 @@
 				</div>
 				{{-- Productos/Servicios --}}
 				<div class="row">
-					<div class="col-sm-6">
+					<div class="col-12">
 						<div class="form-group {{ $errors->has('product_id') ? 'has-error' : '' }}">
 							<div>
 								<label for="products">Productos</label>
@@ -157,6 +158,7 @@
 									<th class="text-right">Precio</th>
 									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
 									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
+									<th class="text-center" width="80" style="min-width: 80px" title="Mercado Libre">ML</th>
 									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Prov.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Total</th>
@@ -192,6 +194,11 @@
 													<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $prod->quantity * $prod->price }}" readonly>
 												</td>
 												<td>
+													<div class="form-check">
+														<input type="checkbox" name="products[{{ $prod->product->id }}][ml]" {{ $prod->mercadolibre == 1 ? 'checked' : '' }} class="form-check-input fee_mercadolibre mt-0 ml-0" title="Comisión: 0.00" style="top: -6px;">
+													</div>
+												</td>
+												<td>
 													<input type="number" name="products[{{ $prod->product->id }}][discount]" min="0" step=".01" value="{{ $prod->discount }}" class="form-control p-0 text-right discount">
 												</td>
 												<td>
@@ -208,7 +215,7 @@
 									@endforeach
 								</tbody>
 								<tfoot class="bg-light">
-									<th colspan="8"></th>
+									<th colspan="9"></th>
 									<th class="text-right">Costo<br><strong id="costo_prods">{{ number_format($sale->provider, 2, '.', ',') }}</strong></th>
 									<th class="text-right">Total<br><strong id="total_prods">{{ number_format($total_prods, 2, '.', ',') }}</strong></th>
 								</tfoot>
@@ -216,7 +223,7 @@
 							<input type="hidden" id="provider" name="provider" value="{{ $sale->provider }}">
 						</div>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-12">
 						<div class="form-group {{ $errors->has('service_id') ? 'has-error' : '' }}">
 							<div>
 								<label for="services">Servicios</label>
@@ -241,6 +248,7 @@
 									<th class="text-left" width="150" style="min-width: 150px">Código</th>
 									<th class="text-right">Precio</th>
 									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
+									<th class="text-center" width="80" style="min-width: 80px">Soporte</th>
 									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
 									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Total</th>
@@ -267,6 +275,11 @@
 													<input type="number" name="services[{{ $serv->service->id }}][quantity]" min="1" value="{{ $serv->quantity }}" class="form-control p-0 quantity quantity_serv">
 												</td>
 												<td>
+													<div class="form-check">
+														<input type="checkbox" name="services[{{ $serv->service->id }}][support]" {{ $serv->support == 1 ? 'checked' : '' }} class="form-check-input support mt-0 ml-0" style="top: -6px;">
+													</div>
+												</td>
+												<td>
 													<input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="{{ $serv->price }}" readonly>
 												</td>
 												<td>
@@ -283,7 +296,7 @@
 									@endforeach
 								</tbody>
 								<tfoot class="bg-light">
-									<th colspan="6"></th>
+									<th colspan="7"></th>
 									<th class="text-right">Total<br><strong id="total_servs">{{ number_format($total_servs, 2, '.', ',') }}</strong></th>
 								</tfoot>
 							</table>
@@ -511,7 +524,7 @@
 			var payment_usd = parseFloat($('#payment_amount_usd').val());
 			var payment_total = $('input[name="payment_currency"]:checked').val();
 
-			var costs = costs_perpetual = costs_annual = costs_hardware = subtotal = subtotal_perpetual = subtotal_annual = subtotal_hardware = subtotal_products = subtotal_services = commission_perpetual = commission_annual = commission_hardware = commission_services = commission_total = iva = igtf = cityhall = total = profit = payment_amount_usd = payment_amount_bsf = 0;
+			var costs = costs_perpetual = costs_annual = costs_hardware = subtotal = subtotal_perpetual = subtotal_annual = subtotal_hardware = subtotal_products = subtotal_services = commission_perpetual = commission_annual = commission_hardware = commission_services = commission_total = iva = igtf = cityhall = total = profit = payment_amount_usd = payment_amount_bsf = seller_margin_services_total = 0;
 
 			var seller_margin_perpetual = margin_perpetual / 100; // 1%
 			var seller_margin_annual = margin_annual / 100; // 1%
@@ -526,34 +539,34 @@
 
 			// Calculate total costs for products
 			$('.item .provider').each(function() {
-				var cost = parseFloat($(this).val());
+				var value = parseFloat($(this).val());
 				var group = $(this).attr('rel');
 				switch (group) {
 					case 'perpetual':
-						costs_perpetual += cost;
+						costs_perpetual += value;
 						break;
 					case 'annual':
-						costs_annual += cost;
+						costs_annual += value;
 						break;
 					case 'hardware':
-						costs_hardware += cost;
+						costs_hardware += value;
 						break;
 				}
 			});
 
 			// Calculate total value for products
 			$('.item .product').each(function() {
-				var price = parseFloat($(this).val());
+				var value = parseFloat($(this).val());
 				var group = $(this).attr('rel');
 				switch (group) {
 					case 'perpetual':
-						subtotal_perpetual += price;
+						subtotal_perpetual += value;
 						break;
 					case 'annual':
-						subtotal_annual += price;
+						subtotal_annual += value;
 						break;
 					case 'hardware':
-						subtotal_hardware += price;
+						subtotal_hardware += value;
 						break;
 				}
 			});
@@ -561,7 +574,12 @@
 			// Calculate total value for services
 			$('.item .service').each(function() {
 				var value = parseFloat($(this).val());
+				var parent = $(this).parents('.item');
+				var support = parent.find('.support').is(':checked');
+				var seller_fee = support ? seller_margin_services : seller_margin_services / 2;
 				subtotal_services += value;
+				seller_margin_services_total += value * seller_fee;
+				parent.find('.support').attr('title', 'Comisión: ' + (value * seller_fee).toFixed(2));
 			});
 
 			subtotal_products = subtotal_perpetual + subtotal_annual + subtotal_hardware;
@@ -588,7 +606,8 @@
 				commission_perpetual = (subtotal_perpetual - costs_perpetual) * seller_margin_perpetual;
 				commission_annual = (subtotal_annual - costs_annual) * seller_margin_annual;
 				commission_hardware = (subtotal_hardware - costs_hardware) * seller_margin_hardware;
-				commission_services = subtotal_services * seller_margin_services;
+				// commission_services = subtotal_services * seller_margin_services;
+				commission_services = seller_margin_services_total;
 			}
 
 			if (payment_total == 'usd') {
@@ -626,9 +645,9 @@
 
         $(function()
 		{
-			setTimeout(() => {
-				calculateValues();
-			}, 250);
+			// setTimeout(() => {
+			// 	calculateValues();
+			// }, 250);
 
 			function productHandler(action)
 			{
@@ -636,8 +655,9 @@
 					var item = arguments[0];
 					var data = this.options[item].data;
 					if (action == 'ADD') {
-						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="products[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
+						$('#products-list').append('<tr class="item" id="prod-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="products[' + item + '][id]" value="' + data.id + '"><input type="hidden" name="products[' + item + '][group]" value="' + data.group + '"></td><td><i>' + data.code + '</i></td><td><span class="badge badge-secondary">' + data.type + '</span></td><td class="text-right cost">' + data.cost + '</td><td class="text-right price"><input type="hidden" name="products[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="products[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_prod"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><div class="form-check"><input type="checkbox" name="products[' + item + '][ml]" class="form-check-input fee_mercadolibre mt-0 ml-0" title="Comisión: 0.00" style="top: -6px;"></div></td><td><input type="number" name="products[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right provider" rel="' + data.group + '" value="' + data.cost + '" readonly></td><td><input type="number" name="products[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total product" rel="' + data.group + '" value="' + data.price + '" readonly></td></tr>');
 						$('#products-list #prod-' + data.id + ' .quantity_prod').inputSpinner();
+						$('#products-cont').removeClass('d-none');
 					} else {
 						$('#products-list #prod-' + data.id).remove();
 					}
@@ -651,8 +671,9 @@
 					var item = arguments[0];
 					var data = this.options[item].data;
 					if (action == 'ADD') {
-						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
+						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><div class="form-check"><input type="checkbox" name="services[' + item + '][support]" class="form-check-input support mt-0 ml-0" style="top: -6px;"></div></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
 						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
+						$('#services-cont').removeClass('d-none');
 					} else {
 						$('#services-list #serv-' + data.id).remove();
 					}
@@ -696,16 +717,51 @@
 				};
 			}
 
+			$('body').on('input', '.discount', function() {
+				var discount = $(this).val();
+				var parent = $(this).parents('.item');
+				var subtotal = parent.find('.subtotal').val();
+				var total = parseFloat(subtotal) - parseFloat(discount);
+				parent.find('.total').val(total);
+				calculateValues();
+			});
+
 			$('body').on('change', '.quantity_prod', function() {
 				var quantity = $(this).val();
 				var parent = $(this).parents('.item');
 				var cost = parent.find('.cost').text();
 				var price = parent.find('.price').text();
+				var discount = parent.find('.discount').val();
+				var mercadolibre = $('#fee_mercadolibre').val();
 				var total = parseFloat(price) * parseInt(quantity);
 				var provider = parseFloat(cost) * parseInt(quantity);
-				parent.find('.provider').val(provider);
+				var fee_ml = parent.find('.fee_mercadolibre').is(':checked') ? total * (mercadolibre / 100) : 0;
+				total = total - parseFloat(discount);
+				provider += fee_ml;
 				parent.find('.subtotal').val(total);
+				parent.find('.provider').val(provider.toFixed(0));
 				parent.find('.product').val(total);
+				calculateValues();
+			});
+
+			$('body').on('change', '.fee_mercadolibre', function() {
+				var parent = $(this).parents('.item');
+				var cost = parent.find('.cost').html();
+				var discount = parent.find('.discount').val();
+				var subtotal = parent.find('.subtotal').val();
+				var mercadolibre = $('#fee_mercadolibre').val();
+				var quantity = parent.find('.quantity_prod').val();
+				var provider = parseFloat(cost) * parseInt(quantity);
+				var fee_ml = $(this).is(':checked') ? subtotal * (mercadolibre / 100) : 0;
+				var total = parseFloat(subtotal) - parseFloat(discount);
+				$(this).attr({'title': 'Comisión: ' + fee_ml.toFixed(2), 'data-previous-fee': fee_ml});
+				provider += fee_ml;
+				parent.find('.provider').val(provider.toFixed(0));
+				parent.find('.total').val(total);
+				calculateValues();
+			});
+
+			$('body').on('change', '.support', function() {
 				calculateValues();
 			});
 
@@ -719,14 +775,27 @@
 				calculateValues();
 			});
 
-			$('body').on('input', '.discount', function() {
-				var discount = $(this).val();
-				var parent = $(this).parents('.item');
-				var subtotal = parent.find('.subtotal').val();
-				var total = parseFloat(subtotal) - parseFloat(discount);
-				parent.find('.total').val(total);
-				calculateValues();
-			});
+			// $('body').on('change', '#invoice_number', function() {
+			// 	var invoice_number = $(this).val();
+			// 	$.ajax({
+			// 		url: "{{ route('admin.sales.exists') }}",
+			// 		type: 'GET',
+			// 		data: { invoice_number: invoice_number },
+			// 		success: function(data) {
+			// 			if (data) {
+			// 				$('#invoice_number').addClass('is-invalid');
+			// 				$('#invoice_number').focus();
+			// 				Swal.fire({
+			// 					type: 'error',
+			// 					title: 'Error',
+			// 					text: 'Ya existe una venta registrada con ese número, que quizá incluso, pertenece a otro vendedor. Por favor, verifique.',
+			// 				});
+			// 			} else {
+			// 				$('#invoice_number').removeClass('is-invalid');
+			// 			}
+			// 		}
+			// 	});
+			// });
 
 			$('body').on('change', '#document', function() {
 				var doc = $(this).val();

@@ -231,8 +231,9 @@ class SalesController extends Controller
 		$sale_products = $sale->products->pluck('product_id')->toArray();
 		$sale_services = $sale->services->pluck('service_id')->toArray();
 		$user_seller = Seller::find($sale->seller_id);
+		$feeMercadolibre = Config::where('key', 'fee_mercadolibre')->first()->value ?? 10;
 
-        return view('admin.sales.edit', compact('sale', 'user', 'sellers', 'clients', 'services', 'categories', 'sale_products', 'sale_services', 'user_seller'));
+        return view('admin.sales.edit', compact('sale', 'user', 'sellers', 'clients', 'services', 'categories', 'sale_products', 'sale_services', 'user_seller', 'feeMercadolibre'));
     }
 
     /**
