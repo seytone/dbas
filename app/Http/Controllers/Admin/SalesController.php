@@ -318,6 +318,7 @@ class SalesController extends Controller
 				$saleProduct->quantity = $product['quantity'];
 				$saleProduct->price = $product['price'];
 				$saleProduct->discount = $product['discount'];
+				$saleProduct->mercadolibre = isset($product['ml']) ? true : false;
 				$saleProduct->total = $product['total'];
 				$saleProduct->save();
 			}
@@ -335,6 +336,7 @@ class SalesController extends Controller
 				$saleService->quantity = $service['quantity'];
 				$saleService->price = $service['price'];
 				$saleService->discount = $service['discount'];
+				$saleService->support = isset($service['support']) ? true : false;
 				$saleService->total = $service['total'];
 				$saleService->save();
 			}
