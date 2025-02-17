@@ -88,6 +88,9 @@
 												Descuento
 											</th>
 											<th>
+												Mercado Libre
+											</th>
+											<th>
 												Total
 											</th>
 										</tr>
@@ -112,6 +115,9 @@
 														${{ number_format($prod->discount, 2, ',', '.') }} USD
 													</td>
 													<td>
+														{{ $prod->mercadolibre ? 'Sí' : 'No' }}
+													</td>
+													<td>
 														${{ number_format($prod->total, 2, ',', '.') }} USD
 													</td>
 												</tr>
@@ -123,7 +129,7 @@
 									</tbody>
 									<tfoot>
 										<tr>
-											<th colspan="4"></th>
+											<th colspan="5"></th>
 											<th>
 												${{ number_format($total_prods, 2, ',', '.') }} USD
 											</th>
@@ -163,6 +169,9 @@
 												Descuento
 											</th>
 											<th>
+												Soporte
+											</th>
+											<th>
 												Total
 											</th>
 										</tr>
@@ -187,6 +196,9 @@
 														${{ number_format($serv->discount, 2, ',', '.') }} USD
 													</td>
 													<td>
+														{{ $serv->support ? 'Sí' : 'No' }}
+													</td>
+													<td>
 														${{ number_format($serv->total, 2, ',', '.') }} USD
 													</td>
 												</tr>
@@ -198,7 +210,7 @@
 									</tbody>
 									<tfoot>
 										<tr>
-											<th colspan="4"></th>
+											<th colspan="5"></th>
 											<th>
 												${{ number_format($total_servs, 2, ',', '.') }} USD
 											</th>

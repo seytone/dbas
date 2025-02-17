@@ -16,7 +16,7 @@ class EmployeesController extends Controller
      */
     public function index()
     {
-        $employees = Employee::all();
+		$employees = Employee::withTrashed()->get();
 
         return view('admin.employees.index', compact('employees'));
     }
@@ -62,10 +62,12 @@ class EmployeesController extends Controller
      * @param  \App\Models\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function show(Employee $employee)
-    {
-        return view('admin.employees.show', compact('employee'));
-    }
+	public function show($id)
+	{
+		$employee = Employee::withTrashed()->findOrFail($id);
+
+		return view('admin.employees.show', compact('employee'));
+	}
 
     /**
      * Show the form for editing the specified resource.
@@ -73,10 +75,12 @@ class EmployeesController extends Controller
      * @param  \App\Models\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function edit(Employee $employee)
-    {
-        return view('admin.employees.edit', compact('employee'));
-    }
+	public function edit($id)
+	{
+		$employee = Employee::withTrashed()->findOrFail($id);
+
+		return view('admin.employees.edit', compact('employee'));
+	}
 
     /**
      * Update the specified resource in storage.
@@ -85,24 +89,25 @@ class EmployeesController extends Controller
      * @param  \App\Models\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employee $employee)
-    {
-        $validatedData = $request->validate([
-            'number' => 'required|numeric|max:100',
-            'name' => 'required|string|max:30',
-            'lastname' => 'required|string|max:30',
-            'pin' => 'nullable|sometimes|string|max:30',
-            'email' => 'nullable|sometimes|email|max:100',
-            'phone' => 'nullable|sometimes|string|max:30',
-            'department' => 'nullable|sometimes|string|max:30',
-            'position' => 'nullable|sometimes|string|max:30',
-            'salary' => 'required|numeric|between:0,999999.99'
-        ]);
+	public function update(Request $request, $id)
+	{
+		$validatedData = $request->validate([
+			'number' => 'required|numeric|max:100',
+			'name' => 'required|string|max:30',
+			'lastname' => 'required|string|max:30',
+			'pin' => 'nullable|sometimes|string|max:30',
+			'email' => 'nullable|sometimes|email|max:100',
+			'phone' => 'nullable|sometimes|string|max:30',
+			'department' => 'nullable|sometimes|string|max:30',
+			'position' => 'nullable|sometimes|string|max:30',
+			'salary' => 'required|numeric|between:0,999999.99'
+		]);
 
-        $employee->update($validatedData);
+		$employee = Employee::withTrashed()->findOrFail($id);
+		$employee->update($validatedData);
 
-        return redirect()->route('admin.employees.index');
-    }
+		return redirect()->route('admin.employees.index');
+	}
 
     /**
      * Remove the specified resource from storage.
@@ -116,6 +121,20 @@ class EmployeesController extends Controller
 
         return redirect()->route('admin.employees.index');
     }
+
+	/**
+	 * Restore the specified resource from storage.
+	 *
+	 * @param  \App\Models\Employee  $employee
+	 * @return \Illuminate\Http\Response
+	 */
+	public function restore($id)
+	{
+		$employee = Employee::withTrashed()->findOrFail($id);
+		$employee->restore();
+
+		return redirect()->route('admin.employees.index');
+	}
 
     /**
      * Delete all selected Employee at once.

@@ -29,6 +29,7 @@
                             <th>Empleado</th>
                             <th>Departamento</th>
                             <th>Cargo</th>
+                            <th>Estado</th>
                             <th width="120">&nbsp;</th>
                         </tr>
                     </thead>
@@ -36,10 +37,17 @@
                         @foreach ($employees as $key => $employee)
                             <tr data-entry-id="{{ $employee->id }}">
                                 <td></td>
-                                <td>{{ $employee->number }}</td>
-                                <td>{{ $employee->name . ' ' . $employee->lastname }}</td>
-                                <td>{{ $employee->department }}</td>
-                                <td>{{ $employee->position }}</td>
+                                <td class="{{ $employee->deleted_at ? 'text-danger' : 'text-black' }}">{{ $employee->number }}</td>
+                                <td class="{{ $employee->deleted_at ? 'text-danger' : 'text-black' }}">{{ $employee->name . ' ' . $employee->lastname }}</td>
+                                <td class="{{ $employee->deleted_at ? 'text-danger' : 'text-black' }}">{{ $employee->department }}</td>
+                                <td class="{{ $employee->deleted_at ? 'text-danger' : 'text-black' }}">{{ $employee->position }}</td>
+								<td>
+									@if($employee->deleted_at)
+										<span class="badge badge-danger">Eliminado el {{ $employee->deleted_at }}</span>
+									@else
+										<span class="badge badge-success">Activo</span>
+									@endif
+								</td>
                                 <td class="text-center">
                                     <a class="btn btn-sm btn-primary m-1" href="{{ route('admin.employees.show', $employee->id) }}" title="VER">
                                         <i class="fa fa-fw fa-eye" aria-hidden="true"></i>
@@ -48,13 +56,23 @@
 										<a class="btn btn-sm btn-warning m-1" href="{{ route('admin.employees.edit', $employee->id) }}" title="EDITAR">
 											<i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
 										</a>
-										<form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
-											<input type="hidden" name="_method" value="delete">
-											<input type="hidden" name="_token" value="{{ csrf_token() }}">
-											<button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
-												<i class="fa fa-fw fa-trash" aria-hidden="true"></i>
-											</button>
-										</form>
+										@if(!$employee->deleted_at)
+											<form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
+												<input type="hidden" name="_method" value="delete">
+												<input type="hidden" name="_token" value="{{ csrf_token() }}">
+												<button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
+													<i class="fa fa-fw fa-trash" aria-hidden="true"></i>
+												</button>
+											</form>
+										@else
+											<form action="{{ route('admin.employees.restore', $employee->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
+												<input type="hidden" name="_method" value="put">
+												<input type="hidden" name="_token" value="{{ csrf_token() }}">
+												<button type="submit" class="btn btn-sm btn-secondary m-1" title="RESTAURAR">
+													<i class="fa fa-fw fa-undo" aria-hidden="true"></i>
+												</button>
+											</form>
+										@endif
 									@endcan
                                 </td>
                             </tr>

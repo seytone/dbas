@@ -147,9 +147,17 @@ class AttendanceRecordsImport implements ToCollection
 					'department' => $employee['dept'],
 				]);
 
-				// Restore the employee if it was soft deleted and is the same person
-				if ($employeeData->deleted_at && $employeeData->name == $name && $employeeData->lastname == $lastname)
-					$employeeData->restore();
+				if ($employeeData->deleted_at) {
+					if ($employeeData->name == $name && $employeeData->lastname == $lastname) {
+						// Restore the employee if it is the same person
+						$employeeData->restore();
+					} else {
+						// Get last employee ID to suggest using a number greater than the last one
+						$lastEmployee = Employee::withTrashed()->orderBy('number', 'desc')->first()->number;
+						// Throw an error if the employee is different to notify the ID duplication
+						throw new Exception('ID duplicado - El id [' . $employee['id'] . '] ya pertece al empleado ' . $employeeData->name . ' ' . $employeeData->lastname . ' e intenta ser reasignado a ' . $employee['name'] . '. Use el id [' . ($lastEmployee + 1) . '] en su lugar.');
+					}
+				}
 
 				$attendance = Attendance::updateOrCreate([
 					'employee_id' => $employeeData->id,

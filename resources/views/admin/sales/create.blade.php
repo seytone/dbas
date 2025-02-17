@@ -224,14 +224,14 @@
 									<th class="text-left" width="150" style="min-width: 150px">Código</th>
 									<th class="text-right">Precio</th>
 									<th class="text-center" width="150" style="min-width: 150px">Cantidad</th>
+									<th class="text-center" width="80" style="min-width: 80px">Soporte</th>
 									<th class="text-right" width="80" style="min-width: 80px">Subtotal</th>
-									{{-- <th class="text-center" width="80" style="min-width: 80px" title="Mercado Libre">ML</th> --}}
 									<th class="text-right" width="80" style="min-width: 80px">Desc.</th>
 									<th class="text-right" width="80" style="min-width: 80px">Total</th>
 								</thead>
 								<tbody id="services-list"></tbody>
 								<tfoot class="bg-light">
-									<th colspan="6"></th>
+									<th colspan="7"></th>
 									<th class="text-right">Total<br><strong id="total_servs">0.00</strong></th>
 								</tfoot>
 							</table>
@@ -367,7 +367,8 @@
 					</div>
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('commission_services') ? 'has-error' : '' }}">
-							<label for="commission_services">Comisión Servicios <span class="text-muted">(<span id="margin_4">{{ $user->seller->commission_4 ?? 50 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label>
+							{{-- <label for="commission_services">Comisión Servicios <span class="text-muted">(<span id="margin_4">{{ $user->seller->commission_4 ?? 50 }}</span>%)</span>&nbsp;<b class="text-danger">*</b></label> --}}
+							<label for="commission_services">Comisión Servicios&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="commission_services" name="commission_services" class="form-control" value="{{ old('commission_services', 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('commission_services'))
 								<em class="invalid-feedback">
@@ -456,7 +457,7 @@
 			var payment_usd = parseFloat($('#payment_amount_usd').val());
 			var payment_total = $('input[name="payment_currency"]:checked').val();
 
-			var costs = costs_perpetual = costs_annual = costs_hardware = subtotal = subtotal_perpetual = subtotal_annual = subtotal_hardware = subtotal_products = subtotal_services = commission_perpetual = commission_annual = commission_hardware = commission_services = commission_total = iva = igtf = cityhall = total = profit = payment_amount_usd = payment_amount_bsf = 0;
+			var costs = costs_perpetual = costs_annual = costs_hardware = subtotal = subtotal_perpetual = subtotal_annual = subtotal_hardware = subtotal_products = subtotal_services = commission_perpetual = commission_annual = commission_hardware = commission_services = commission_total = iva = igtf = cityhall = total = profit = payment_amount_usd = payment_amount_bsf = seller_margin_services_total = 0;
 
 			var seller_margin_perpetual = margin_perpetual / 100; // 1%
 			var seller_margin_annual = margin_annual / 100; // 1%
@@ -506,7 +507,12 @@
 			// Calculate total value for services
 			$('.item .service').each(function() {
 				var value = parseFloat($(this).val());
+				var parent = $(this).parents('.item');
+				var support = parent.find('.support').is(':checked');
+				var seller_fee = support ? seller_margin_services : seller_margin_services / 2;
 				subtotal_services += value;
+				seller_margin_services_total += value * seller_fee;
+				parent.find('.support').attr('title', 'Comisión: ' + (value * seller_fee).toFixed(2));
 			});
 
 			subtotal_products = subtotal_perpetual + subtotal_annual + subtotal_hardware;
@@ -533,7 +539,8 @@
 				commission_perpetual = (subtotal_perpetual - costs_perpetual) * seller_margin_perpetual;
 				commission_annual = (subtotal_annual - costs_annual) * seller_margin_annual;
 				commission_hardware = (subtotal_hardware - costs_hardware) * seller_margin_hardware;
-				commission_services = subtotal_services * seller_margin_services;
+				// commission_services = subtotal_services * seller_margin_services;
+				commission_services = seller_margin_services_total;
 			}
 
 			if (payment_total == 'usd') {
@@ -593,7 +600,7 @@
 					var item = arguments[0];
 					var data = this.options[item].data;
 					if (action == 'ADD') {
-						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
+						$('#services-list').append('<tr class="item" id="serv-' + data.id + '"><td><b>' + data.title + '</b><input type="hidden" name="services[' + item + '][id]" value="' + data.id + '"></td><td><i>' + data.code + '</i></td><td class="price text-right"><input type="hidden" name="services[' + item + '][price]" value="' + data.price + '">' + data.price + '</td><td><input type="number" name="services[' + item + '][quantity]" min="1" value="1" class="form-control p-0 quantity quantity_serv"></td><td><div class="form-check"><input type="checkbox" name="services[' + item + '][support]" class="form-check-input support mt-0 ml-0" style="top: -6px;"></div></td><td><input type="number" min="0" step=".01" class="form-control p-0 text-right subtotal" value="' + data.price + '" readonly></td><td><input type="number" name="services[' + item + '][discount]" min="0" step=".01" class="form-control p-0 text-right discount" value="0"></td><td><input type="number" name="services[' + item + '][total]" min="0" step=".01" class="form-control p-0 text-right total service" value="' + data.price + '" readonly></td></tr>');
 						$('#services-list #serv-' + data.id + ' .quantity_serv').inputSpinner();
 						$('#services-cont').removeClass('d-none');
 					} else {
@@ -677,6 +684,10 @@
 				provider += fee_ml;
 				parent.find('.provider').val(provider.toFixed(0));
 				parent.find('.total').val(total);
+				calculateValues();
+			});
+
+			$('body').on('change', '.support', function() {
 				calculateValues();
 			});
 

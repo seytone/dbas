@@ -18,6 +18,7 @@ class SaleProduct extends Model
 		'quantity',
 		'price',
 		'discount',
+		'mercadolibre',
 		'total'
 	];
 

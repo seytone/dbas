@@ -49,7 +49,7 @@
 					<select class="form-control text-right period" name="period" rel="{{ $period }}">
 						<option value="all">Todos</option>
 						@foreach ($periods as $val)
-							<option value="{{ $val->period }}" {{ $val->period == $period ? 'selected' : '' }}>{{ $val->period }}</option>
+							<option value="{{ $val->period }}" {{ $val->period == $period ? 'selected' : '' }}>{{ $val->periodo }}</option>
 						@endforeach
 					</select>
 				</div>
@@ -129,7 +129,7 @@
 										<td>{{ $employee->number }}</td>
 										<td>{{ $employee->name . ' ' . $employee->lastname }}</td>
 										<td>{{ $employee->department ?? '---' }}</td>
-										<td>{{ $attendances->year . '-' . $attendances->month }}</td>
+										<td>{{ $attendances->year . '-' . str_pad($attendances->month, 2, '0', STR_PAD_LEFT) }}</td>
 										<td class="text-right pr-5" id="extraTime-{{ $employee->id }}" data-time="{{ $fixedTime > 0 ? $extraTime + $fixedTime : $extraTime }}" data-time-db="{{ $extraTime }}" data-time-fixed="{{ $fixedTime > 0 ? $fixedTime : 0 }}">
 											{{ $fixedTime > 0 ? $extraTime + $fixedTime : $extraTime }} min
 										</td>

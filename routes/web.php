@@ -30,6 +30,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::resource('providers', 'Admin\ProvidersController');
 	Route::resource('sellers', 'Admin\SellersController');
 	Route::resource('employees', 'Admin\EmployeesController');
+	Route::put('employees/{id}/restore', 'Admin\EmployeesController@restore')->name('employees.restore');
 
 	Route::get('help', 'Admin\HelpController@index')->name('help');
 	

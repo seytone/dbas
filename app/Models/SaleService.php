@@ -18,6 +18,7 @@ class SaleService extends Model
 		'quantity',
 		'price',
 		'discount',
+		'support',
 		'total'
 	];
 

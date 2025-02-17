@@ -25,10 +25,20 @@ class HoursController extends Controller
 	{
 		$now = Carbon::now();
 		$period = ($request->period && $request->period != 'all') ? $request->period : $now->subMonth()->format('Y-n');
-		$periods = Attendance::selectRaw("CONCAT(year, '-', month) AS period")->distinct()->orderBy('period', 'desc')->get();
 		$periodYear = explode('-', $period)[0];
 		$periodMonth = explode('-', $period)[1];
-		$employees = Employee::orderBy('number', 'asc')->get();
+		$periods = Attendance::selectRaw("CONCAT(year, '-', month) AS period, CONCAT(year, '-', LPAD(month, 2, '0')) AS periodo, CAST(year AS UNSIGNED) AS year, LPAD(CAST(month AS UNSIGNED), 2, '0') AS month")
+			->distinct()
+			->orderBy('year', 'desc')
+			->orderBy('month', 'desc')
+			->get();
+		$employees = Employee::withTrashed()
+			->whereHas('attendances.records', function ($query) use ($periodYear, $periodMonth) {
+				$query->whereYear('date', $periodYear)
+					->whereMonth('date', $periodMonth);
+			})
+			->orderBy('number', 'asc')
+			->get();
 		$extraTimeIni = Config::where('key', 'extra_time_ini')->first()->value ?? 20;
 		$missingTimeIni = Config::where('key', 'missing_time_ini')->first()->value ?? 20;
 
@@ -64,7 +74,7 @@ class HoursController extends Controller
 		} catch (Exception $e) {
 			Log::error('Error importing excel', [$e]);
 			$result = 'error';
-			$message = 'Error desconocido al importar el archivo';
+			$message = 'Error al importar registros. ' . $e->getMessage();
 		}
 		
 		@unlink($excel);
