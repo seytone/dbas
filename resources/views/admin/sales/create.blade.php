@@ -276,7 +276,7 @@
 					</div>
 					<div class="col-sm-3">
 						<div class="form-group {{ $errors->has('cityhall') ? 'has-error' : '' }}">
-							<label for="cityhall">Alcaldía <span class="text-muted">(9% sobre subtotal cuando factura)</span>&nbsp;<b class="text-danger">*</b></label>
+							<label for="cityhall">Alcaldía <span class="text-muted">(7% sobre subtotal cuando factura)</span>&nbsp;<b class="text-danger">*</b></label>
 							<input type="number" id="cityhall" name="cityhall" class="form-control" value="{{ old('cityhall', 0) }}" min="0" step=".01" required readonly>
 							@if ($errors->has('cityhall'))
 								<em class="invalid-feedback">
@@ -521,7 +521,7 @@
 
 			if (type == 'factura')
 			{
-				cityhall = subtotal * 0.09;
+				cityhall = subtotal * 0.07;
 				iva = (subtotal + cityhall) * 0.16;
 
 				if (method != 'bolivares') {
