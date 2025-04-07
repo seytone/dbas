@@ -16,6 +16,7 @@ class SaleProduct extends Model
 		'sale_id',
 		'product_id',
 		'quantity',
+		'cost',
 		'price',
 		'discount',
 		'mercadolibre',

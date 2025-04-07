@@ -181,7 +181,8 @@
 													<span class="badge badge-secondary">{{ $prod->product->type }}</span>
 												</td>
 												<td class="text-right cost">
-													{{ $prod->product->cost }}
+													<input type="hidden" name="products[{{ $prod->product->id }}][cost]" value="{{ $prod->cost }}">
+													{{ $prod->cost }}
 												</td>
 												<td class="text-right price">
 													<input type="hidden" name="products[{{ $prod->product->id }}][price]" value="{{ $prod->price }}">

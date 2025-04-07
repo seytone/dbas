@@ -128,6 +128,7 @@ class SalesController extends Controller
 			'notes' => 'nullable|max:300',
 			'products' => 'sometimes|required|array',
 			'products.*.id' => 'required_if:products,[]|integer|exists:products,id',
+			'products.*.cost' => 'required_if:products,[]|numeric|between:0,999999.99',
 			'products.*.price' => 'required_if:products,[]|numeric|between:0,999999.99',
 			'products.*.quantity' => 'required_if:products,[]|integer',
 			'products.*.discount' => 'required_if:products,[]|numeric|between:0,999999.99',
@@ -173,6 +174,7 @@ class SalesController extends Controller
 				$saleProduct->sale_id = $sale->id;
 				$saleProduct->product_id = $product['id'];
 				$saleProduct->quantity = $product['quantity'];
+				$saleProduct->cost = $product['cost'];
 				$saleProduct->price = $product['price'];
 				$saleProduct->discount = $product['discount'];
 				$saleProduct->mercadolibre = isset($product['ml']) ? true : false;
@@ -270,6 +272,7 @@ class SalesController extends Controller
 			'notes' => 'nullable|max:300',
 			'products' => 'sometimes|required|array',
 			'products.*.id' => 'required_if:products,[]|integer|exists:products,id',
+			'products.*.cost' => 'required_if:products,[]|numeric|between:0,999999.99',
 			'products.*.price' => 'required_if:products,[]|numeric|between:0,999999.99',
 			'products.*.quantity' => 'required_if:products,[]|integer',
 			'products.*.discount' => 'required_if:products,[]|numeric|between:0,999999.99',
@@ -316,6 +319,7 @@ class SalesController extends Controller
 				$saleProduct->sale_id = $sale->id;
 				$saleProduct->product_id = $product['id'];
 				$saleProduct->quantity = $product['quantity'];
+				$saleProduct->cost = $product['cost'];
 				$saleProduct->price = $product['price'];
 				$saleProduct->discount = $product['discount'];
 				$saleProduct->mercadolibre = isset($product['ml']) ? true : false;

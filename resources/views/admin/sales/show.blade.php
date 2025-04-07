@@ -109,7 +109,7 @@
 														{{ $prod->product->title }}
 													</td>
 													<td>
-														${{ number_format($prod->product->cost, 2, ',', '.') }} USD
+														${{ number_format($prod->cost, 2, ',', '.') }} USD
 													</td>
 													<td>
 														${{ number_format($prod->price, 2, ',', '.') }} USD
