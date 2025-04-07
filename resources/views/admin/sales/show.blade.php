@@ -79,6 +79,9 @@
 												Producto
 											</th>
 											<th>
+												Costo
+											</th>
+											<th>
 												Precio
 											</th>
 											<th>
@@ -106,6 +109,9 @@
 														{{ $prod->product->title }}
 													</td>
 													<td>
+														${{ number_format($prod->product->cost, 2, ',', '.') }} USD
+													</td>
+													<td>
 														${{ number_format($prod->price, 2, ',', '.') }} USD
 													</td>
 													<td>
@@ -129,7 +135,7 @@
 									</tbody>
 									<tfoot>
 										<tr>
-											<th colspan="5"></th>
+											<th colspan="6"></th>
 											<th>
 												${{ number_format($total_prods, 2, ',', '.') }} USD
 											</th>
