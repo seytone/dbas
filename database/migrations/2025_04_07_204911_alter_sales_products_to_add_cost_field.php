@@ -21,9 +21,11 @@ class AlterSalesProductsToAddCostField extends Migration
         });
 
         // Update the product cost in all sales with the current product value based on product id
-        SaleProduct::query()->update([
-            'cost' => Product::query()->where('id', SaleProduct::query()->value('product_id'))->value('cost') ?? 0
-        ]);
+        SaleProduct::all()->each(function (SaleProduct $saleProduct) {
+            $saleProduct->update([
+                'cost' => Product::query()->where('id', $saleProduct->product_id)->value('cost') ?? 0
+            ]);
+        });
     }
 
     /**
