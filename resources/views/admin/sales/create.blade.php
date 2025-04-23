@@ -672,7 +672,7 @@
 
 			$('body').on('change', '.fee_mercadolibre', function() {
 				var parent = $(this).parents('.item');
-				var cost = parent.find('.cost').html();
+				var cost = parent.find('.cost').text();
 				var discount = parent.find('.discount').val();
 				var subtotal = parent.find('.subtotal').val();
 				var mercadolibre = $('#fee_mercadolibre').val();
