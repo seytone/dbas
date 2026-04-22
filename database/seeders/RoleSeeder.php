@@ -27,6 +27,7 @@ class RoleSeeder extends Seeder
         $admin->givePermissionTo('manage_providers');
         $admin->givePermissionTo('manage_profile');
         $admin->givePermissionTo('report_sales');
+        $admin->givePermissionTo('manage_quotations');
 
 		$manager = Role::create(['name' => 'Coordinador']);
 		$manager->givePermissionTo('view_dashboard');
@@ -39,6 +40,7 @@ class RoleSeeder extends Seeder
 		$manager->givePermissionTo('manage_providers');
 		$manager->givePermissionTo('manage_profile');
 		$manager->givePermissionTo('report_sales');
+		$manager->givePermissionTo('manage_quotations');
 
 		$seller = Role::create(['name' => 'Vendedor']);
 		$seller->givePermissionTo('view_dashboard');

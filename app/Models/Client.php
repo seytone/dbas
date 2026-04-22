@@ -32,6 +32,16 @@ class Client extends Model
         return $this->hasMany(Sale::class);
     }
 
+	/**
+	 * A client has many quotations.
+	 *
+	 * @return \Illuminate\Database\Eloquent\Relations\hasMany
+	 */
+	public function quotations()
+	{
+		return $this->hasMany(Quotation::class);
+	}
+
 	public function getIdentification()
 	{
 		return $this->title . ' - ' . $this->document;

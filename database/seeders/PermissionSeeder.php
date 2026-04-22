@@ -30,5 +30,6 @@ class PermissionSeeder extends Seeder
         Permission::create(['name' => 'manage_providers']);
         Permission::create(['name' => 'manage_profile']);
         Permission::create(['name' => 'report_sales']);
+        Permission::create(['name' => 'manage_quotations']);
     }
 }

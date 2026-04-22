@@ -17,6 +17,14 @@
                     </a>
                 </li>
             @endcan
+			@can('manage_quotations')
+				<li class="nav-item">
+					<a href="{{ route('admin.quotations.index') }}" class="nav-link {{ request()->is('admin/quotations') || request()->is('admin/quotations/*') ? 'active' : '' }}">
+						<i class="nav-icon fas fa-fw fa-file-alt"></i>
+						Cotizaciones
+					</a>
+				</li>
+			@endcan
             @can('manage_clients')
                 <li class="nav-item">
 					<a href="{{ route("admin.clients.index") }}" class="nav-link {{ request()->is('admin/clients') || request()->is('admin/clients/*') ? 'active' : '' }}">

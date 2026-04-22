@@ -16,12 +16,14 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 {
 	Route::match(['get', 'post'], 'dashboard', 'Admin\DashboardController@index')->name('dashboard');
 	Route::match(['get', 'post'], 'sales_filter', 'Admin\SalesController@index')->name('sales_filter');
+	Route::match(['get', 'post'], 'quotations_filter', 'Admin\QuotationsController@index')->name('quotations_filter');
     
 	Route::resource('permissions', 'Admin\PermissionsController');
     Route::resource('roles', 'Admin\RolesController');
     Route::resource('users', 'Admin\UsersController');
 	Route::resource('commissions', 'Admin\CommissionController');
 	Route::resource('sales', 'Admin\SalesController');
+	Route::resource('quotations', 'Admin\QuotationsController');
 	Route::resource('clients', 'Admin\ClientsController');
 	Route::resource('brands', 'Admin\BrandsController');
 	Route::resource('categories', 'Admin\CategoriesController');
@@ -61,6 +63,10 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::delete('users_mass_destroy', 'Admin\UsersController@massDestroy')->name('users.mass_destroy');
 	Route::delete('commission_mass_destroy', 'Admin\CommissionController@massDestroy')->name('commission.mass_destroy');
 	Route::delete('sales_mass_destroy', 'Admin\SalesController@massDestroy')->name('sales.mass_destroy');
+	Route::delete('quotations_mass_destroy', 'Admin\QuotationsController@massDestroy')->name('quotations.mass_destroy');
+	Route::get('quotations/{quotation}/duplicate', 'Admin\QuotationsController@duplicate')->name('quotations.duplicate');
+	Route::get('quotations/{quotation}/pdf', 'Admin\QuotationsController@exportPdf')->name('quotations.pdf');
+	Route::get('quotations/{quotation}/print', 'Admin\QuotationsController@printView')->name('quotations.print');
 	Route::delete('clients_mass_destroy', 'Admin\ClientsController@massDestroy')->name('clients.mass_destroy');
 	Route::delete('brands_mass_destroy', 'Admin\BrandsController@massDestroy')->name('brands.mass_destroy');
 	Route::delete('categories_mass_destroy', 'Admin\CategoriesController@massDestroy')->name('categories.mass_destroy');
