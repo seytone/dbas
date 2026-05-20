@@ -100,7 +100,7 @@ class QuotationsController extends Controller
 			'items.*.product_id' => 'nullable|integer|exists:products,id',
 			'items.*.code' => 'required|string|max:50',
 			'items.*.description' => 'required|string',
-			'items.*.quantity' => 'required|numeric|min:0.01',
+			'items.*.quantity' => 'required|integer|min:1',
 			'items.*.unit_price' => 'required|numeric|min:0',
 			'items.*.discount_percent' => 'required|numeric|min:0|max:100',
 			'items.*.discount_amount' => 'required|numeric|min:0',
@@ -184,7 +184,7 @@ class QuotationsController extends Controller
 			'items.*.product_id' => 'nullable|integer|exists:products,id',
 			'items.*.code' => 'required|string|max:50',
 			'items.*.description' => 'required|string',
-			'items.*.quantity' => 'required|numeric|min:0.01',
+			'items.*.quantity' => 'required|integer|min:1',
 			'items.*.unit_price' => 'required|numeric|min:0',
 			'items.*.discount_percent' => 'required|numeric|min:0|max:100',
 			'items.*.discount_amount' => 'required|numeric|min:0',
@@ -293,19 +293,25 @@ class QuotationsController extends Controller
 		$quotation->load(['client', 'items.product']);
 
 		$pdf = Pdf::loadView('admin.quotations.pdf', compact('quotation'))
-			->setPaper('letter')
-			->setOptions(['isRemoteEnabled' => true]);
+			->setOptions([
+				'isRemoteEnabled' => true,
+				'defaultFont' => 'DejaVu Sans',
+				'isHtml5ParserEnabled' => true,
+				'isFontSubsettingEnabled' => true,
+				'dpi' => 96,
+			]);
 
 		return $pdf->download("cotizacion-{$quotation->quotation_number}.pdf");
 	}
 
 	/**
-	 * Print view for the quotation.
+	 * Print view for the quotation. Uses the same template as the PDF for visual parity.
 	 */
 	public function printView(Quotation $quotation)
 	{
 		$quotation->load(['client', 'items.product']);
+		$autoPrint = true;
 
-		return view('admin.quotations.print', compact('quotation'));
+		return view('admin.quotations.pdf', compact('quotation', 'autoPrint'));
 	}
 }

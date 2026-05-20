@@ -133,7 +133,6 @@
 @parent
 <script>
 	$(function () {
-		let dtButtons = $.extend(true, [], $.fn.dataTable.defaults.buttons)
 		let deleteButton = {
 			text: 'Eliminar seleccionados',
 			url: "{{ route('admin.quotations.mass_destroy') }}",
@@ -158,15 +157,31 @@
 					}).done(function () { location.reload() });
 				}
 			}
-		}
-		dtButtons.push(deleteButton)
+		};
+
+		// Override global DataTable button config for quotations: only Excel + ColVis + Delete
+		let customButtons = [
+			{
+				extend: 'excel',
+				className: 'btn-default',
+				text: '<i class="fa fa-file-excel-o mr-1"></i> Exportar a Excel',
+				exportOptions: { columns: ':visible' }
+			},
+			{
+				extend: 'colvis',
+				className: 'btn-default',
+				text: 'Visibilidad de columnas',
+				exportOptions: { columns: ':visible' }
+			},
+			deleteButton
+		];
 
 		$.extend(true, $.fn.dataTable.defaults, {
 			order: [[ 2, 'desc' ]],
 			pageLength: 100,
 		});
 
-		$('.datatable-quotations:not(.ajaxTable)').DataTable({ buttons: dtButtons })
+		$('.datatable-quotations:not(.ajaxTable)').DataTable({ buttons: customButtons })
 
 		$('.show-filters').click(function() {
 			$('#filters').toggleClass('d-none');

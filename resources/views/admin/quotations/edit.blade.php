@@ -58,11 +58,10 @@
 					<h5 class="mb-3"><i class="fa fa-user mr-2"></i>Datos del Cliente</h5>
 					<div class="form-group">
 						<label for="client_id"><b>Cliente *</b></label>
-						<select name="client_id" id="client_id" class="form-control selectize-sorted" required>
+						<select name="client_id" id="client_id" class="selectize-client" required>
 							<option value="">Seleccione un cliente...</option>
 							@foreach ($clients as $client)
-								<option value="{{ $client->id }}" {{ $quotation->client_id == $client->id ? 'selected' : '' }}
-									data-document="{{ $client->document }}" data-address="{{ $client->address }}" data-phone="{{ $client->phone }}">
+								<option value="{{ $client->id }}" {{ $quotation->client_id == $client->id ? 'selected' : '' }}>
 									{{ $client->getIdentification() }}
 								</option>
 							@endforeach
@@ -259,17 +258,28 @@ $(function() {
 	var itemIndex = {{ $quotation->items->count() }};
 
 	// ========================================
-	// CLIENT SELECTION
+	// CLIENT SELECTION (data passed via JS)
 	// ========================================
-	$('#client_id').on('change', function() {
-		var selected = $(this).find('option:selected');
-		if (selected.val()) {
-			$('#client_document').val(selected.data('document') || '');
-			$('#client_address').val(selected.data('address') || '');
-			$('#client_phone').val(selected.data('phone') || '');
+	var clientsData = @json($clients->keyBy('id')->map(function ($c) {
+		return ['document' => $c->document, 'address' => $c->address, 'phone' => $c->phone];
+	}));
+
+	$('.selectize-client').selectize({
+		persist: false,
+		sortField: 'text',
+		onChange: function(value) {
+			if (!value || !clientsData[value]) {
+				$('#client_document').val('');
+				$('#client_address').val('');
+				$('#client_phone').val('');
+				$('#client-details').addClass('d-none');
+				return;
+			}
+			var info = clientsData[value];
+			$('#client_document').val(info.document || '');
+			$('#client_address').val(info.address || '');
+			$('#client_phone').val(info.phone || '');
 			$('#client-details').removeClass('d-none');
-		} else {
-			$('#client-details').addClass('d-none');
 		}
 	});
 
@@ -293,7 +303,7 @@ $(function() {
 							<input type="hidden" name="items[${idx}][description]" value="{{ addslashes($item->description) }}">
 						</td>
 						<td>
-							<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="{{ $item->quantity }}" min="0.01" step="0.01">
+							<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="{{ (int) $item->quantity }}" min="1" step="1">
 						</td>
 						<td>
 							<input type="number" name="items[${idx}][unit_price]" class="form-control form-control-sm text-right unit-price" value="{{ $item->unit_price }}" min="0" step="0.01">
@@ -321,7 +331,7 @@ $(function() {
 							<textarea name="items[${idx}][description]" class="form-control form-control-sm" rows="2" required>{{ $item->description }}</textarea>
 						</td>
 						<td>
-							<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="{{ $item->quantity }}" min="0.01" step="0.01">
+							<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="{{ (int) $item->quantity }}" min="1" step="1">
 						</td>
 						<td>
 							<input type="number" name="items[${idx}][unit_price]" class="form-control form-control-sm text-right unit-price" value="{{ $item->unit_price }}" min="0" step="0.01">
@@ -372,7 +382,7 @@ $(function() {
 					<input type="hidden" name="items[${idx}][description]" value="${product.title}${product.description ? ' - ' + product.description : ''}">
 				</td>
 				<td>
-					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="0.01" step="0.01">
+					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
 				</td>
 				<td>
 					<input type="number" name="items[${idx}][unit_price]" class="form-control form-control-sm text-right unit-price" value="${product.price}" min="0" step="0.01">
@@ -405,7 +415,7 @@ $(function() {
 					<textarea name="items[${idx}][description]" class="form-control form-control-sm" rows="2" placeholder="Descripción del producto o servicio..." required></textarea>
 				</td>
 				<td>
-					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="0.01" step="0.01">
+					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
 				</td>
 				<td>
 					<input type="number" name="items[${idx}][unit_price]" class="form-control form-control-sm text-right unit-price" value="0" min="0" step="0.01">
