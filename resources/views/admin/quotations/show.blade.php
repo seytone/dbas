@@ -1,12 +1,34 @@
 @extends('layouts.admin')
 @section('content')
+<style>
+	.description-cell img {
+		max-width: 220px !important;
+		max-height: 220px !important;
+		width: auto !important;
+		height: auto !important;
+		object-fit: contain;
+		margin: 4px 4px 4px 0;
+		border-radius: 3px;
+		display: inline-block !important;
+		vertical-align: top;
+	}
+</style>
 <div class="mb-3">
 	<a class="btn btn-secondary" href="{{ route('admin.quotations.index') }}"><i class="fa fa-arrow-left mr-2"></i>Volver</a>
-	<a class="btn btn-warning" href="{{ route('admin.quotations.edit', $quotation->id) }}"><i class="fa fa-wrench mr-2"></i>Editar</a>
+	@if($quotation->status !== 'accepted')
+		<a class="btn btn-warning" href="{{ route('admin.quotations.edit', $quotation->id) }}"><i class="fa fa-wrench mr-2"></i>Editar</a>
+	@endif
 	<a class="btn btn-info" href="{{ route('admin.quotations.duplicate', $quotation->id) }}" onclick="return confirm('¿Desea duplicar esta cotización?');"><i class="fa fa-copy mr-2"></i>Duplicar</a>
 	<a class="btn btn-dark" href="{{ route('admin.quotations.pdf', $quotation->id) }}" target="_blank"><i class="fa fa-file-pdf-o mr-2"></i>PDF</a>
 	<a class="btn btn-default" href="{{ route('admin.quotations.print', $quotation->id) }}" target="_blank"><i class="fa fa-print mr-2"></i>Imprimir</a>
 </div>
+
+@if($quotation->status === 'accepted')
+	<div class="alert alert-success">
+		<i class="fa fa-lock mr-2"></i>
+		<b>Cotización aceptada.</b> Esta cotización ya no puede ser modificada. Si necesitas hacer cambios, duplícala para crear una versión nueva.
+	</div>
+@endif
 
 <div class="card">
 	<div class="card-header">
@@ -62,7 +84,7 @@
 						<th>Descripción</th>
 						<th class="text-right">Cantidad</th>
 						<th class="text-right">P. Unitario</th>
-						<th class="text-right">Desc. (%)</th>
+						<th class="text-right">Tributos (%)</th>
 						<th class="text-right">Total</th>
 					</tr>
 				</thead>
@@ -70,8 +92,8 @@
 					@foreach($quotation->items as $item)
 						<tr>
 							<td>{{ $item->code }}</td>
-							<td>{!! nl2br(e($item->description)) !!}</td>
-							<td class="text-right">{{ number_format($item->quantity, 2, ',', '.') }}</td>
+							<td class="description-cell">{!! $item->description !!}</td>
+							<td class="text-right">{{ number_format($item->quantity, 0, ',', '.') }}</td>
 							<td class="text-right">${{ number_format($item->unit_price, 2, ',', '.') }}</td>
 							<td class="text-right">{{ number_format($item->discount_percent, 2, ',', '.') }}%</td>
 							<td class="text-right"><b>${{ number_format($item->total, 2, ',', '.') }}</b></td>
@@ -111,6 +133,13 @@
 			<hr>
 			<h6 class="text-muted">NOTAS</h6>
 			<p>{!! nl2br(e($quotation->notes)) !!}</p>
+		@endif
+
+		{{-- COMENTARIO DE ESTADO --}}
+		@if($quotation->status_comment)
+			<hr>
+			<h6 class="text-muted">COMENTARIO SOBRE EL ESTADO</h6>
+			<p>{!! nl2br(e($quotation->status_comment)) !!}</p>
 		@endif
 	</div>
 </div>

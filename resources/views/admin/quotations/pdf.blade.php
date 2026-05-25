@@ -27,9 +27,9 @@
 			position: fixed;
 			top: 35%;
 			left: 15%;
-			font-size: 130px;
+			font-size: 140px;
 			font-weight: bold;
-			color: rgba(180, 180, 180, 0.18);
+			color: rgba(150, 150, 150, 0.28);
 			transform: rotate(-30deg);
 			z-index: -1;
 			letter-spacing: 20px;
@@ -49,7 +49,7 @@
 		.client-info .label { font-weight: bold; color: #555; width: 110px; }
 
 		.presupuesto-box {
-			background: #f5f5f5;
+			background: rgba(245, 245, 245, 0.65);
 			border: 1px solid #ddd;
 			padding: 12px;
 			text-align: center;
@@ -62,7 +62,7 @@
 
 		.products-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
 		.products-table th {
-			background: #4a9a5c;
+			background: rgba(74, 154, 92, 0.92);
 			color: white;
 			padding: 8px;
 			font-size: 10px;
@@ -74,9 +74,18 @@
 			font-size: 10px;
 			vertical-align: top;
 		}
-		.products-table tr:nth-child(even) { background: #fafafa; }
+		.products-table tr:nth-child(even) { background: rgba(250, 250, 250, 0.55); }
 		.products-table .text-right { text-align: right; }
 		.products-table .description { word-wrap: break-word; }
+		.products-table .description img {
+			max-width: 180px !important;
+			max-height: 180px !important;
+			width: auto !important;
+			height: auto !important;
+			display: inline-block !important;
+			margin: 4px 4px 4px 0;
+			vertical-align: top;
+		}
 
 		.totals-wrapper { width: 100%; border-collapse: collapse; margin-top: 10px; }
 		.totals-wrapper td { vertical-align: top; padding: 0; }
@@ -88,7 +97,7 @@
 		.totals-table .label { font-weight: bold; color: #444; }
 		.totals-table .value { text-align: right; }
 		.grand-total td {
-			background: #4a9a5c;
+			background: rgba(74, 154, 92, 0.92);
 			color: white;
 			font-size: 13px;
 			font-weight: bold;
@@ -98,7 +107,7 @@
 		.notes-section {
 			margin-top: 20px;
 			padding: 10px 12px;
-			background: #f9f9f9;
+			background: rgba(249, 249, 249, 0.55);
 			border: 1px solid #eee;
 		}
 		.notes-section .notes-title { font-weight: bold; margin-bottom: 4px; color: #444; font-size: 11px; }
@@ -121,8 +130,9 @@
 	{{-- HEADER --}}
 	<div class="header">
 		<h2>DISTRIBUIDORA BIT DE ACTIVACIÓN Y SERVICIOS, C.A</h2>
+		<p><b>RIF:</b> J402111843</p>
 		<p>Dirección Fiscal: Calle Industrial el Coliseo, C.C Coliseo, Nivel 4, Local 160, Sector Potrerito Medio Guadalupe</p>
-		<p>Teléfonos: 0212.415.32.82 / 0212.373.66.08</p>
+		<p>Teléfonos: 0212.415.32.82 / 0424.182.64.08</p>
 	</div>
 
 	{{-- CLIENT INFO + PRESUPUESTO --}}
@@ -155,20 +165,21 @@
 			<tr>
 				<th style="width: 80px;">Código</th>
 				<th>Descripción</th>
-				<th style="width: 55px;" class="text-right">Cantidad</th>
-				<th style="width: 75px;" class="text-right">P. Unitario</th>
-				<th style="width: 70px;" class="text-right">Descuento</th>
-				<th style="width: 75px;" class="text-right">Total</th>
+				<th style="width: 60px;" class="text-right">Cantidad</th>
+				<th style="width: 95px;" class="text-right">P. Unitario</th>
+				<th style="width: 95px;" class="text-right">Total</th>
 			</tr>
 		</thead>
 		<tbody>
 			@foreach($quotation->items as $item)
+				@php
+					$adjustedUnitPrice = $item->unit_price * (1 + ($item->discount_percent / 100));
+				@endphp
 				<tr>
 					<td>{{ $item->code }}</td>
-					<td class="description">{!! nl2br(e($item->description)) !!}</td>
+					<td class="description">{!! $item->description !!}</td>
 					<td class="text-right">{{ number_format($item->quantity, 0, ',', '.') }}</td>
-					<td class="text-right">{{ number_format($item->unit_price, 2, ',', '.') }}</td>
-					<td class="text-right">{{ number_format($item->discount_percent, 2, ',', '.') }}%</td>
+					<td class="text-right">{{ number_format($adjustedUnitPrice, 2, ',', '.') }}</td>
 					<td class="text-right"><b>{{ number_format($item->total, 2, ',', '.') }}</b></td>
 				</tr>
 			@endforeach

@@ -1,5 +1,39 @@
 @extends('layouts.admin')
 @section('content')
+<style>
+	.description-editor {
+		min-height: 50px;
+		max-height: 250px;
+		overflow-y: auto;
+		border: 1px solid #ced4da;
+		border-radius: 4px;
+		padding: 6px 8px;
+		background: white;
+		font-size: 13px;
+		line-height: 1.4;
+	}
+	.description-editor:focus {
+		outline: none;
+		border-color: #4a9a5c;
+		box-shadow: 0 0 0 2px rgba(74, 154, 92, 0.15);
+	}
+	.description-editor img {
+		max-width: 180px !important;
+		max-height: 180px !important;
+		width: auto !important;
+		height: auto !important;
+		object-fit: contain;
+		margin: 4px 4px 4px 0;
+		border-radius: 3px;
+		display: inline-block !important;
+		vertical-align: top;
+	}
+	.description-editor:empty:before {
+		content: attr(data-placeholder);
+		color: #999;
+		pointer-events: none;
+	}
+</style>
 <div class="card">
 	<div class="card-header">
 		<b>Nueva Cotización</b>
@@ -51,32 +85,58 @@
 								</select>
 							</div>
 						</div>
+						<div class="col-md-12">
+							<div class="form-group" id="status-comment-group" style="display: none;">
+								<label for="status_comment"><b>Comentario sobre el estado</b> <small class="text-muted">(opcional)</small></label>
+								<textarea name="status_comment" id="status_comment" class="form-control" rows="2" maxlength="1000" placeholder="Ej: Aceptada por el cliente el 25/05/2026 vía email, rechazada por precio, etc."></textarea>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="col-md-6">
 					<h5 class="mb-3"><i class="fa fa-user mr-2"></i>Datos del Cliente</h5>
 					<div class="form-group">
-						<label for="client_id"><b>Cliente *</b></label>
-						<select name="client_id" id="client_id" class="selectize-client" required>
-							<option value="">Seleccione un cliente...</option>
-							@foreach ($clients as $client)
-								<option value="{{ $client->id }}">{{ $client->getIdentification() }}</option>
-							@endforeach
-						</select>
+						<label for="client_id"><b>Cliente</b></label>
+						<div class="d-flex">
+							<div class="flex-grow-1 mr-2">
+								<select name="client_id" id="client_id" class="selectize-client">
+									<option value="">Seleccione un cliente existente...</option>
+									@foreach ($clients as $client)
+										<option value="{{ $client->id }}">{{ $client->getIdentification() }}</option>
+									@endforeach
+								</select>
+							</div>
+							<button type="button" class="btn btn-outline-secondary" id="btn-new-client" title="Limpiar para nuevo cliente">
+								<i class="fa fa-user-plus"></i>
+							</button>
+						</div>
+						<small class="text-muted">Selecciona un cliente existente para editar sus datos, o limpia el selector para crear uno nuevo.</small>
 					</div>
-					<div id="client-details" class="d-none">
-						<div class="form-group">
-							<label>RIF</label>
-							<input type="text" class="form-control" id="client_document" readonly>
+					<div class="form-group">
+						<label for="cli_title"><b>Razón Social *</b></label>
+						<input type="text" name="cli_title" id="cli_title" class="form-control" required maxlength="100">
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label for="cli_document"><b>RIF *</b></label>
+								<input type="text" name="cli_document" id="cli_document" class="form-control" required maxlength="20">
+							</div>
 						</div>
-						<div class="form-group">
-							<label>Dirección</label>
-							<input type="text" class="form-control" id="client_address" readonly>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label for="cli_email">Email</label>
+								<input type="email" name="cli_email" id="cli_email" class="form-control" maxlength="100">
+							</div>
 						</div>
-						<div class="form-group">
-							<label>Teléfono</label>
-							<input type="text" class="form-control" id="client_phone" readonly>
-						</div>
+					</div>
+					<div class="form-group">
+						<label for="cli_phone">Teléfono</label>
+						<input type="text" name="cli_phone" id="cli_phone" class="form-control" maxlength="30">
+					</div>
+					<div class="form-group">
+						<label for="cli_address">Dirección</label>
+						<textarea name="cli_address" id="cli_address" class="form-control" rows="2" maxlength="500"></textarea>
 					</div>
 				</div>
 			</div>
@@ -119,7 +179,7 @@
 								<th>Descripción</th>
 								<th width="80">Cant.</th>
 								<th width="120">P. Unitario</th>
-								<th width="90">Desc. (%)</th>
+								<th width="90">Tributos (%)</th>
 								<th width="120">Total</th>
 								<th width="40"></th>
 							</tr>
@@ -246,6 +306,7 @@
 		</form>
 	</div>
 </div>
+
 @endsection
 
 @section('scripts')
@@ -255,30 +316,136 @@ $(function() {
 	var itemIndex = 0;
 
 	// ========================================
-	// CLIENT SELECTION (data passed via JS)
+	// DESCRIPTION EDITOR (contenteditable + paste image compression)
 	// ========================================
-	var clientsData = @json($clients->keyBy('id')->map(function ($c) {
-		return ['document' => $c->document, 'address' => $c->address, 'phone' => $c->phone];
-	}));
+	function htmlEscape(str) {
+		return $('<div>').text(str || '').html();
+	}
+
+	function syncEditorToInput(editor) {
+		var $editor = $(editor);
+		$editor.closest('.item').find('.description-input').val($editor.html());
+	}
+
+	$('body').on('input', '.description-editor', function() {
+		syncEditorToInput(this);
+	});
+
+	$('body').on('paste', '.description-editor', function(e) {
+		var clipboardData = e.originalEvent.clipboardData || window.clipboardData;
+		if (!clipboardData) return;
+
+		var items = clipboardData.items;
+		if (!items) return;
+
+		var editor = this;
+		for (var i = 0; i < items.length; i++) {
+			if (items[i].type && items[i].type.indexOf('image') === 0) {
+				e.preventDefault();
+				var file = items[i].getAsFile();
+
+				if (file.size > 5 * 1024 * 1024) {
+					alert('La imagen excede el tamaño máximo permitido (5 MB).');
+					return;
+				}
+
+				compressAndInsertImage(file, editor);
+				return;
+			}
+		}
+	});
+
+	function compressAndInsertImage(file, editor) {
+		var reader = new FileReader();
+		reader.onload = function(evt) {
+			var img = new Image();
+			img.onload = function() {
+				var canvas = document.createElement('canvas');
+				var maxDim = 1024;
+				var w = img.width, h = img.height;
+
+				if (w > maxDim || h > maxDim) {
+					var ratio = Math.min(maxDim / w, maxDim / h);
+					w = Math.round(w * ratio);
+					h = Math.round(h * ratio);
+				}
+
+				canvas.width = w;
+				canvas.height = h;
+				canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+				var dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+				var imgTag = '<img src="' + dataUrl + '" style="max-width:100%;height:auto;display:block;margin:5px 0;">';
+
+				editor.focus();
+				document.execCommand('insertHTML', false, imgTag);
+				syncEditorToInput(editor);
+			};
+			img.src = evt.target.result;
+		};
+		reader.readAsDataURL(file);
+	}
+
+	// ========================================
+	// CLIENT SELECTION (inline editable fields)
+	// ========================================
+	@php
+		$clientsForJs = $clients->keyBy('id')->map(function ($c) {
+			return [
+				'title' => $c->title,
+				'document' => $c->document,
+				'email' => $c->email,
+				'phone' => $c->phone,
+				'address' => $c->address,
+			];
+		});
+	@endphp
+	var clientsData = {!! json_encode($clientsForJs) !!};
 
 	$('.selectize-client').selectize({
 		persist: false,
 		sortField: 'text',
 		onChange: function(value) {
 			if (!value || !clientsData[value]) {
-				$('#client_document').val('');
-				$('#client_address').val('');
-				$('#client_phone').val('');
-				$('#client-details').addClass('d-none');
+				clearClientFields();
 				return;
 			}
-			var info = clientsData[value];
-			$('#client_document').val(info.document || '');
-			$('#client_address').val(info.address || '');
-			$('#client_phone').val(info.phone || '');
-			$('#client-details').removeClass('d-none');
+			fillClientFields(clientsData[value]);
 		}
 	});
+
+	function fillClientFields(info) {
+		$('#cli_title').val(info.title || '');
+		$('#cli_document').val(info.document || '');
+		$('#cli_email').val(info.email || '');
+		$('#cli_phone').val(info.phone || '');
+		$('#cli_address').val(info.address || '');
+	}
+
+	function clearClientFields() {
+		$('#cli_title, #cli_document, #cli_email, #cli_phone, #cli_address').val('');
+	}
+
+	// "Limpiar para nuevo cliente" button
+	$('#btn-new-client').on('click', function() {
+		$('#client_id')[0].selectize.clear();
+		clearClientFields();
+		$('#cli_title').focus();
+	});
+
+	// ========================================
+	// STATUS COMMENT TOGGLE (show only when status != draft)
+	// ========================================
+	function toggleStatusComment() {
+		var status = $('#status').val();
+		if (status === 'draft') {
+			$('#status-comment-group').slideUp(150);
+		} else {
+			$('#status-comment-group').slideDown(150);
+		}
+	}
+	$('#status').on('change', toggleStatusComment);
+	toggleStatusComment();
 
 	// ========================================
 	// PRODUCT SELECTOR (SELECTIZE)
@@ -300,6 +467,7 @@ $(function() {
 	// ========================================
 	function addProductRow(product) {
 		var idx = itemIndex++;
+		var initialDesc = htmlEscape(product.title + (product.description ? ' - ' + product.description : ''));
 		var row = `
 			<tr class="item" id="item-${idx}">
 				<td>
@@ -309,8 +477,8 @@ $(function() {
 					<input type="hidden" name="items[${idx}][sort_order]" value="${idx}">
 				</td>
 				<td>
-					<input type="text" class="form-control form-control-sm" value="${product.title}" readonly>
-					<input type="hidden" name="items[${idx}][description]" value="${product.title}${product.description ? ' - ' + product.description : ''}">
+					<div class="description-editor" contenteditable="true" data-idx="${idx}" data-placeholder="Descripción del producto. Puedes pegar imágenes (Ctrl+V).">${initialDesc}</div>
+					<input type="hidden" name="items[${idx}][description]" class="description-input" value="${initialDesc}">
 				</td>
 				<td>
 					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
@@ -347,7 +515,8 @@ $(function() {
 					<input type="hidden" name="items[${idx}][sort_order]" value="${idx}">
 				</td>
 				<td>
-					<textarea name="items[${idx}][description]" class="form-control form-control-sm" rows="2" placeholder="Descripción del producto o servicio..." required></textarea>
+					<div class="description-editor" contenteditable="true" data-idx="${idx}" data-placeholder="Descripción del producto o servicio. Puedes pegar imágenes (Ctrl+V)."></div>
+					<input type="hidden" name="items[${idx}][description]" class="description-input" value="">
 				</td>
 				<td>
 					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
@@ -392,13 +561,13 @@ $(function() {
 	function calculateLineTotal(row) {
 		var qty = parseFloat(row.find('.quantity').val()) || 0;
 		var price = parseFloat(row.find('.unit-price').val()) || 0;
-		var discPct = parseFloat(row.find('.discount-pct').val()) || 0;
+		var tribPct = parseFloat(row.find('.discount-pct').val()) || 0;
 
 		var lineSubtotal = qty * price;
-		var discountAmt = lineSubtotal * (discPct / 100);
-		var lineTotal = lineSubtotal - discountAmt;
+		var tributeAmt = lineSubtotal * (tribPct / 100);
+		var lineTotal = lineSubtotal + tributeAmt;
 
-		row.find('.discount-amount').val(discountAmt.toFixed(2));
+		row.find('.discount-amount').val(tributeAmt.toFixed(2));
 		row.find('.line-total').val(lineTotal.toFixed(2));
 		calculateTotals();
 	}

@@ -75,8 +75,9 @@ class QuotationsController extends Controller
 	 */
 	public function store(Request $request)
 	{
+		$client = $this->resolveClient($request);
+
 		$validatedData = $request->validate([
-			'client_id' => 'required|integer|exists:clients,id',
 			'quotation_number' => 'required|string|max:20|unique:quotations,quotation_number,NULL,NULL,deleted_at,NULL',
 			'emission_date' => 'required|date',
 			'expiration_date' => 'required|date|after_or_equal:emission_date',
@@ -96,6 +97,7 @@ class QuotationsController extends Controller
 			'total' => 'required|numeric|min:0',
 			'notes' => 'nullable|string',
 			'status' => 'required|string|in:draft,sent,accepted,rejected',
+			'status_comment' => 'nullable|string|max:1000',
 			'items' => 'required|array|min:1',
 			'items.*.product_id' => 'nullable|integer|exists:products,id',
 			'items.*.code' => 'required|string|max:50',
@@ -107,6 +109,7 @@ class QuotationsController extends Controller
 			'items.*.total' => 'required|numeric|min:0',
 		]);
 
+		$validatedData['client_id'] = $client->id;
 		$validatedData['created_by'] = Auth::id();
 
 		// Store the Quotation
@@ -147,6 +150,11 @@ class QuotationsController extends Controller
 	 */
 	public function edit(Quotation $quotation)
 	{
+		if ($quotation->status === 'accepted')
+		{
+			return redirect()->route('admin.quotations.show', $quotation->id);
+		}
+
 		$clients = Client::all();
 		$categories = Category::with('products')->get();
 		$quotation->load(['client', 'items.product']);
@@ -159,8 +167,14 @@ class QuotationsController extends Controller
 	 */
 	public function update(Request $request, Quotation $quotation)
 	{
+		if ($quotation->status === 'accepted')
+		{
+			return redirect()->route('admin.quotations.show', $quotation->id);
+		}
+
+		$client = $this->resolveClient($request);
+
 		$validatedData = $request->validate([
-			'client_id' => 'required|integer|exists:clients,id',
 			'quotation_number' => 'required|string|max:20|unique:quotations,quotation_number,' . $quotation->id . ',id,deleted_at,NULL',
 			'emission_date' => 'required|date',
 			'expiration_date' => 'required|date|after_or_equal:emission_date',
@@ -180,6 +194,7 @@ class QuotationsController extends Controller
 			'total' => 'required|numeric|min:0',
 			'notes' => 'nullable|string',
 			'status' => 'required|string|in:draft,sent,accepted,rejected',
+			'status_comment' => 'nullable|string|max:1000',
 			'items' => 'required|array|min:1',
 			'items.*.product_id' => 'nullable|integer|exists:products,id',
 			'items.*.code' => 'required|string|max:50',
@@ -190,6 +205,8 @@ class QuotationsController extends Controller
 			'items.*.discount_amount' => 'required|numeric|min:0',
 			'items.*.total' => 'required|numeric|min:0',
 		]);
+
+		$validatedData['client_id'] = $client->id;
 
 		// Update the Quotation
 		$quotation->update($validatedData);
@@ -302,6 +319,43 @@ class QuotationsController extends Controller
 			]);
 
 		return $pdf->download("cotizacion-{$quotation->quotation_number}.pdf");
+	}
+
+	/**
+	 * Resolve the client for a quotation: update the selected one or create a new one
+	 * based on the cli_* form fields. Returns the Client instance.
+	 */
+	protected function resolveClient(Request $request)
+	{
+		$clientId = $request->input('client_id');
+		$documentRule = 'required|string|max:20|unique:clients,document,'
+			. ($clientId ?: 'NULL') . ',id,deleted_at,NULL';
+
+		$clientData = $request->validate([
+			'cli_title' => 'required|string|max:100',
+			'cli_document' => $documentRule,
+			'cli_email' => 'nullable|email|max:100',
+			'cli_phone' => 'nullable|string|max:30',
+			'cli_address' => 'nullable|string|max:500',
+		]);
+
+		$payload = [
+			'title' => $clientData['cli_title'],
+			'document' => $clientData['cli_document'],
+			'email' => $clientData['cli_email'] ?? null,
+			'phone' => $clientData['cli_phone'] ?? null,
+			'address' => $clientData['cli_address'] ?? null,
+		];
+
+		if ($clientId)
+		{
+			$client = Client::findOrFail($clientId);
+			$client->update($payload);
+			return $client;
+		}
+
+		$payload['code'] = 'CLI-' . time();
+		return Client::create($payload);
 	}
 
 	/**

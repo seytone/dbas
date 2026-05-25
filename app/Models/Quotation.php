@@ -35,6 +35,7 @@ class Quotation extends Model
 		'total',
 		'notes',
 		'status',
+		'status_comment',
 		'created_by'
 	];
 

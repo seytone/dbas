@@ -104,9 +104,15 @@
 									<a class="btn btn-sm btn-primary m-1" href="{{ route('admin.quotations.show', $quotation->id) }}" title="VER">
 										<i class="fa fa-fw fa-eye" aria-hidden="true"></i>
 									</a>
-									<a class="btn btn-sm btn-warning m-1" href="{{ route('admin.quotations.edit', $quotation->id) }}" title="EDITAR">
-										<i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
-									</a>
+									@if($quotation->status !== 'accepted')
+										<a class="btn btn-sm btn-warning m-1" href="{{ route('admin.quotations.edit', $quotation->id) }}" title="EDITAR">
+											<i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
+										</a>
+									@else
+										<button type="button" class="btn btn-sm btn-secondary m-1" disabled title="Cotización aceptada — no editable">
+											<i class="fa fa-fw fa-lock" aria-hidden="true"></i>
+										</button>
+									@endif
 									<a class="btn btn-sm btn-info m-1" href="{{ route('admin.quotations.duplicate', $quotation->id) }}" title="DUPLICAR" onclick="return confirm('¿Desea duplicar esta cotización?');">
 										<i class="fa fa-fw fa-copy" aria-hidden="true"></i>
 									</a>
