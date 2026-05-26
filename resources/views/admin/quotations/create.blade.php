@@ -14,8 +14,8 @@
 	}
 	.description-editor:focus {
 		outline: none;
-		border-color: #4a9a5c;
-		box-shadow: 0 0 0 2px rgba(74, 154, 92, 0.15);
+		border-color: #192440;
+		box-shadow: 0 0 0 2px rgba(25, 36, 64, 0.15);
 	}
 	.description-editor img {
 		max-width: 180px !important;
@@ -60,7 +60,7 @@
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="expiration_date"><b>Fecha de Vencimiento *</b></label>
-								<input type="date" name="expiration_date" id="expiration_date" class="form-control" value="{{ date('Y-m-d', strtotime('+30 days')) }}" required>
+								<input type="date" name="expiration_date" id="expiration_date" class="form-control" value="{{ date('Y-m-d', strtotime('+5 days')) }}" required>
 							</div>
 						</div>
 					</div>

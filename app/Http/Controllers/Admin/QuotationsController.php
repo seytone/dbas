@@ -263,7 +263,7 @@ class QuotationsController extends Controller
 			'client_id' => $quotation->client_id,
 			'quotation_number' => Quotation::nextNumber(),
 			'emission_date' => Carbon::now()->format('Y-m-d'),
-			'expiration_date' => Carbon::now()->addDays(30)->format('Y-m-d'),
+			'expiration_date' => Carbon::now()->addDays(5)->format('Y-m-d'),
 			'currency' => $quotation->currency,
 			'iva_rate' => $quotation->iva_rate,
 			'subtotal' => $quotation->subtotal,

@@ -25,17 +25,17 @@
 
 		.watermark {
 			position: fixed;
-			top: 35%;
+			top: 38%;
 			left: 15%;
-			font-size: 140px;
+			font-size: 130px;
 			font-weight: bold;
-			color: rgba(150, 150, 150, 0.28);
+			color: rgba(200, 200, 200, 0.12);
 			transform: rotate(-30deg);
 			z-index: -1;
 			letter-spacing: 20px;
 		}
 
-		.header { border-bottom: 3px solid #4a9a5c; padding-bottom: 10px; margin-bottom: 20px; }
+		.header { border-bottom: 3px solid #192440; padding-bottom: 10px; margin-bottom: 20px; }
 		.header h2 { font-size: 16px; color: #333; margin-bottom: 4px; }
 		.header p { font-size: 10px; color: #666; margin: 1px 0; }
 
@@ -62,7 +62,7 @@
 
 		.products-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
 		.products-table th {
-			background: rgba(74, 154, 92, 0.92);
+			background: rgba(25, 36, 64, 0.92);
 			color: white;
 			padding: 8px;
 			font-size: 10px;
@@ -97,7 +97,7 @@
 		.totals-table .label { font-weight: bold; color: #444; }
 		.totals-table .value { text-align: right; }
 		.grand-total td {
-			background: rgba(74, 154, 92, 0.92);
+			background: rgba(25, 36, 64, 0.92);
 			color: white;
 			font-size: 13px;
 			font-weight: bold;
@@ -116,12 +116,25 @@
 		.footer {
 			margin-top: 25px;
 			padding-top: 10px;
-			border-top: 2px solid #4a9a5c;
-			text-align: center;
+			border-top: 2px solid #192440;
 			font-size: 10px;
 			color: #666;
 		}
-		.footer .ref { font-weight: bold; font-size: 11px; margin-top: 3px; }
+		.footer-table { width: 100%; border-collapse: collapse; }
+		.footer-table td { vertical-align: middle; }
+		.footer-left { text-align: left; }
+		.footer-left .ref { font-weight: bold; font-size: 11px; margin-top: 3px; }
+		.footer-right { text-align: right; width: 130px; }
+		.no-fiscal-label {
+			display: inline-block;
+			border: 1px solid #aaa;
+			border-radius: 6px;
+			padding: 6px 16px;
+			font-size: 14px;
+			font-weight: bold;
+			color: #888;
+			letter-spacing: 1px;
+		}
 	</style>
 </head>
 <body>
@@ -227,8 +240,17 @@
 
 	{{-- FOOTER --}}
 	<div class="footer">
-		<p>Presupuesto expresado en: {{ $quotation->currency == 'USD' ? 'Dólar' : 'Bolívares' }}</p>
-		<p class="ref">COTIZACIÓN #: {{ $quotation->formatted_number }}. SIN DERECHO A CRÉDITO FISCAL</p>
+		<table class="footer-table">
+			<tr>
+				<td class="footer-left">
+					<p>Presupuesto expresado en: {{ $quotation->currency == 'USD' ? 'Dólar' : 'Bolívares' }}</p>
+					<p class="ref">COTIZACIÓN #: {{ $quotation->formatted_number }}. SIN DERECHO A CRÉDITO FISCAL</p>
+				</td>
+				<td class="footer-right">
+					<span class="no-fiscal-label">NO FISCAL</span>
+				</td>
+			</tr>
+		</table>
 	</div>
 
 	@if(isset($autoPrint) && $autoPrint)

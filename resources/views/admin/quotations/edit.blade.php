@@ -14,8 +14,8 @@
 	}
 	.description-editor:focus {
 		outline: none;
-		border-color: #4a9a5c;
-		box-shadow: 0 0 0 2px rgba(74, 154, 92, 0.15);
+		border-color: #192440;
+		box-shadow: 0 0 0 2px rgba(25, 36, 64, 0.15);
 	}
 	.description-editor img {
 		max-width: 180px !important;
