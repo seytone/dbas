@@ -48,7 +48,7 @@ class QuotationsController extends Controller
 				});
 		}
 
-		$query->orderBy('emission_date', 'desc');
+		$query->orderByRaw('CAST(quotation_number AS UNSIGNED) DESC');
 
 		$quotations = $query->get();
 		$clients = Client::all();
@@ -78,7 +78,6 @@ class QuotationsController extends Controller
 		$client = $this->resolveClient($request);
 
 		$validatedData = $request->validate([
-			'quotation_number' => 'required|string|max:20|unique:quotations,quotation_number,NULL,NULL,deleted_at,NULL',
 			'emission_date' => 'required|date',
 			'expiration_date' => 'required|date|after_or_equal:emission_date',
 			'currency' => 'required|string|max:10',
@@ -112,8 +111,24 @@ class QuotationsController extends Controller
 		$validatedData['client_id'] = $client->id;
 		$validatedData['created_by'] = Auth::id();
 
-		// Store the Quotation
-		$quotation = Quotation::create($validatedData);
+		// Store the Quotation. The correlative number is assigned here (not at
+		// form load) to avoid collisions when two users create at the same time.
+		// On a duplicate-number race condition we retry with the next number.
+		$quotation = null;
+		for ($attempt = 0; $attempt < 5; $attempt++)
+		{
+			try {
+				$validatedData['quotation_number'] = Quotation::nextNumber();
+				$quotation = Quotation::create($validatedData);
+				break;
+			} catch (\Illuminate\Database\QueryException $e) {
+				// 1062 = MySQL duplicate entry. Retry; otherwise rethrow.
+				if ($attempt === 4 || ($e->errorInfo[1] ?? null) !== 1062) {
+					throw $e;
+				}
+				usleep(100000); // wait 100ms before retrying
+			}
+		}
 
 		// Store the Products included in the Quotation
 		foreach ($validatedData['items'] as $index => $item)
@@ -328,12 +343,10 @@ class QuotationsController extends Controller
 	protected function resolveClient(Request $request)
 	{
 		$clientId = $request->input('client_id');
-		$documentRule = 'required|string|max:20|unique:clients,document,'
-			. ($clientId ?: 'NULL') . ',id,deleted_at,NULL';
 
 		$clientData = $request->validate([
 			'cli_title' => 'required|string|max:100',
-			'cli_document' => $documentRule,
+			'cli_document' => 'required|string|max:20',
 			'cli_email' => 'nullable|email|max:100',
 			'cli_phone' => 'nullable|string|max:30',
 			'cli_address' => 'nullable|string|max:500',
@@ -347,6 +360,7 @@ class QuotationsController extends Controller
 			'address' => $clientData['cli_address'] ?? null,
 		];
 
+		// Selected an existing client from the dropdown.
 		if ($clientId)
 		{
 			$client = Client::findOrFail($clientId);
@@ -354,8 +368,28 @@ class QuotationsController extends Controller
 			return $client;
 		}
 
+		// No client selected: if a client with this RIF already exists
+		// (e.g. typed manually or created concurrently), link to it and
+		// update its data instead of failing with a unique-constraint error.
+		$existing = Client::where('document', $clientData['cli_document'])->first();
+		if ($existing)
+		{
+			$existing->update($payload);
+			return $existing;
+		}
+
+		// Truly new client.
 		$payload['code'] = 'CLI-' . time();
 		return Client::create($payload);
+	}
+
+	/**
+	 * Lightweight endpoint to keep the session alive while a form is open.
+	 * Any authenticated request refreshes the session lifetime.
+	 */
+	public function heartbeat()
+	{
+		return response()->json(['alive' => true]);
 	}
 
 	/**

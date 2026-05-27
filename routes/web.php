@@ -64,6 +64,7 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::delete('commission_mass_destroy', 'Admin\CommissionController@massDestroy')->name('commission.mass_destroy');
 	Route::delete('sales_mass_destroy', 'Admin\SalesController@massDestroy')->name('sales.mass_destroy');
 	Route::delete('quotations_mass_destroy', 'Admin\QuotationsController@massDestroy')->name('quotations.mass_destroy');
+	Route::get('quotations_heartbeat', 'Admin\QuotationsController@heartbeat')->name('quotations.heartbeat');
 	Route::get('quotations/{quotation}/duplicate', 'Admin\QuotationsController@duplicate')->name('quotations.duplicate');
 	Route::get('quotations/{quotation}/pdf', 'Admin\QuotationsController@exportPdf')->name('quotations.pdf');
 	Route::get('quotations/{quotation}/print', 'Admin\QuotationsController@printView')->name('quotations.print');

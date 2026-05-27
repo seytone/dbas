@@ -316,6 +316,13 @@ $(function() {
 	var itemIndex = 0;
 
 	// ========================================
+	// SESSION HEARTBEAT (keep session alive while form is open)
+	// ========================================
+	setInterval(function() {
+		$.get("{{ route('admin.quotations.heartbeat') }}").fail(function() {});
+	}, 5 * 60 * 1000); // every 5 minutes
+
+	// ========================================
 	// DESCRIPTION EDITOR (contenteditable + paste image compression)
 	// ========================================
 	function htmlEscape(str) {
