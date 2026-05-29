@@ -9,9 +9,11 @@ use Illuminate\Support\Facades\Auth;
 
 use App\User;
 use App\Models\Client;
+use App\Models\Config;
 use App\Models\Category;
 use App\Models\Quotation;
 use App\Models\QuotationProduct;
+use App\Services\ExchangeRateService;
 
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -66,8 +68,20 @@ class QuotationsController extends Controller
 		$clients = Client::all();
 		$categories = Category::with('products')->get();
 		$nextNumber = Quotation::nextNumber();
+		$rates = $this->savedRates();
 
-		return view('admin.quotations.create', compact('clients', 'categories', 'nextNumber'));
+		return view('admin.quotations.create', compact('clients', 'categories', 'nextNumber', 'rates'));
+	}
+
+	/**
+	 * Read the exchange rates stored in the config table.
+	 */
+	protected function savedRates(): array
+	{
+		return [
+			'binance' => Config::where('key', 'binance_rate')->first()->value ?? 0,
+			'bcv' => Config::where('key', 'bcv_rate')->first()->value ?? 0,
+		];
 	}
 
 	/**
@@ -81,6 +95,9 @@ class QuotationsController extends Controller
 			'emission_date' => 'required|date',
 			'expiration_date' => 'required|date|after_or_equal:emission_date',
 			'currency' => 'required|string|max:10',
+			'price_mode' => 'required|string|in:usd,bcv',
+			'binance_rate' => 'nullable|numeric|min:0',
+			'bcv_rate' => 'nullable|numeric|min:0',
 			'iva_rate' => 'required|numeric',
 			'subtotal' => 'required|numeric|min:0',
 			'discount_1' => 'required|numeric|min:0|max:100',
@@ -106,7 +123,7 @@ class QuotationsController extends Controller
 			'items.*.discount_percent' => 'required|numeric|min:0|max:100',
 			'items.*.discount_amount' => 'required|numeric|min:0',
 			'items.*.total' => 'required|numeric|min:0',
-		]);
+		], [], $this->validationAttributes());
 
 		$validatedData['client_id'] = $client->id;
 		$validatedData['created_by'] = Auth::id();
@@ -173,8 +190,9 @@ class QuotationsController extends Controller
 		$clients = Client::all();
 		$categories = Category::with('products')->get();
 		$quotation->load(['client', 'items.product']);
+		$rates = $this->savedRates();
 
-		return view('admin.quotations.edit', compact('quotation', 'clients', 'categories'));
+		return view('admin.quotations.edit', compact('quotation', 'clients', 'categories', 'rates'));
 	}
 
 	/**
@@ -194,6 +212,9 @@ class QuotationsController extends Controller
 			'emission_date' => 'required|date',
 			'expiration_date' => 'required|date|after_or_equal:emission_date',
 			'currency' => 'required|string|max:10',
+			'price_mode' => 'required|string|in:usd,bcv',
+			'binance_rate' => 'nullable|numeric|min:0',
+			'bcv_rate' => 'nullable|numeric|min:0',
 			'iva_rate' => 'required|numeric',
 			'subtotal' => 'required|numeric|min:0',
 			'discount_1' => 'required|numeric|min:0|max:100',
@@ -219,9 +240,13 @@ class QuotationsController extends Controller
 			'items.*.discount_percent' => 'required|numeric|min:0|max:100',
 			'items.*.discount_amount' => 'required|numeric|min:0',
 			'items.*.total' => 'required|numeric|min:0',
-		]);
+		], [], $this->validationAttributes());
 
 		$validatedData['client_id'] = $client->id;
+
+		// Once edited through the new form, the quotation uses the automatic
+		// calculation, so it is no longer flagged as a manual (legacy) one.
+		$quotation->manual_calculation = false;
 
 		// Update the Quotation
 		$quotation->update($validatedData);
@@ -337,6 +362,30 @@ class QuotationsController extends Controller
 	}
 
 	/**
+	 * Friendly field names for validation messages (avoids "items.0.description").
+	 */
+	protected function validationAttributes(): array
+	{
+		return [
+			'emission_date' => 'fecha de emisión',
+			'expiration_date' => 'fecha de vencimiento',
+			'price_mode' => 'moneda',
+			'cli_title' => 'razón social',
+			'cli_document' => 'RIF',
+			'cli_email' => 'email',
+			'cli_phone' => 'teléfono',
+			'cli_address' => 'dirección',
+			'items' => 'productos',
+			'items.*.code' => 'código del producto',
+			'items.*.description' => 'descripción del producto',
+			'items.*.quantity' => 'cantidad del producto',
+			'items.*.unit_price' => 'precio unitario del producto',
+			'items.*.discount_percent' => 'tributos del producto',
+			'status_comment' => 'comentario del estado',
+		];
+	}
+
+	/**
 	 * Resolve the client for a quotation: update the selected one or create a new one
 	 * based on the cli_* form fields. Returns the Client instance.
 	 */
@@ -390,6 +439,52 @@ class QuotationsController extends Controller
 	public function heartbeat()
 	{
 		return response()->json(['alive' => true]);
+	}
+
+	/**
+	 * Fetch the current Binance and BCV rates from external APIs, persist them
+	 * in config, and return them as JSON. Falls back to the saved values if a
+	 * source is unreachable.
+	 */
+	public function fetchRates(ExchangeRateService $service)
+	{
+		$saved = $this->savedRates();
+		$fetched = $service->fetchRates();
+
+		$binance = $fetched['binance'] ?? null;
+		$bcv = $fetched['bcv'] ?? null;
+
+		// Persist whatever we successfully fetched; keep saved value otherwise.
+		if ($binance !== null) {
+			Config::firstOrNew(['key' => 'binance_rate'])->fill(['value' => $binance])->save();
+		}
+		if ($bcv !== null) {
+			Config::firstOrNew(['key' => 'bcv_rate'])->fill(['value' => $bcv])->save();
+		}
+
+		return response()->json([
+			'success' => ($binance !== null && $bcv !== null),
+			'binance' => $binance ?? $saved['binance'],
+			'bcv' => $bcv ?? $saved['bcv'],
+			'binance_ok' => $binance !== null,
+			'bcv_ok' => $bcv !== null,
+		]);
+	}
+
+	/**
+	 * Save manually-entered rates to config.
+	 */
+	public function saveRates(Request $request)
+	{
+		$data = $request->validate([
+			'binance_rate' => 'required|numeric|min:0',
+			'bcv_rate' => 'required|numeric|min:0',
+		]);
+
+		Config::firstOrNew(['key' => 'binance_rate'])->fill(['value' => $data['binance_rate']])->save();
+		Config::firstOrNew(['key' => 'bcv_rate'])->fill(['value' => $data['bcv_rate']])->save();
+
+		return response()->json(['success' => true, 'binance' => $data['binance_rate'], 'bcv' => $data['bcv_rate']]);
 	}
 
 	/**

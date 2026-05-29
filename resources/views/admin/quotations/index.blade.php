@@ -83,7 +83,12 @@
 								<td>{{ date('d/m/Y', strtotime($quotation->emission_date)) }}</td>
 								<td>{{ date('d/m/Y', strtotime($quotation->expiration_date)) }}</td>
 								<td>{{ $quotation->client->title }}</td>
-								<td>${{ number_format($quotation->total, 2, ',', '.') }} {{ $quotation->currency }}</td>
+								<td>
+									${{ number_format($quotation->total, 2, ',', '.') }}
+									@if($quotation->price_mode === 'bcv')
+										<span class="badge badge-warning">BCV</span>
+									@endif
+								</td>
 								<td>
 									@switch($quotation->status)
 										@case('draft')

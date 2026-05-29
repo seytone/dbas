@@ -30,6 +30,13 @@
 	</div>
 @endif
 
+@if($quotation->manual_calculation)
+	<div class="alert alert-secondary">
+		<i class="fa fa-calculator mr-2"></i>
+		<b>Cálculo manual.</b> Esta cotización es anterior a la automatización de tasas BCV/Binance. Los precios fueron calculados manualmente, sin la fórmula automática.
+	</div>
+@endif
+
 <div class="card">
 	<div class="card-header">
 		<b>Cotización #{{ $quotation->formatted_number }}</b>
@@ -60,6 +67,11 @@
 					<tr><td><b>Fecha Emisión</b></td><td>{{ $quotation->emission_date->format('d/m/Y') }}</td></tr>
 					<tr><td><b>Fecha Vencimiento</b></td><td>{{ $quotation->expiration_date->format('d/m/Y') }}</td></tr>
 					<tr><td><b>Moneda</b></td><td>{{ $quotation->currency }}</td></tr>
+					@if($quotation->price_mode === 'bcv')
+						<tr><td><b>Modo de precio</b></td><td><span class="badge badge-warning">Bolívares a BCV</span></td></tr>
+						<tr><td><b>Tasa Binance</b></td><td>{{ number_format($quotation->binance_rate, 2, ',', '.') }}</td></tr>
+						<tr><td><b>Tasa BCV</b></td><td>{{ number_format($quotation->bcv_rate, 2, ',', '.') }}</td></tr>
+					@endif
 					<tr><td><b>Creado por</b></td><td>{{ $quotation->author->getFullname() }}</td></tr>
 				</table>
 			</div>

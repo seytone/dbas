@@ -35,8 +35,9 @@
 	}
 </style>
 <div class="card">
-	<div class="card-header">
+	<div class="card-header d-flex justify-content-between align-items-center flex-wrap">
 		<b>Nueva Cotización</b>
+		@include('admin.quotations.partials.rates-widget')
 	</div>
 	<div class="card-body">
 		<form action="{{ route('admin.quotations.store') }}" method="POST" id="quotation-form">
@@ -54,41 +55,42 @@
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="emission_date"><b>Fecha de Emisión *</b></label>
-								<input type="date" name="emission_date" id="emission_date" class="form-control" value="{{ date('Y-m-d') }}" required>
+								<input type="date" name="emission_date" id="emission_date" class="form-control" value="{{ old('emission_date', date('Y-m-d')) }}" required>
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="expiration_date"><b>Fecha de Vencimiento *</b></label>
-								<input type="date" name="expiration_date" id="expiration_date" class="form-control" value="{{ date('Y-m-d', strtotime('+5 days')) }}" required>
+								<input type="date" name="expiration_date" id="expiration_date" class="form-control" value="{{ old('expiration_date', date('Y-m-d', strtotime('+5 days'))) }}" required>
 							</div>
 						</div>
 					</div>
 					<div class="row">
 						<div class="col-md-6">
 							<div class="form-group">
-								<label for="currency"><b>Moneda</b></label>
-								<select name="currency" id="currency" class="form-control">
-									<option value="USD" selected>Dólar (USD)</option>
-									<option value="BS">Bolívares (BS)</option>
+								<label for="price_mode_select"><b>Moneda</b></label>
+								<select name="price_mode" id="price_mode_select" class="form-control">
+									<option value="usd" {{ old('price_mode', 'usd') == 'usd' ? 'selected' : '' }}>DOLAR CASH</option>
+									<option value="bcv" {{ old('price_mode') == 'bcv' ? 'selected' : '' }}>DOLAR EN BS A BCV</option>
 								</select>
+								<input type="hidden" name="currency" value="USD">
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="status"><b>Estado</b></label>
 								<select name="status" id="status" class="form-control">
-									<option value="draft" selected>Borrador</option>
-									<option value="sent">Enviada</option>
-									<option value="accepted">Aceptada</option>
-									<option value="rejected">Rechazada</option>
+									<option value="draft" {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>Borrador</option>
+									<option value="sent" {{ old('status') == 'sent' ? 'selected' : '' }}>Enviada</option>
+									<option value="accepted" {{ old('status') == 'accepted' ? 'selected' : '' }}>Aceptada</option>
+									<option value="rejected" {{ old('status') == 'rejected' ? 'selected' : '' }}>Rechazada</option>
 								</select>
 							</div>
 						</div>
 						<div class="col-md-12">
 							<div class="form-group" id="status-comment-group" style="display: none;">
 								<label for="status_comment"><b>Comentario sobre el estado</b> <small class="text-muted">(opcional)</small></label>
-								<textarea name="status_comment" id="status_comment" class="form-control" rows="2" maxlength="1000" placeholder="Ej: Aceptada por el cliente el 25/05/2026 vía email, rechazada por precio, etc."></textarea>
+								<textarea name="status_comment" id="status_comment" class="form-control" rows="2" maxlength="1000" placeholder="Ej: Aceptada por el cliente el 25/05/2026 vía email, rechazada por precio, etc.">{{ old('status_comment') }}</textarea>
 							</div>
 						</div>
 					</div>
@@ -102,7 +104,7 @@
 								<select name="client_id" id="client_id" class="selectize-client">
 									<option value="">Seleccione un cliente existente...</option>
 									@foreach ($clients as $client)
-										<option value="{{ $client->id }}">{{ $client->getIdentification() }}</option>
+										<option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>{{ $client->getIdentification() }}</option>
 									@endforeach
 								</select>
 							</div>
@@ -114,29 +116,29 @@
 					</div>
 					<div class="form-group">
 						<label for="cli_title"><b>Razón Social *</b></label>
-						<input type="text" name="cli_title" id="cli_title" class="form-control" required maxlength="100">
+						<input type="text" name="cli_title" id="cli_title" class="form-control" required maxlength="100" value="{{ old('cli_title') }}">
 					</div>
 					<div class="row">
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="cli_document"><b>RIF *</b></label>
-								<input type="text" name="cli_document" id="cli_document" class="form-control" required maxlength="20">
+								<input type="text" name="cli_document" id="cli_document" class="form-control" required maxlength="20" value="{{ old('cli_document') }}">
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="cli_email">Email</label>
-								<input type="email" name="cli_email" id="cli_email" class="form-control" maxlength="100">
+								<input type="email" name="cli_email" id="cli_email" class="form-control" maxlength="100" value="{{ old('cli_email') }}">
 							</div>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="cli_phone">Teléfono</label>
-						<input type="text" name="cli_phone" id="cli_phone" class="form-control" maxlength="30">
+						<input type="text" name="cli_phone" id="cli_phone" class="form-control" maxlength="30" value="{{ old('cli_phone') }}">
 					</div>
 					<div class="form-group">
 						<label for="cli_address">Dirección</label>
-						<textarea name="cli_address" id="cli_address" class="form-control" rows="2" maxlength="500"></textarea>
+						<textarea name="cli_address" id="cli_address" class="form-control" rows="2" maxlength="500">{{ old('cli_address') }}</textarea>
 					</div>
 				</div>
 			</div>
@@ -145,6 +147,18 @@
 
 			{{-- PRODUCTOS --}}
 			<h5 class="mb-3"><i class="fa fa-list mr-2"></i>Productos</h5>
+
+			{{-- Rate snapshot (set via JS) --}}
+			<input type="hidden" name="binance_rate" id="binance_rate_hidden" value="{{ old('binance_rate', 0) }}">
+			<input type="hidden" name="bcv_rate" id="bcv_rate_hidden" value="{{ old('bcv_rate', 0) }}">
+
+			{{-- Info banner shown only when BCV mode is selected (form only, not in PDF) --}}
+			<div class="alert alert-info {{ old('price_mode') == 'bcv' ? '' : 'd-none' }}" id="bcv-mode-notice">
+				<i class="fa fa-info-circle mr-2"></i>
+				<b>Modo "Dólar en Bs a BCV" activo.</b> Los precios que ingreses se ajustarán automáticamente con la fórmula
+				(precio &times; tasa Binance &divide; tasa BCV). En el formulario verás el precio base y el ajustado como referencia;
+				en la cotización final solo aparecerá el precio ajustado.
+			</div>
 
 			<div class="row mb-3">
 				<div class="col-md-8">
@@ -203,12 +217,12 @@
 					<h5 class="mb-3"><i class="fa fa-calculator mr-2"></i>Impuestos</h5>
 					<div class="form-group">
 						<div class="custom-control custom-switch">
-							<input type="checkbox" class="custom-control-input" id="iva_toggle" checked>
+							<input type="checkbox" class="custom-control-input" id="iva_toggle" {{ old('iva_rate', '16') > 0 ? 'checked' : '' }}>
 							<label class="custom-control-label" for="iva_toggle"><b>Aplicar IVA (16%)</b></label>
 						</div>
 					</div>
-					<input type="hidden" name="iva_rate" id="iva_rate" value="16">
-					<input type="hidden" name="igtf_rate" id="igtf_rate" value="0">
+					<input type="hidden" name="iva_rate" id="iva_rate" value="{{ old('iva_rate', 16) }}">
+					<input type="hidden" name="igtf_rate" id="igtf_rate" value="{{ old('igtf_rate', 0) }}">
 				</div>
 				<div class="col-md-6">
 					<h5 class="mb-3"><i class="fa fa-sticky-note-o mr-2"></i>Notas</h5>
@@ -234,7 +248,7 @@
 						<label class="col-sm-3 col-form-label"><b>Descuento 1</b></label>
 						<div class="col-sm-3">
 							<div class="input-group">
-								<input type="number" name="discount_1" id="discount_1" class="form-control text-right" step="0.01" value="0" min="0" max="100">
+								<input type="number" name="discount_1" id="discount_1" class="form-control text-right" step="0.01" value="{{ old('discount_1', 0) }}" min="0" max="100">
 								<span class="input-group-text">%</span>
 							</div>
 						</div>
@@ -246,7 +260,7 @@
 						<label class="col-sm-3 col-form-label"><b>Descuento 2</b></label>
 						<div class="col-sm-3">
 							<div class="input-group">
-								<input type="number" name="discount_2" id="discount_2" class="form-control text-right" step="0.01" value="0" min="0" max="100">
+								<input type="number" name="discount_2" id="discount_2" class="form-control text-right" step="0.01" value="{{ old('discount_2', 0) }}" min="0" max="100">
 								<span class="input-group-text">%</span>
 							</div>
 						</div>
@@ -257,7 +271,7 @@
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>Flete</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="freight" id="freight" class="form-control text-right" step="0.01" value="0.00" min="0">
+							<input type="number" name="freight" id="freight" class="form-control text-right" step="0.01" value="{{ old('freight', '0.00') }}" min="0">
 						</div>
 					</div>
 				</div>
@@ -455,6 +469,123 @@ $(function() {
 	toggleStatusComment();
 
 	// ========================================
+	// EXCHANGE RATES + BCV PRICE MODE
+	// ========================================
+	var currentRates = {
+		binance: parseFloat($('#rate_binance_input').val()) || 0,
+		bcv: parseFloat($('#rate_bcv_input').val()) || 0
+	};
+
+	function isBcvMode() {
+		return $('#price_mode_select').val() === 'bcv';
+	}
+
+	// Multiplier applied to base prices when BCV mode is active.
+	function bcvFactor() {
+		if (isBcvMode() && currentRates.binance > 0 && currentRates.bcv > 0) {
+			return currentRates.binance / currentRates.bcv;
+		}
+		return 1;
+	}
+
+	// Recalculate a single row: effective price = base × factor.
+	// The visible .unit-price holds the base (list) price the user types;
+	// the hidden .unit-price-final holds the effective price that gets stored.
+	function recalcRow(row) {
+		var base = parseFloat(row.find('.unit-price').val()) || 0;
+		var factor = bcvFactor();
+		var effective = base * factor;
+
+		row.find('.unit-price-final').val(effective.toFixed(2));
+
+		if (isBcvMode() && factor !== 1) {
+			row.find('.ref-val').text(effective.toFixed(2));
+			row.find('.price-ref').removeClass('d-none');
+		} else {
+			row.find('.price-ref').addClass('d-none');
+		}
+
+		var qty = parseFloat(row.find('.quantity').val()) || 0;
+		var tribPct = parseFloat(row.find('.discount-pct').val()) || 0;
+		var lineSubtotal = qty * effective;
+		var tributeAmt = lineSubtotal * (tribPct / 100);
+		row.find('.discount-amount').val(tributeAmt.toFixed(2));
+		row.find('.line-total').val((lineSubtotal + tributeAmt).toFixed(2));
+		calculateTotals();
+	}
+
+	// Recompute all rows and sync the rate snapshot for submit.
+	function recalcAll() {
+		$('#products-list .item').each(function() { recalcRow($(this)); });
+		$('#binance_rate_hidden').val(currentRates.binance);
+		$('#bcv_rate_hidden').val(currentRates.bcv);
+	}
+
+	// Currency / price mode selector
+	$('#price_mode_select').on('change', function() {
+		if ($(this).val() === 'bcv' && (currentRates.binance <= 0 || currentRates.bcv <= 0)) {
+			alert('Debes configurar las tasas Binance y BCV antes de cotizar en Dólar en Bs a BCV.');
+			$(this).val('usd');
+		}
+		$('#bcv-mode-notice').toggleClass('d-none', !isBcvMode());
+		recalcAll();
+	});
+
+	// Recalculate when the user edits price, quantity or tributo.
+	$('body').on('change input', '.unit-price, .quantity, .discount-pct', function() {
+		recalcRow($(this).closest('.item'));
+	});
+
+	// Fetch rates automatically from APIs
+	$('#btn-fetch-rates').on('click', function() {
+		var btn = $(this);
+		btn.prop('disabled', true);
+		$('#rates-status').html('<span class="text-muted">Consultando...</span>');
+		$.get("{{ route('admin.quotations.fetch_rates') }}")
+			.done(function(res) {
+				$('#rate_binance_input').val(res.binance);
+				$('#rate_bcv_input').val(res.bcv);
+				currentRates.binance = parseFloat(res.binance) || 0;
+				currentRates.bcv = parseFloat(res.bcv) || 0;
+				if (res.success) {
+					$('#rates-status').html('<span class="text-success">✓ Tasas actualizadas</span>');
+				} else {
+					$('#rates-status').html('<span class="text-warning">⚠ No se pudo conectar a alguna fuente. Revisa las tasas manualmente.</span>');
+				}
+				recalcAll();
+			})
+			.fail(function() {
+				$('#rates-status').html('<span class="text-danger">✗ Error al consultar. Ingresa las tasas manualmente.</span>');
+			})
+			.always(function() { btn.prop('disabled', false); });
+	});
+
+	// Save manually-entered rates
+	$('#btn-save-rates').on('click', function() {
+		var binance = parseFloat($('#rate_binance_input').val()) || 0;
+		var bcv = parseFloat($('#rate_bcv_input').val()) || 0;
+		if (binance <= 0 || bcv <= 0) {
+			$('#rates-status').html('<span class="text-danger">Ingresa ambas tasas (mayores a 0).</span>');
+			return;
+		}
+		$.ajax({
+			url: "{{ route('admin.quotations.save_rates') }}",
+			method: 'POST',
+			headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+			data: { binance_rate: binance, bcv_rate: bcv },
+			success: function() {
+				currentRates.binance = binance;
+				currentRates.bcv = bcv;
+				$('#rates-status').html('<span class="text-success">✓ Tasas guardadas</span>');
+				recalcAll();
+			},
+			error: function() {
+				$('#rates-status').html('<span class="text-danger">✗ Error al guardar.</span>');
+			}
+		});
+	});
+
+	// ========================================
 	// PRODUCT SELECTOR (SELECTIZE)
 	// ========================================
 	$('.selectize-products').selectize({
@@ -491,7 +622,9 @@ $(function() {
 					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
 				</td>
 				<td>
-					<input type="number" name="items[${idx}][unit_price]" class="form-control form-control-sm text-right unit-price" value="${product.price}" min="0" step="0.01">
+					<input type="number" class="form-control form-control-sm text-right unit-price" value="${product.price}" min="0" step="0.01">
+					<input type="hidden" name="items[${idx}][unit_price]" class="unit-price-final" value="${product.price}">
+					<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div>
 				</td>
 				<td>
 					<input type="number" name="items[${idx}][discount_percent]" class="form-control form-control-sm text-right discount-pct" value="0" min="0" max="100" step="0.01">
@@ -505,7 +638,7 @@ $(function() {
 				</td>
 			</tr>`;
 		$('#products-list').append(row);
-		calculateLineTotal($('#item-' + idx));
+		recalcRow($('#item-' + idx));
 		$('#no-products-alert').addClass('d-none');
 	}
 
@@ -517,7 +650,7 @@ $(function() {
 		var row = `
 			<tr class="item" id="item-${idx}">
 				<td>
-					<input type="text" name="items[${idx}][code]" class="form-control form-control-sm" value="LIBRE">
+					<input type="text" name="items[${idx}][code]" class="form-control form-control-sm" value="1000">
 					<input type="hidden" name="items[${idx}][product_id]" value="">
 					<input type="hidden" name="items[${idx}][sort_order]" value="${idx}">
 				</td>
@@ -529,7 +662,9 @@ $(function() {
 					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
 				</td>
 				<td>
-					<input type="number" name="items[${idx}][unit_price]" class="form-control form-control-sm text-right unit-price" value="0" min="0" step="0.01">
+					<input type="number" class="form-control form-control-sm text-right unit-price" value="0" min="0" step="0.01">
+					<input type="hidden" name="items[${idx}][unit_price]" class="unit-price-final" value="0">
+					<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div>
 				</td>
 				<td>
 					<input type="number" name="items[${idx}][discount_percent]" class="form-control form-control-sm text-right discount-pct" value="0" min="0" max="100" step="0.01">
@@ -543,6 +678,7 @@ $(function() {
 				</td>
 			</tr>`;
 		$('#products-list').append(row);
+		recalcRow($('#item-' + idx));
 		$('#no-products-alert').addClass('d-none');
 	});
 
@@ -561,23 +697,6 @@ $(function() {
 	// ========================================
 	// LINE CALCULATIONS
 	// ========================================
-	$('body').on('change input', '.quantity, .unit-price, .discount-pct', function() {
-		calculateLineTotal($(this).closest('.item'));
-	});
-
-	function calculateLineTotal(row) {
-		var qty = parseFloat(row.find('.quantity').val()) || 0;
-		var price = parseFloat(row.find('.unit-price').val()) || 0;
-		var tribPct = parseFloat(row.find('.discount-pct').val()) || 0;
-
-		var lineSubtotal = qty * price;
-		var tributeAmt = lineSubtotal * (tribPct / 100);
-		var lineTotal = lineSubtotal + tributeAmt;
-
-		row.find('.discount-amount').val(tributeAmt.toFixed(2));
-		row.find('.line-total').val(lineTotal.toFixed(2));
-		calculateTotals();
-	}
 
 	// ========================================
 	// TOTALS CALCULATION
@@ -632,6 +751,51 @@ $(function() {
 	});
 
 	// ========================================
+	// REPOPULATE PRODUCTS AFTER A VALIDATION ERROR (old input)
+	// ========================================
+	function buildOldRow(data) {
+		var idx = itemIndex++;
+		var isFree = !data.product_id;
+		var effective = parseFloat(data.unit_price) || 0;
+		var factor = bcvFactor();
+		var base = factor ? effective / factor : effective;
+
+		var codeCell = isFree
+			? '<input type="text" name="items[' + idx + '][code]" class="form-control form-control-sm" value="' + (data.code || '1000') + '">'
+			: '<input type="text" class="form-control form-control-sm" value="' + (data.code || '') + '" readonly><input type="hidden" name="items[' + idx + '][code]" value="' + (data.code || '') + '">';
+
+		var row = '<tr class="item" id="item-' + idx + '">'
+			+ '<td>' + codeCell
+				+ '<input type="hidden" name="items[' + idx + '][product_id]" value="' + (data.product_id || '') + '">'
+				+ '<input type="hidden" name="items[' + idx + '][sort_order]" value="' + idx + '">'
+			+ '</td>'
+			+ '<td><div class="description-editor" contenteditable="true" data-idx="' + idx + '" data-placeholder="Descripción del producto."></div>'
+				+ '<input type="hidden" name="items[' + idx + '][description]" class="description-input" value=""></td>'
+			+ '<td><input type="number" name="items[' + idx + '][quantity]" class="form-control form-control-sm text-right quantity" value="' + (data.quantity || 1) + '" min="1" step="1"></td>'
+			+ '<td><input type="number" class="form-control form-control-sm text-right unit-price" value="' + base.toFixed(2) + '" min="0" step="0.01">'
+				+ '<input type="hidden" name="items[' + idx + '][unit_price]" class="unit-price-final" value="' + effective.toFixed(2) + '">'
+				+ '<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div></td>'
+			+ '<td><input type="number" name="items[' + idx + '][discount_percent]" class="form-control form-control-sm text-right discount-pct" value="' + (data.discount_percent || 0) + '" min="0" max="100" step="0.01">'
+				+ '<input type="hidden" name="items[' + idx + '][discount_amount]" class="discount-amount" value="0"></td>'
+			+ '<td><input type="number" name="items[' + idx + '][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="0" readonly></td>'
+			+ '<td><button type="button" class="btn btn-sm btn-danger btn-remove-item" data-idx="' + idx + '"><i class="fa fa-times"></i></button></td>'
+			+ '</tr>';
+
+		$('#products-list').append(row);
+		$('#item-' + idx + ' .description-editor').html(data.description || '');
+		$('#item-' + idx + ' .description-input').val(data.description || '');
+		recalcRow($('#item-' + idx));
+		$('#no-products-alert').addClass('d-none');
+	}
+
+	@if(is_array(old('items')) && count(old('items')) > 0)
+		(function() {
+			var oldItems = @json(array_values(old('items')));
+			oldItems.forEach(function(data) { buildOldRow(data); });
+		})();
+	@endif
+
+	// ========================================
 	// FORM VALIDATION
 	// ========================================
 	$('#quotation-form').on('submit', function(e) {
@@ -641,6 +805,9 @@ $(function() {
 			$('html, body').animate({ scrollTop: $('#no-products-alert').offset().top - 100 }, 300);
 			return false;
 		}
+		// Sync rate snapshot before submit (price_mode comes from the selector itself)
+		$('#binance_rate_hidden').val(currentRates.binance);
+		$('#bcv_rate_hidden').val(currentRates.bcv);
 	});
 });
 </script>
