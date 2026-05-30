@@ -154,7 +154,7 @@ class QuotationsController extends Controller
 			$qp->quotation_id = $quotation->id;
 			$qp->product_id = $item['product_id'] ?: null;
 			$qp->code = $item['code'];
-			$qp->description = $item['description'];
+			$qp->description = $this->normalizeDescription($item['description']);
 			$qp->quantity = $item['quantity'];
 			$qp->unit_price = $item['unit_price'];
 			$qp->discount_percent = $item['discount_percent'];
@@ -259,7 +259,7 @@ class QuotationsController extends Controller
 			$qp->quotation_id = $quotation->id;
 			$qp->product_id = $item['product_id'] ?: null;
 			$qp->code = $item['code'];
-			$qp->description = $item['description'];
+			$qp->description = $this->normalizeDescription($item['description']);
 			$qp->quantity = $item['quantity'];
 			$qp->unit_price = $item['unit_price'];
 			$qp->discount_percent = $item['discount_percent'];
@@ -359,6 +359,24 @@ class QuotationsController extends Controller
 			]);
 
 		return $pdf->download("cotizacion-{$quotation->quotation_number}.pdf");
+	}
+
+	/**
+	 * Normalize the description text to replace smart punctuation
+	 * (en-dash, em-dash, curly quotes, etc.) with their ASCII equivalents
+	 * to avoid characters being lost or rendered as "?" by some fonts.
+	 */
+	protected function normalizeDescription(?string $text): ?string
+	{
+		if ($text === null) return null;
+		$map = [
+			"\u{2010}" => '-', "\u{2011}" => '-', "\u{2012}" => '-',
+			"\u{2013}" => '-', "\u{2014}" => '-', "\u{2212}" => '-',
+			"\u{2018}" => "'", "\u{2019}" => "'", "\u{201A}" => "'", "\u{201B}" => "'",
+			"\u{201C}" => '"', "\u{201D}" => '"', "\u{201E}" => '"', "\u{201F}" => '"',
+			"\u{2026}" => '...',
+		];
+		return strtr($text, $map);
 	}
 
 	/**

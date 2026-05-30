@@ -244,7 +244,7 @@
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>Sub-Total</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="subtotal" id="subtotal" class="form-control text-right" step="0.01" value="{{ $quotation->subtotal }}" readonly>
+							<input type="text" name="subtotal" id="subtotal" class="form-control text-right" value="{{ number_format($quotation->subtotal, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
@@ -256,7 +256,7 @@
 							</div>
 						</div>
 						<div class="col-sm-6">
-							<input type="number" name="discount_1_amount" id="discount_1_amount" class="form-control text-right" step="0.01" value="{{ $quotation->discount_1_amount }}" readonly>
+							<input type="text" name="discount_1_amount" id="discount_1_amount" class="form-control text-right" value="{{ number_format($quotation->discount_1_amount, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
@@ -268,13 +268,13 @@
 							</div>
 						</div>
 						<div class="col-sm-6">
-							<input type="number" name="discount_2_amount" id="discount_2_amount" class="form-control text-right" step="0.01" value="{{ $quotation->discount_2_amount }}" readonly>
+							<input type="text" name="discount_2_amount" id="discount_2_amount" class="form-control text-right" value="{{ number_format($quotation->discount_2_amount, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>Flete</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="freight" id="freight" class="form-control text-right" step="0.01" value="{{ old('freight', $quotation->freight) }}" min="0">
+							<input type="text" name="freight" id="freight" class="form-control text-right" inputmode="decimal" value="{{ old('freight', number_format($quotation->freight, 2, ',', '.')) }}">
 						</div>
 					</div>
 				</div>
@@ -282,31 +282,31 @@
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>Total Exento</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="tax_exempt" id="tax_exempt" class="form-control text-right" step="0.01" value="{{ $quotation->tax_exempt }}" readonly>
+							<input type="text" name="tax_exempt" id="tax_exempt" class="form-control text-right" value="{{ number_format($quotation->tax_exempt, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>Base Imponible</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="tax_base" id="tax_base" class="form-control text-right" step="0.01" value="{{ $quotation->tax_base }}" readonly>
+							<input type="text" name="tax_base" id="tax_base" class="form-control text-right" value="{{ number_format($quotation->tax_base, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>IVA (<span id="iva_label">{{ $quotation->iva_rate }}</span>%)</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="iva_amount" id="iva_amount" class="form-control text-right" step="0.01" value="{{ $quotation->iva_amount }}" readonly>
+							<input type="text" name="iva_amount" id="iva_amount" class="form-control text-right" value="{{ number_format($quotation->iva_amount, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row">
 						<label class="col-sm-5 col-form-label"><b>IGTF</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="igtf_amount" id="igtf_amount" class="form-control text-right" step="0.01" value="{{ $quotation->igtf_amount }}" readonly>
+							<input type="text" name="igtf_amount" id="igtf_amount" class="form-control text-right" value="{{ number_format($quotation->igtf_amount, 2, ',', '.') }}" readonly>
 						</div>
 					</div>
 					<div class="form-group row bg-light p-2 rounded">
 						<label class="col-sm-5 col-form-label"><b class="text-success" style="font-size: 1.2em;">TOTAL</b></label>
 						<div class="col-sm-7">
-							<input type="number" name="total" id="total" class="form-control text-right font-weight-bold" step="0.01" value="{{ $quotation->total }}" readonly style="font-size: 1.2em;">
+							<input type="text" name="total" id="total" class="form-control text-right font-weight-bold" value="{{ number_format($quotation->total, 2, ',', '.') }}" readonly style="font-size: 1.2em;">
 						</div>
 					</div>
 				</div>
@@ -376,6 +376,15 @@ $(function() {
 				compressAndInsertImage(file, editor);
 				return;
 			}
+		}
+
+		// No image — intercept text paste to normalize smart dashes/quotes that
+		// can be lost or rendered as "?" by the PDF font.
+		var text = clipboardData.getData('text/plain');
+		if (text) {
+			e.preventDefault();
+			document.execCommand('insertText', false, normalizeText(text));
+			syncEditorToInput(editor);
 		}
 	});
 
@@ -471,6 +480,62 @@ $(function() {
 	toggleStatusComment();
 
 	// ========================================
+	// MONEY FORMATTING HELPERS (Spanish: dot thousands, comma decimal)
+	// ========================================
+	var MONEY_INPUTS_SELECTOR = '.unit-price, .line-total, #subtotal, #discount_1_amount, #discount_2_amount, #freight, #tax_exempt, #tax_base, #iva_amount, #igtf_amount, #total';
+
+	function parseMoney(value) {
+		if (value === null || value === undefined || value === '') return 0;
+		if (typeof value === 'number') return value;
+		var s = String(value).trim();
+		if (s === '') return 0;
+		var hasComma = s.indexOf(',') >= 0;
+		var hasDot = s.indexOf('.') >= 0;
+		if (hasComma) {
+			s = s.replace(/\./g, '').replace(',', '.');
+		} else if (hasDot) {
+			var dotCount = s.split('.').length - 1;
+			var afterLast = s.length - s.lastIndexOf('.') - 1;
+			if (dotCount > 1 || (dotCount === 1 && afterLast === 3)) {
+				s = s.replace(/\./g, '');
+			}
+		}
+		var n = parseFloat(s);
+		return isNaN(n) ? 0 : n;
+	}
+
+	function formatMoney(num) {
+		if (typeof num !== 'number') num = parseMoney(num);
+		return num.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+	}
+
+	function unformatMoneyForSubmit() {
+		$(MONEY_INPUTS_SELECTOR).each(function() {
+			$(this).val(parseMoney($(this).val()).toFixed(2));
+		});
+	}
+
+	$('body').on('blur', MONEY_INPUTS_SELECTOR, function() {
+		var raw = parseMoney($(this).val());
+		$(this).val(formatMoney(raw));
+	});
+
+	// Format all visible money inputs on page load (handles raw old() values
+	// after a validation error, where Laravel returns unformatted numbers).
+	$(MONEY_INPUTS_SELECTOR).each(function() {
+		var v = $(this).val();
+		if (v !== '' && v !== null) $(this).val(formatMoney(parseMoney(v)));
+	});
+
+	function normalizeText(s) {
+		return String(s)
+			.replace(/[‐‑‒–—−]/g, '-')
+			.replace(/[‘’‚‛]/g, "'")
+			.replace(/[“”„‟]/g, '"')
+			.replace(/…/g, '...');
+	}
+
+	// ========================================
 	// EXCHANGE RATES + BCV PRICE MODE
 	// ========================================
 	// currentRates drives NEW calculations (today's config rates).
@@ -501,14 +566,14 @@ $(function() {
 	}
 
 	function recalcRow(row) {
-		var base = parseFloat(row.find('.unit-price').val()) || 0;
+		var base = parseMoney(row.find('.unit-price').val());
 		var factor = bcvFactor();
 		var effective = base * factor;
 
 		row.find('.unit-price-final').val(effective.toFixed(2));
 
 		if (isBcvMode() && factor !== 1) {
-			row.find('.ref-val').text(effective.toFixed(2));
+			row.find('.ref-val').text(formatMoney(effective));
 			row.find('.price-ref').removeClass('d-none');
 		} else {
 			row.find('.price-ref').addClass('d-none');
@@ -519,7 +584,7 @@ $(function() {
 		var lineSubtotal = qty * effective;
 		var tributeAmt = lineSubtotal * (tribPct / 100);
 		row.find('.discount-amount').val(tributeAmt.toFixed(2));
-		row.find('.line-total').val((lineSubtotal + tributeAmt).toFixed(2));
+		row.find('.line-total').val(formatMoney(lineSubtotal + tributeAmt));
 		calculateTotals();
 	}
 
@@ -611,12 +676,12 @@ $(function() {
 			+ '<td><div class="description-editor" contenteditable="true" data-idx="' + idx + '" data-placeholder="Descripción del producto."></div>'
 				+ '<input type="hidden" name="items[' + idx + '][description]" class="description-input" value=""></td>'
 			+ '<td><input type="number" name="items[' + idx + '][quantity]" class="form-control form-control-sm text-right quantity" value="' + (data.quantity || 1) + '" min="1" step="1"></td>'
-			+ '<td><input type="number" class="form-control form-control-sm text-right unit-price" value="' + base.toFixed(2) + '" min="0" step="0.01">'
+			+ '<td><input type="text" class="form-control form-control-sm text-right unit-price" inputmode="decimal" value="' + formatMoney(base) + '">'
 				+ '<input type="hidden" name="items[' + idx + '][unit_price]" class="unit-price-final" value="' + effective.toFixed(2) + '">'
 				+ '<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div></td>'
 			+ '<td><input type="number" name="items[' + idx + '][discount_percent]" class="form-control form-control-sm text-right discount-pct" value="' + (data.discount_percent || 0) + '" min="0" max="100" step="0.01">'
 				+ '<input type="hidden" name="items[' + idx + '][discount_amount]" class="discount-amount" value="0"></td>'
-			+ '<td><input type="number" name="items[' + idx + '][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="0" readonly></td>'
+			+ '<td><input type="text" name="items[' + idx + '][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="0,00" readonly></td>'
 			+ '<td><button type="button" class="btn btn-sm btn-danger btn-remove-item" data-idx="' + idx + '"><i class="fa fa-times"></i></button></td>'
 			+ '</tr>';
 
@@ -657,7 +722,7 @@ $(function() {
 							<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="{{ (int) $item->quantity }}" min="1" step="1">
 						</td>
 						<td>
-							<input type="number" class="form-control form-control-sm text-right unit-price" value="{{ $item->unit_price }}" min="0" step="0.01">
+							<input type="text" class="form-control form-control-sm text-right unit-price" inputmode="decimal" value="{{ number_format($item->unit_price, 2, ',', '.') }}">
 							<input type="hidden" name="items[${idx}][unit_price]" class="unit-price-final" value="{{ $item->unit_price }}">
 							<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div>
 						</td>
@@ -666,7 +731,7 @@ $(function() {
 							<input type="hidden" name="items[${idx}][discount_amount]" class="discount-amount" value="{{ $item->discount_amount }}">
 						</td>
 						<td>
-							<input type="number" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="{{ $item->total }}" readonly>
+							<input type="text" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="{{ number_format($item->total, 2, ',', '.') }}" readonly>
 						</td>
 						<td>
 							<button type="button" class="btn btn-sm btn-danger btn-remove-item" data-idx="${idx}"><i class="fa fa-times"></i></button>
@@ -688,7 +753,7 @@ $(function() {
 							<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="{{ (int) $item->quantity }}" min="1" step="1">
 						</td>
 						<td>
-							<input type="number" class="form-control form-control-sm text-right unit-price" value="{{ $item->unit_price }}" min="0" step="0.01">
+							<input type="text" class="form-control form-control-sm text-right unit-price" inputmode="decimal" value="{{ number_format($item->unit_price, 2, ',', '.') }}">
 							<input type="hidden" name="items[${idx}][unit_price]" class="unit-price-final" value="{{ $item->unit_price }}">
 							<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div>
 						</td>
@@ -697,7 +762,7 @@ $(function() {
 							<input type="hidden" name="items[${idx}][discount_amount]" class="discount-amount" value="{{ $item->discount_amount }}">
 						</td>
 						<td>
-							<input type="number" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="{{ $item->total }}" readonly>
+							<input type="text" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="{{ number_format($item->total, 2, ',', '.') }}" readonly>
 						</td>
 						<td>
 							<button type="button" class="btn btn-sm btn-danger btn-remove-item" data-idx="${idx}"><i class="fa fa-times"></i></button>
@@ -718,9 +783,9 @@ $(function() {
 		var row = $(this);
 		var stored = parseFloat(row.find('.unit-price-final').val()) || 0;
 		var base = snapshotFactor ? stored / snapshotFactor : stored;
-		row.find('.unit-price').val(base.toFixed(2));
+		row.find('.unit-price').val(formatMoney(base));
 		if (isBcvMode()) {
-			row.find('.ref-val').text(stored.toFixed(2));
+			row.find('.ref-val').text(formatMoney(stored));
 			row.find('.price-ref').removeClass('d-none');
 		}
 	});
@@ -760,7 +825,7 @@ $(function() {
 					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
 				</td>
 				<td>
-					<input type="number" class="form-control form-control-sm text-right unit-price" value="${product.price}" min="0" step="0.01">
+					<input type="text" class="form-control form-control-sm text-right unit-price" inputmode="decimal" value="${formatMoney(product.price)}">
 					<input type="hidden" name="items[${idx}][unit_price]" class="unit-price-final" value="${product.price}">
 					<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div>
 				</td>
@@ -769,7 +834,7 @@ $(function() {
 					<input type="hidden" name="items[${idx}][discount_amount]" class="discount-amount" value="0">
 				</td>
 				<td>
-					<input type="number" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="${product.price}" readonly>
+					<input type="text" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="${formatMoney(product.price)}" readonly>
 				</td>
 				<td>
 					<button type="button" class="btn btn-sm btn-danger btn-remove-item" data-idx="${idx}"><i class="fa fa-times"></i></button>
@@ -796,7 +861,7 @@ $(function() {
 					<input type="number" name="items[${idx}][quantity]" class="form-control form-control-sm text-right quantity" value="1" min="1" step="1">
 				</td>
 				<td>
-					<input type="number" class="form-control form-control-sm text-right unit-price" value="0" min="0" step="0.01">
+					<input type="text" class="form-control form-control-sm text-right unit-price" inputmode="decimal" value="0,00">
 					<input type="hidden" name="items[${idx}][unit_price]" class="unit-price-final" value="0">
 					<div class="price-ref text-info text-right d-none" style="font-size: 11px;">BCV: <span class="ref-val"></span></div>
 				</td>
@@ -805,7 +870,7 @@ $(function() {
 					<input type="hidden" name="items[${idx}][discount_amount]" class="discount-amount" value="0">
 				</td>
 				<td>
-					<input type="number" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="0.00" readonly>
+					<input type="text" name="items[${idx}][total]" class="form-control form-control-sm text-right line-total font-weight-bold" value="0,00" readonly>
 				</td>
 				<td>
 					<button type="button" class="btn btn-sm btn-danger btn-remove-item" data-idx="${idx}"><i class="fa fa-times"></i></button>
@@ -826,13 +891,13 @@ $(function() {
 	function calculateTotals() {
 		var subtotal = 0;
 		$('#products-list .item').each(function() {
-			subtotal += parseFloat($(this).find('.line-total').val()) || 0;
+			subtotal += parseMoney($(this).find('.line-total').val());
 		});
 		var disc1Pct = parseFloat($('#discount_1').val()) || 0;
 		var disc2Pct = parseFloat($('#discount_2').val()) || 0;
 		var disc1Amt = subtotal * (disc1Pct / 100);
 		var disc2Amt = subtotal * (disc2Pct / 100);
-		var freight = parseFloat($('#freight').val()) || 0;
+		var freight = parseMoney($('#freight').val());
 		var baseAfterDiscounts = subtotal - disc1Amt - disc2Amt;
 		var ivaRate = parseFloat($('#iva_rate').val()) || 0;
 		var igtfRate = parseFloat($('#igtf_rate').val()) || 0;
@@ -841,14 +906,14 @@ $(function() {
 		var ivaAmount = taxBase * (ivaRate / 100);
 		var igtfAmount = taxBase * (igtfRate / 100);
 		var total = taxBase + taxExempt + ivaAmount + igtfAmount + freight;
-		$('#subtotal').val(subtotal.toFixed(2));
-		$('#discount_1_amount').val(disc1Amt.toFixed(2));
-		$('#discount_2_amount').val(disc2Amt.toFixed(2));
-		$('#tax_exempt').val(taxExempt.toFixed(2));
-		$('#tax_base').val(taxBase.toFixed(2));
-		$('#iva_amount').val(ivaAmount.toFixed(2));
-		$('#igtf_amount').val(igtfAmount.toFixed(2));
-		$('#total').val(total.toFixed(2));
+		$('#subtotal').val(formatMoney(subtotal));
+		$('#discount_1_amount').val(formatMoney(disc1Amt));
+		$('#discount_2_amount').val(formatMoney(disc2Amt));
+		$('#tax_exempt').val(formatMoney(taxExempt));
+		$('#tax_base').val(formatMoney(taxBase));
+		$('#iva_amount').val(formatMoney(ivaAmount));
+		$('#igtf_amount').val(formatMoney(igtfAmount));
+		$('#total').val(formatMoney(total));
 	}
 
 	$('#iva_toggle').on('change', function() {
@@ -872,6 +937,8 @@ $(function() {
 		// Sync rate snapshot before submit (price_mode comes from the selector itself)
 		$('#binance_rate_hidden').val(currentRates.binance);
 		$('#bcv_rate_hidden').val(currentRates.bcv);
+		// Convert formatted money displays back to raw numeric values for backend.
+		unformatMoneyForSubmit();
 	});
 });
 </script>
