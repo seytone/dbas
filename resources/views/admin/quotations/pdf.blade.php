@@ -245,7 +245,7 @@
 				<td class="footer-left">
 					<p>Presupuesto expresado en: {{ $quotation->currency == 'USD' ? 'Dólar' : 'Bolívares' }}</p>
 					@if($quotation->price_mode === 'bcv')
-						<p>Precios calculados para pago en Bolívares a tasa BCV (Binance: {{ number_format($quotation->binance_rate, 2, ',', '.') }} / BCV: {{ number_format($quotation->bcv_rate, 2, ',', '.') }})</p>
+						<p>Precios calculados para pago en Bolívares a tasa BCV: {{ number_format($quotation->bcv_rate, 2, ',', '.') }}</p>
 					@endif
 					<p class="ref">COTIZACIÓN #: {{ $quotation->formatted_number }}. SIN DERECHO A CRÉDITO FISCAL</p>
 				</td>
