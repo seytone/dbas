@@ -610,29 +610,55 @@ $(function() {
 		recalcRow($(this).closest('.item'));
 	});
 
-	// Fetch rates automatically from APIs
-	$('#btn-fetch-rates').on('click', function() {
-		var btn = $(this);
-		btn.prop('disabled', true);
-		$('#rates-status').html('<span class="text-muted">Consultando...</span>');
-		$.get("{{ route('admin.quotations.fetch_rates') }}")
+	// Fetch rates from APIs and apply them.
+	// silent = true → background auto-refresh (subtle status message).
+	// silent = false → manual user action (visible status feedback).
+	function fetchAndApplyRates(silent) {
+		var $btn = $('#btn-fetch-rates');
+		if (!silent) {
+			$btn.prop('disabled', true);
+			$('#rates-status').html('<span class="text-muted">Consultando...</span>');
+		}
+		return $.get("{{ route('admin.quotations.fetch_rates') }}")
 			.done(function(res) {
+				var oldBinance = currentRates.binance;
+				var oldBcv = currentRates.bcv;
 				$('#rate_binance_input').val(res.binance);
 				$('#rate_bcv_input').val(res.bcv);
 				currentRates.binance = parseFloat(res.binance) || 0;
 				currentRates.bcv = parseFloat(res.bcv) || 0;
-				if (res.success) {
-					$('#rates-status').html('<span class="text-success">✓ Tasas actualizadas</span>');
+				var changed = (oldBinance !== currentRates.binance) || (oldBcv !== currentRates.bcv);
+				var time = new Date().toLocaleTimeString();
+
+				if (silent) {
+					if (changed && isBcvMode()) {
+						$('#rates-status').html('<span class="text-success" style="font-size:10px;">↻ ' + time + ' — Precios recalculados</span>');
+					} else {
+						$('#rates-status').html('<span class="text-muted" style="font-size:10px;">↻ Última actualización: ' + time + '</span>');
+					}
 				} else {
-					$('#rates-status').html('<span class="text-warning">⚠ No se pudo conectar a alguna fuente. Revisa las tasas manualmente.</span>');
+					if (res.success) {
+						$('#rates-status').html('<span class="text-success">✓ Tasas actualizadas</span>');
+					} else {
+						$('#rates-status').html('<span class="text-warning">⚠ No se pudo conectar a alguna fuente. Revisa las tasas manualmente.</span>');
+					}
 				}
 				recalcAll();
 			})
 			.fail(function() {
-				$('#rates-status').html('<span class="text-danger">✗ Error al consultar. Ingresa las tasas manualmente.</span>');
+				if (!silent) {
+					$('#rates-status').html('<span class="text-danger">✗ Error al consultar. Ingresa las tasas manualmente.</span>');
+				}
 			})
-			.always(function() { btn.prop('disabled', false); });
-	});
+			.always(function() { if (!silent) $btn.prop('disabled', false); });
+	}
+
+	$('#btn-fetch-rates').on('click', function() { fetchAndApplyRates(false); });
+
+	// Auto-refresh: fetch once shortly after page load, then every 15 minutes
+	// while the form stays open, so the cotización always reflects current rates.
+	setTimeout(function() { fetchAndApplyRates(true); }, 1500);
+	setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
 
 	// Save manually-entered rates
 	$('#btn-save-rates').on('click', function() {

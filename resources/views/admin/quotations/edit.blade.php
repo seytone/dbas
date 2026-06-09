@@ -607,28 +607,59 @@ $(function() {
 		recalcRow($(this).closest('.item'));
 	});
 
-	$('#btn-fetch-rates').on('click', function() {
-		var btn = $(this);
-		btn.prop('disabled', true);
-		$('#rates-status').html('<span class="text-muted">Consultando...</span>');
-		$.get("{{ route('admin.quotations.fetch_rates') }}")
+	// Quotation status — used to skip auto-refresh on locked (accepted) quotations
+	// so their snapshot rates and stored prices remain untouched.
+	var quotationStatus = @json($quotation->status);
+	var quotationLocked = (quotationStatus === 'accepted');
+
+	function fetchAndApplyRates(silent) {
+		var $btn = $('#btn-fetch-rates');
+		if (!silent) {
+			$btn.prop('disabled', true);
+			$('#rates-status').html('<span class="text-muted">Consultando...</span>');
+		}
+		return $.get("{{ route('admin.quotations.fetch_rates') }}")
 			.done(function(res) {
+				var oldBinance = currentRates.binance;
+				var oldBcv = currentRates.bcv;
 				$('#rate_binance_input').val(res.binance);
 				$('#rate_bcv_input').val(res.bcv);
 				currentRates.binance = parseFloat(res.binance) || 0;
 				currentRates.bcv = parseFloat(res.bcv) || 0;
-				if (res.success) {
-					$('#rates-status').html('<span class="text-success">✓ Tasas actualizadas</span>');
+				var changed = (oldBinance !== currentRates.binance) || (oldBcv !== currentRates.bcv);
+				var time = new Date().toLocaleTimeString();
+
+				if (silent) {
+					if (changed && isBcvMode()) {
+						$('#rates-status').html('<span class="text-success" style="font-size:10px;">↻ ' + time + ' — Precios recalculados</span>');
+					} else {
+						$('#rates-status').html('<span class="text-muted" style="font-size:10px;">↻ Última actualización: ' + time + '</span>');
+					}
 				} else {
-					$('#rates-status').html('<span class="text-warning">⚠ No se pudo conectar a alguna fuente. Revisa las tasas manualmente.</span>');
+					if (res.success) {
+						$('#rates-status').html('<span class="text-success">✓ Tasas actualizadas</span>');
+					} else {
+						$('#rates-status').html('<span class="text-warning">⚠ No se pudo conectar a alguna fuente. Revisa las tasas manualmente.</span>');
+					}
 				}
 				recalcAll();
 			})
 			.fail(function() {
-				$('#rates-status').html('<span class="text-danger">✗ Error al consultar. Ingresa las tasas manualmente.</span>');
+				if (!silent) {
+					$('#rates-status').html('<span class="text-danger">✗ Error al consultar. Ingresa las tasas manualmente.</span>');
+				}
 			})
-			.always(function() { btn.prop('disabled', false); });
-	});
+			.always(function() { if (!silent) $btn.prop('disabled', false); });
+	}
+
+	$('#btn-fetch-rates').on('click', function() { fetchAndApplyRates(false); });
+
+	// Auto-refresh: every 15 minutes. Only on editable quotations — locked ones
+	// (accepted) keep their snapshot rates untouched so stored prices don't drift.
+	if (!quotationLocked) {
+		setTimeout(function() { fetchAndApplyRates(true); }, 1500);
+		setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
+	}
 
 	$('#btn-save-rates').on('click', function() {
 		var binance = parseFloat($('#rate_binance_input').val()) || 0;
