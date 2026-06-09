@@ -15,6 +15,9 @@ Route::patch('change_password', 'Auth\ChangePasswordController@changePassword')-
 Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'], function ()
 {
 	Route::match(['get', 'post'], 'dashboard', 'Admin\DashboardController@index')->name('dashboard');
+	Route::post('commission_pay', 'Admin\DashboardController@payCommission')->name('commission.pay');
+	Route::delete('commission_unpay/{id}', 'Admin\DashboardController@unpayCommission')->name('commission.unpay');
+	Route::get('commission_breakdown', 'Admin\DashboardController@commissionBreakdown')->name('commission.breakdown');
 	Route::match(['get', 'post'], 'sales_filter', 'Admin\SalesController@index')->name('sales_filter');
 	Route::match(['get', 'post'], 'quotations_filter', 'Admin\QuotationsController@index')->name('quotations_filter');
     

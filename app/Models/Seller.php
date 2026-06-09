@@ -49,4 +49,12 @@ class Seller extends Model
 	{
 		return $this->hasMany(Sale::class);
 	}
+
+	/**
+	 * Monthly commission payment records for this seller.
+	 */
+	public function commissionPayments()
+	{
+		return $this->hasMany(SellerCommissionPayment::class);
+	}
 }

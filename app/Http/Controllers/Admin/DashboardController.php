@@ -13,6 +13,7 @@ use App\Models\Sale;
 use App\Models\Seller;
 use App\Models\SaleProduct;
 use App\Models\SaleService;
+use App\Models\SellerCommissionPayment;
 
 use Carbon\Carbon;
 
@@ -131,6 +132,195 @@ class DashboardController extends Controller
 		$start_date = $request->start_date ?? Carbon::now()->startOfMonth();
 		$final_date = $request->final_date ?? Carbon::now();
 
-		return view('dashboard', compact('user', 'sales', 'sellers', 'total_amount', 'total_profit', 'total_commission', 'total_services', 'total_products', 'total_hardware', 'total_software', 'start_date', 'final_date', 'vendedor', 'months'));
+		// ============================================================
+		// COMMISSION PAYMENT STATE — single-seller, full-month basis
+		// ============================================================
+		$resolvedSellerId = null;
+		if ($user->hasRole('Vendedor')) {
+			$resolvedSellerId = $user->seller->id;
+		} elseif ($request->has('seller') && $request->seller != 'all' && $request->seller != '') {
+			$resolvedSellerId = (int) $request->seller;
+		}
+
+		$paymentMode = 'none';   // none | single | multi
+		$paymentRecord = null;   // for single
+		$paymentRecords = [];    // for multi
+		$paymentPeriodLabel = null;
+
+		if ($resolvedSellerId && $total_commission > 0)
+		{
+			$startMonth = Carbon::parse($start_date)->startOfMonth();
+			$endMonth = Carbon::parse($final_date)->startOfMonth();
+			$monthsInRange = $startMonth->diffInMonths($endMonth) + 1;
+
+			$periods = collect();
+			$cursor = $startMonth->copy();
+			for ($i = 0; $i < $monthsInRange; $i++) {
+				$periods->push(['year' => (int) $cursor->year, 'month' => (int) $cursor->month]);
+				$cursor->addMonth();
+			}
+
+			// Sync pending payment records with current commission sums for each
+			// period. Paid records keep their snapshot untouched.
+			foreach ($periods as $p)
+			{
+				$sums = Sale::where('seller_id', $resolvedSellerId)
+					->whereYear('registered_at', $p['year'])
+					->whereMonth('registered_at', $p['month'])
+					->selectRaw('
+						COALESCE(SUM(commission), 0) AS total,
+						COALESCE(SUM(commission_perpetual), 0) AS perp,
+						COALESCE(SUM(commission_annual), 0) AS annual,
+						COALESCE(SUM(commission_hardware), 0) AS hardware,
+						COALESCE(SUM(commission_services), 0) AS services
+					')->first();
+
+				$existing = SellerCommissionPayment::where('seller_id', $resolvedSellerId)
+					->where('year', $p['year'])
+					->where('month', $p['month'])
+					->first();
+
+				if ($existing) {
+					if ($existing->payment === 'pending') {
+						$existing->update([
+							'total_commission' => $sums->total,
+							'commission_perpetual' => $sums->perp,
+							'commission_annual' => $sums->annual,
+							'commission_hardware' => $sums->hardware,
+							'commission_services' => $sums->services,
+						]);
+					}
+				} elseif ($sums->total > 0) {
+					$existing = SellerCommissionPayment::create([
+						'seller_id' => $resolvedSellerId,
+						'year' => $p['year'],
+						'month' => $p['month'],
+						'total_commission' => $sums->total,
+						'commission_perpetual' => $sums->perp,
+						'commission_annual' => $sums->annual,
+						'commission_hardware' => $sums->hardware,
+						'commission_services' => $sums->services,
+					]);
+				}
+			}
+
+			// Build the records used by the view (only those with amount > 0).
+			$paymentRecords = SellerCommissionPayment::where('seller_id', $resolvedSellerId)
+				->where(function ($q) use ($periods) {
+					foreach ($periods as $p) {
+						$q->orWhere(function ($sub) use ($p) {
+							$sub->where('year', $p['year'])->where('month', $p['month']);
+						});
+					}
+				})
+				->where('total_commission', '>', 0)
+				->orderBy('year', 'asc')->orderBy('month', 'asc')
+				->get();
+
+			if ($monthsInRange === 1 && $paymentRecords->count() === 1) {
+				$paymentMode = 'single';
+				$paymentRecord = $paymentRecords->first();
+				$paymentPeriodLabel = Carbon::create($paymentRecord->year, $paymentRecord->month, 1)
+					->locale('es')->isoFormat('MMMM YYYY');
+			} elseif ($paymentRecords->count() > 0) {
+				$paymentMode = 'multi';
+			}
+		}
+
+		return view('dashboard', compact('user', 'sales', 'sellers', 'total_amount', 'total_profit', 'total_commission', 'total_services', 'total_products', 'total_hardware', 'total_software', 'start_date', 'final_date', 'vendedor', 'months', 'paymentMode', 'paymentRecord', 'paymentRecords', 'paymentPeriodLabel', 'resolvedSellerId'));
     }
+
+	/**
+	 * Mark a single SellerCommissionPayment as paid (uploads evidence image).
+	 */
+	public function payCommission(Request $request)
+	{
+		$request->validate([
+			'id' => 'required|integer|exists:seller_commission_payments,id',
+			'evidence' => 'required|file|mimes:jpg,jpeg,png,gif,webp,pdf|max:5120',
+		]);
+
+		$payment = SellerCommissionPayment::findOrFail($request->id);
+
+		if ($payment->payment === 'completed') {
+			return response()->json(['success' => false, 'message' => 'Esta comisión ya está marcada como pagada.'], 422);
+		}
+
+		$file = $request->file('evidence');
+		$filename = uniqid('com_') . '.' . $file->getClientOriginalExtension();
+		$file->storeAs('public/payments', $filename);
+
+		$payment->update([
+			'payment' => 'completed',
+			'payment_date' => Carbon::now()->format('Y-m-d'),
+			'payment_evidence' => $filename,
+		]);
+
+		return response()->json([
+			'success' => true,
+			'message' => 'Pago registrado correctamente.',
+			'payment_date' => $payment->payment_date->format('d/m/Y'),
+			'payment_evidence' => $filename,
+		]);
+	}
+
+	/**
+	 * Reset a commission payment back to pending (deletes the proof association,
+	 * not the file itself in case auditing is needed).
+	 */
+	public function unpayCommission(Request $request, $id)
+	{
+		$payment = SellerCommissionPayment::findOrFail($id);
+
+		$payment->update([
+			'payment' => 'pending',
+			'payment_date' => null,
+			'payment_evidence' => null,
+		]);
+
+		return response()->json(['success' => true, 'message' => 'Pago revertido.']);
+	}
+
+	/**
+	 * Return the monthly breakdown for the modal when the date range spans
+	 * more than one month. Used as JSON via AJAX.
+	 */
+	public function commissionBreakdown(Request $request)
+	{
+		$sellerId = (int) $request->seller_id;
+		$startDate = $request->start_date;
+		$finalDate = $request->final_date;
+
+		if (! $sellerId || ! $startDate || ! $finalDate) {
+			return response()->json(['success' => false, 'message' => 'Parámetros incompletos.'], 422);
+		}
+
+		$startMonth = Carbon::parse($startDate)->startOfMonth();
+		$endMonth = Carbon::parse($finalDate)->startOfMonth();
+		$monthsInRange = $startMonth->diffInMonths($endMonth) + 1;
+
+		$rows = [];
+		$cursor = $startMonth->copy();
+		for ($i = 0; $i < $monthsInRange; $i++)
+		{
+			$payment = SellerCommissionPayment::where('seller_id', $sellerId)
+				->where('year', $cursor->year)
+				->where('month', $cursor->month)
+				->first();
+
+			if ($payment && $payment->total_commission > 0) {
+				$rows[] = [
+					'id' => $payment->id,
+					'period_label' => $cursor->copy()->locale('es')->isoFormat('MMMM YYYY'),
+					'total_commission' => number_format($payment->total_commission, 2, ',', '.'),
+					'payment' => $payment->payment,
+					'payment_date' => $payment->payment_date ? $payment->payment_date->format('d/m/Y') : null,
+					'payment_evidence' => $payment->payment_evidence,
+				];
+			}
+			$cursor->addMonth();
+		}
+
+		return response()->json(['success' => true, 'rows' => $rows]);
+	}
 }
