@@ -625,6 +625,8 @@ $(function() {
 				var oldBcv = currentRates.bcv;
 				$('#rate_binance_input').val(res.binance);
 				$('#rate_bcv_input').val(res.bcv);
+				// Inputs are back in sync with the DB — hide the manual save button.
+				$('#btn-save-rates').addClass('d-none');
 				currentRates.binance = parseFloat(res.binance) || 0;
 				currentRates.bcv = parseFloat(res.bcv) || 0;
 				var changed = (oldBinance !== currentRates.binance) || (oldBcv !== currentRates.bcv);
@@ -655,6 +657,12 @@ $(function() {
 
 	$('#btn-fetch-rates').on('click', function() { fetchAndApplyRates(false); });
 
+	// Manual rate edits: show the save button. After fetch (auto or manual) the
+	// inputs are in sync with the DB again, so the button is hidden once more.
+	$('#rate_binance_input, #rate_bcv_input').on('input', function() {
+		$('#btn-save-rates').removeClass('d-none');
+	});
+
 	// Auto-refresh: fetch once shortly after page load, then every 15 minutes
 	// while the form stays open, so the cotización always reflects current rates.
 	setTimeout(function() { fetchAndApplyRates(true); }, 1500);
@@ -677,6 +685,7 @@ $(function() {
 				currentRates.binance = binance;
 				currentRates.bcv = bcv;
 				$('#rates-status').html('<span class="text-success">✓ Tasas guardadas</span>');
+				$('#btn-save-rates').addClass('d-none');
 				recalcAll();
 			},
 			error: function() {

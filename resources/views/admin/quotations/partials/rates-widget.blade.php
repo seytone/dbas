@@ -13,7 +13,7 @@
 		<button type="button" class="btn btn-sm btn-info" id="btn-fetch-rates" title="Traer tasas automáticamente">
 			<i class="fa fa-refresh"></i> <span class="d-none d-lg-inline">Actualizar</span>
 		</button>
-		<button type="button" class="btn btn-sm btn-dark" id="btn-save-rates" title="Guardar tasas manualmente">
+		<button type="button" class="btn btn-sm btn-dark d-none" id="btn-save-rates" title="Guardar las tasas editadas manualmente">
 			<i class="fa fa-save"></i>
 		</button>
 		<span id="rates-status" style="font-size: 11px;"></span>
