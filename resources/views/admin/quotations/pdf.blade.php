@@ -60,24 +60,31 @@
 		.presupuesto-box .dates td { padding: 2px 0; }
 		.presupuesto-box .dates .right { text-align: right; }
 
-		.products-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-		.products-table th {
+		.products-header { width: 100%; border-collapse: collapse; table-layout: fixed; }
+		.products-header th {
 			background: rgba(25, 36, 64, 0.92);
 			color: white;
 			padding: 8px;
 			font-size: 10px;
 			text-align: left;
 		}
-		.products-table td {
+		.products-header .text-right { text-align: right; }
+
+		.product-item { border-bottom: 1px solid #eee; }
+		.product-item-zebra { background: rgba(250, 250, 250, 0.55); }
+		.product-meta { width: 100%; border-collapse: collapse; table-layout: fixed; }
+		.product-meta td {
 			padding: 6px 8px;
-			border-bottom: 1px solid #eee;
 			font-size: 10px;
 			vertical-align: top;
 		}
-		.products-table tr:nth-child(even) { background: rgba(250, 250, 250, 0.55); }
-		.products-table .text-right { text-align: right; }
-		.products-table .description { word-wrap: break-word; }
-		.products-table .description img {
+		.product-meta .text-right { text-align: right; }
+		.product-description {
+			padding: 0 8px 8px 8px;
+			font-size: 10px;
+			word-wrap: break-word;
+		}
+		.product-description img {
 			max-width: 180px !important;
 			max-height: 180px !important;
 			width: auto !important;
@@ -86,6 +93,7 @@
 			margin: 4px 4px 4px 0;
 			vertical-align: top;
 		}
+		.products-spacer { height: 20px; }
 
 		.totals-wrapper { width: 100%; border-collapse: collapse; margin-top: 10px; }
 		.totals-wrapper td { vertical-align: top; padding: 0; }
@@ -172,32 +180,35 @@
 		</tr>
 	</table>
 
-	{{-- PRODUCTS TABLE --}}
-	<table class="products-table">
-		<thead>
-			<tr>
-				<th style="width: 80px;">Código</th>
-				<th>Descripción</th>
-				<th style="width: 60px;" class="text-right">Cantidad</th>
-				<th style="width: 95px;" class="text-right">P. Unitario</th>
-				<th style="width: 95px;" class="text-right">Total</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach($quotation->items as $item)
-				@php
-					$adjustedUnitPrice = $item->unit_price * (1 + ($item->discount_percent / 100));
-				@endphp
-				<tr>
-					<td>{{ $item->code }}</td>
-					<td class="description">{!! $item->description !!}</td>
-					<td class="text-right">{{ number_format($item->quantity, 0, ',', '.') }}</td>
-					<td class="text-right">{{ number_format($adjustedUnitPrice, 2, ',', '.') }}</td>
-					<td class="text-right"><b>{{ number_format($item->total, 2, ',', '.') }}</b></td>
-				</tr>
-			@endforeach
-		</tbody>
+	{{-- PRODUCTS — per-item blocks so long descriptions can flow across pages
+	     (DomPDF cannot split a single table row, hence the block layout). --}}
+	<table class="products-header">
+		<tr>
+			<th style="width: 11%;">Código</th>
+			<th style="width: 53%;">Descripción</th>
+			<th style="width: 8%;" class="text-right">Cantidad</th>
+			<th style="width: 14%;" class="text-right">P. Unitario</th>
+			<th style="width: 14%;" class="text-right">Total</th>
+		</tr>
 	</table>
+	@foreach($quotation->items as $item)
+		@php
+			$adjustedUnitPrice = $item->unit_price * (1 + ($item->discount_percent / 100));
+		@endphp
+		<div class="product-item{{ $loop->even ? ' product-item-zebra' : '' }}">
+			<table class="product-meta">
+				<tr>
+					<td style="width: 11%;">{{ $item->code }}</td>
+					<td style="width: 53%;">&nbsp;</td>
+					<td style="width: 8%;" class="text-right">{{ number_format($item->quantity, 0, ',', '.') }}</td>
+					<td style="width: 14%;" class="text-right">{{ number_format($adjustedUnitPrice, 2, ',', '.') }}</td>
+					<td style="width: 14%;" class="text-right"><b>{{ number_format($item->total, 2, ',', '.') }}</b></td>
+				</tr>
+			</table>
+			<div class="product-description">{!! $item->description !!}</div>
+		</div>
+	@endforeach
+	<div class="products-spacer"></div>
 
 	{{-- TOTALS --}}
 	<table class="totals-wrapper">
