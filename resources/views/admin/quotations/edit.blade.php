@@ -974,6 +974,9 @@ $(function() {
 			$('html, body').animate({ scrollTop: $('#no-products-alert').offset().top - 100 }, 300);
 			return false;
 		}
+		// Default any empty numeric inputs that backend validation requires.
+		$('.discount-pct').each(function() { if ($(this).val() === '') $(this).val('0'); });
+		$('.quantity').each(function() { if ($(this).val() === '') $(this).val('1'); });
 		// Sync rate snapshot before submit (price_mode comes from the selector itself)
 		$('#binance_rate_hidden').val(currentRates.binance);
 		$('#bcv_rate_hidden').val(currentRates.bcv);

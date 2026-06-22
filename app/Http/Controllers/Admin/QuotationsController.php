@@ -299,47 +299,38 @@ class QuotationsController extends Controller
 	{
 		$quotation->load('items');
 
-		$newQuotation = Quotation::create([
-			'client_id' => $quotation->client_id,
-			'quotation_number' => Quotation::nextNumber(),
-			'emission_date' => Carbon::now()->format('Y-m-d'),
-			'expiration_date' => Carbon::now()->addDays(5)->format('Y-m-d'),
-			'currency' => $quotation->currency,
-			'iva_rate' => $quotation->iva_rate,
-			'subtotal' => $quotation->subtotal,
-			'discount_1' => $quotation->discount_1,
-			'discount_1_amount' => $quotation->discount_1_amount,
-			'discount_2' => $quotation->discount_2,
-			'discount_2_amount' => $quotation->discount_2_amount,
-			'freight' => $quotation->freight,
-			'tax_exempt' => $quotation->tax_exempt,
-			'tax_base' => $quotation->tax_base,
-			'iva_amount' => $quotation->iva_amount,
-			'igtf_rate' => $quotation->igtf_rate,
-			'igtf_amount' => $quotation->igtf_amount,
-			'total' => $quotation->total,
-			'notes' => $quotation->notes,
-			'status' => 'draft',
-			'created_by' => Auth::id(),
-		]);
-
-		foreach ($quotation->items as $index => $item)
-		{
-			QuotationProduct::create([
-				'quotation_id' => $newQuotation->id,
+		// Pre-load the create form with the source quotation's data via flashed
+		// "old input". Nothing is persisted until the user explicitly saves —
+		// cancelling out of the form discards the duplicate cleanly.
+		$items = $quotation->items->map(function ($item) {
+			return [
 				'product_id' => $item->product_id,
 				'code' => $item->code,
 				'description' => $item->description,
 				'quantity' => $item->quantity,
 				'unit_price' => $item->unit_price,
 				'discount_percent' => $item->discount_percent,
-				'discount_amount' => $item->discount_amount,
-				'total' => $item->total,
-				'sort_order' => $index,
-			]);
-		}
+			];
+		})->all();
 
-		return redirect()->route('admin.quotations.edit', $newQuotation->id)->with('message', 'Cotización duplicada exitosamente.');
+		session()->flashInput([
+			'client_id' => $quotation->client_id,
+			'emission_date' => Carbon::now()->format('Y-m-d'),
+			'expiration_date' => Carbon::now()->addDays(5)->format('Y-m-d'),
+			'currency' => $quotation->currency,
+			'price_mode' => $quotation->price_mode,
+			'binance_rate' => $quotation->binance_rate,
+			'bcv_rate' => $quotation->bcv_rate,
+			'iva_rate' => $quotation->iva_rate,
+			'igtf_rate' => $quotation->igtf_rate,
+			'discount_1' => $quotation->discount_1,
+			'discount_2' => $quotation->discount_2,
+			'freight' => $quotation->freight,
+			'notes' => $quotation->notes,
+			'items' => $items,
+		]);
+
+		return redirect()->route('admin.quotations.create')->with('message', 'Cotización duplicada. Revísala y guárdala para confirmarla.');
 	}
 
 	/**

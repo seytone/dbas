@@ -80,7 +80,7 @@
 		}
 		.product-meta .text-right { text-align: right; }
 		.product-description {
-			padding: 0 8px 8px 8px;
+			padding: 0 8px 8px 8%;
 			font-size: 10px;
 			word-wrap: break-word;
 		}
@@ -184,8 +184,8 @@
 	     (DomPDF cannot split a single table row, hence the block layout). --}}
 	<table class="products-header">
 		<tr>
-			<th style="width: 11%;">Código</th>
-			<th style="width: 53%;">Descripción</th>
+			<th style="width: 8%;">Código</th>
+			<th style="width: 56%;">Descripción</th>
 			<th style="width: 8%;" class="text-right">Cantidad</th>
 			<th style="width: 14%;" class="text-right">P. Unitario</th>
 			<th style="width: 14%;" class="text-right">Total</th>
@@ -198,8 +198,8 @@
 		<div class="product-item{{ $loop->even ? ' product-item-zebra' : '' }}">
 			<table class="product-meta">
 				<tr>
-					<td style="width: 11%;">{{ $item->code }}</td>
-					<td style="width: 53%;">&nbsp;</td>
+					<td style="width: 8%;">{{ $item->code }}</td>
+					<td style="width: 56%;">&nbsp;</td>
 					<td style="width: 8%;" class="text-right">{{ number_format($item->quantity, 0, ',', '.') }}</td>
 					<td style="width: 14%;" class="text-right">{{ number_format($adjustedUnitPrice, 2, ',', '.') }}</td>
 					<td style="width: 14%;" class="text-right"><b>{{ number_format($item->total, 2, ',', '.') }}</b></td>
