@@ -297,7 +297,7 @@ class QuotationsController extends Controller
 	 */
 	public function duplicate(Quotation $quotation)
 	{
-		$quotation->load('items');
+		$quotation->load(['items', 'client']);
 
 		// Pre-load the create form with the source quotation's data via flashed
 		// "old input". Nothing is persisted until the user explicitly saves —
@@ -307,14 +307,24 @@ class QuotationsController extends Controller
 				'product_id' => $item->product_id,
 				'code' => $item->code,
 				'description' => $item->description,
-				'quantity' => $item->quantity,
+				'quantity' => (int) $item->quantity,
 				'unit_price' => $item->unit_price,
 				'discount_percent' => $item->discount_percent,
 			];
 		})->all();
 
+		// The client_id selector is pre-filled, but Selectize doesn't fire its
+		// onChange on initial render, so we also flash the cli_* fields the
+		// store() validation requires.
+		$client = $quotation->client;
+
 		session()->flashInput([
 			'client_id' => $quotation->client_id,
+			'cli_title' => $client->title ?? '',
+			'cli_document' => $client->document ?? '',
+			'cli_email' => $client->email ?? '',
+			'cli_phone' => $client->phone ?? '',
+			'cli_address' => $client->address ?? '',
 			'emission_date' => Carbon::now()->format('Y-m-d'),
 			'expiration_date' => Carbon::now()->addDays(5)->format('Y-m-d'),
 			'currency' => $quotation->currency,

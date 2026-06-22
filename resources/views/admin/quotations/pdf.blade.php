@@ -80,7 +80,7 @@
 		}
 		.product-meta .text-right { text-align: right; }
 		.product-description {
-			padding: 0 8px 8px 8%;
+			padding: 0 8px 8px calc(8% + 8px);
 			font-size: 10px;
 			word-wrap: break-word;
 		}
