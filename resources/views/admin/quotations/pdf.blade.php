@@ -79,6 +79,10 @@
 			vertical-align: top;
 		}
 		.product-meta .text-right { text-align: right; }
+		.product-meta .product-code {
+			font-size: 8.5px;
+			word-break: break-all;
+		}
 		.product-description {
 			/* Padding-left aligned to the Descripción column: 8% col width
 			   plus ~1.5% to cover the header cell's own 8px padding. Kept as
@@ -202,7 +206,7 @@
 		<div class="product-item{{ $loop->even ? ' product-item-zebra' : '' }}">
 			<table class="product-meta">
 				<tr>
-					<td style="width: 8%;">{{ $item->code }}</td>
+					<td style="width: 8%;" class="product-code">{{ $item->code }}</td>
 					<td style="width: 56%;">&nbsp;</td>
 					<td style="width: 8%;" class="text-right">{{ number_format($item->quantity, 0, ',', '.') }}</td>
 					<td style="width: 14%;" class="text-right">{{ number_format($adjustedUnitPrice, 2, ',', '.') }}</td>
