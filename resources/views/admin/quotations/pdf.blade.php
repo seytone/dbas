@@ -80,7 +80,11 @@
 		}
 		.product-meta .text-right { text-align: right; }
 		.product-description {
-			padding: 0 8px 8px calc(8% + 8px);
+			/* Padding-left aligned to the Descripción column: 8% col width
+			   plus ~1.5% to cover the header cell's own 8px padding. Kept as
+			   a pure percentage because DomPDF discards calc() with mixed
+			   units and would silently fall back to 0. */
+			padding: 0 8px 8px 9.5%;
 			font-size: 10px;
 			word-wrap: break-word;
 		}
