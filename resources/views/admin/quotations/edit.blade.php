@@ -119,29 +119,29 @@
 					</div>
 					<div class="form-group">
 						<label for="cli_title"><b>Razón Social *</b></label>
-						<input type="text" name="cli_title" id="cli_title" class="form-control" required maxlength="100" value="{{ old('cli_title', $quotation->client->title ?? '') }}">
+						<input type="text" name="cli_title" id="cli_title" class="form-control" required maxlength="100" value="{{ old('cli_title', $quotation->client_title ?? '') }}">
 					</div>
 					<div class="row">
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="cli_document"><b>RIF *</b></label>
-								<input type="text" name="cli_document" id="cli_document" class="form-control" required maxlength="20" value="{{ old('cli_document', $quotation->client->document ?? '') }}">
+								<input type="text" name="cli_document" id="cli_document" class="form-control" required maxlength="20" value="{{ old('cli_document', $quotation->client_document ?? '') }}">
 							</div>
 						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="cli_email">Email</label>
-								<input type="email" name="cli_email" id="cli_email" class="form-control" maxlength="100" value="{{ old('cli_email', $quotation->client->email ?? '') }}">
+								<input type="email" name="cli_email" id="cli_email" class="form-control" maxlength="100" value="{{ old('cli_email', $quotation->client_email ?? '') }}">
 							</div>
 						</div>
 					</div>
 					<div class="form-group">
 						<label for="cli_phone">Teléfono</label>
-						<input type="text" name="cli_phone" id="cli_phone" class="form-control" maxlength="30" value="{{ old('cli_phone', $quotation->client->phone ?? '') }}">
+						<input type="text" name="cli_phone" id="cli_phone" class="form-control" maxlength="30" value="{{ old('cli_phone', $quotation->client_phone ?? '') }}">
 					</div>
 					<div class="form-group">
 						<label for="cli_address">Dirección</label>
-						<textarea name="cli_address" id="cli_address" class="form-control" rows="2" maxlength="500">{{ old('cli_address', $quotation->client->address ?? '') }}</textarea>
+						<textarea name="cli_address" id="cli_address" class="form-control" rows="2" maxlength="500">{{ old('cli_address', $quotation->client_address ?? '') }}</textarea>
 					</div>
 				</div>
 			</div>

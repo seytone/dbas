@@ -127,6 +127,13 @@ class QuotationsController extends Controller
 
 		$validatedData['client_id'] = $client->id;
 		$validatedData['created_by'] = Auth::id();
+		// Snapshot the client's data on the quotation. Keeps each PDF/edit
+		// view stable against later changes to the shared Client record.
+		$validatedData['client_title'] = $client->title;
+		$validatedData['client_document'] = $client->document;
+		$validatedData['client_email'] = $client->email;
+		$validatedData['client_phone'] = $client->phone;
+		$validatedData['client_address'] = $client->address;
 
 		// Store the Quotation. The correlative number is assigned here (not at
 		// form load) to avoid collisions when two users create at the same time.
@@ -243,6 +250,13 @@ class QuotationsController extends Controller
 		], [], $this->validationAttributes());
 
 		$validatedData['client_id'] = $client->id;
+		// Snapshot the client's data on the quotation. Keeps each PDF/edit
+		// view stable against later changes to the shared Client record.
+		$validatedData['client_title'] = $client->title;
+		$validatedData['client_document'] = $client->document;
+		$validatedData['client_email'] = $client->email;
+		$validatedData['client_phone'] = $client->phone;
+		$validatedData['client_address'] = $client->address;
 
 		// Once edited through the new form, the quotation uses the automatic
 		// calculation, so it is no longer flagged as a manual (legacy) one.
@@ -297,7 +311,7 @@ class QuotationsController extends Controller
 	 */
 	public function duplicate(Quotation $quotation)
 	{
-		$quotation->load(['items', 'client']);
+		$quotation->load('items');
 
 		// Pre-load the create form with the source quotation's data via flashed
 		// "old input". Nothing is persisted until the user explicitly saves —
@@ -313,18 +327,19 @@ class QuotationsController extends Controller
 			];
 		})->all();
 
-		// The client_id selector is pre-filled, but Selectize doesn't fire its
-		// onChange on initial render, so we also flash the cli_* fields the
-		// store() validation requires.
-		$client = $quotation->client;
-
+		// Client data comes from the source quotation's snapshot, not the
+		// live Client record — so if the client's data has drifted since,
+		// the duplicate still starts from what the original quotation shows.
+		// The client_id selector is also pre-filled, since Selectize doesn't
+		// fire onChange on initial render and the store() validation needs
+		// the cli_* fields anyway.
 		session()->flashInput([
 			'client_id' => $quotation->client_id,
-			'cli_title' => $client->title ?? '',
-			'cli_document' => $client->document ?? '',
-			'cli_email' => $client->email ?? '',
-			'cli_phone' => $client->phone ?? '',
-			'cli_address' => $client->address ?? '',
+			'cli_title' => $quotation->client_title ?? '',
+			'cli_document' => $quotation->client_document ?? '',
+			'cli_email' => $quotation->client_email ?? '',
+			'cli_phone' => $quotation->client_phone ?? '',
+			'cli_address' => $quotation->client_address ?? '',
 			'emission_date' => Carbon::now()->format('Y-m-d'),
 			'expiration_date' => Carbon::now()->addDays(5)->format('Y-m-d'),
 			'currency' => $quotation->currency,

@@ -169,10 +169,10 @@
 		<tr>
 			<td class="left-col">
 				<table class="client-info">
-					<tr><td class="label">Razón Social:</td><td>{{ $quotation->client->title }}</td></tr>
-					<tr><td class="label">RIF:</td><td>{{ $quotation->client->document }}</td></tr>
-					<tr><td class="label">Dirección:</td><td>{{ $quotation->client->address }}</td></tr>
-					<tr><td class="label">Teléfonos:</td><td>{{ $quotation->client->phone }}</td></tr>
+					<tr><td class="label">Razón Social:</td><td>{{ $quotation->client_title }}</td></tr>
+					<tr><td class="label">RIF:</td><td>{{ $quotation->client_document }}</td></tr>
+					<tr><td class="label">Dirección:</td><td>{{ $quotation->client_address }}</td></tr>
+					<tr><td class="label">Teléfonos:</td><td>{{ $quotation->client_phone }}</td></tr>
 				</table>
 			</td>
 			<td class="right-col">

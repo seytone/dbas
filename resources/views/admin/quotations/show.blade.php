@@ -78,10 +78,10 @@
 			<div class="col-md-6">
 				<h6 class="text-muted">DATOS DEL CLIENTE</h6>
 				<table class="table table-sm table-borderless">
-					<tr><td><b>Razón Social</b></td><td>{{ $quotation->client->title }}</td></tr>
-					<tr><td><b>RIF</b></td><td>{{ $quotation->client->document }}</td></tr>
-					<tr><td><b>Dirección</b></td><td>{{ $quotation->client->address }}</td></tr>
-					<tr><td><b>Teléfono</b></td><td>{{ $quotation->client->phone }}</td></tr>
+					<tr><td><b>Razón Social</b></td><td>{{ $quotation->client_title }}</td></tr>
+					<tr><td><b>RIF</b></td><td>{{ $quotation->client_document }}</td></tr>
+					<tr><td><b>Dirección</b></td><td>{{ $quotation->client_address }}</td></tr>
+					<tr><td><b>Teléfono</b></td><td>{{ $quotation->client_phone }}</td></tr>
 				</table>
 			</div>
 		</div>
