@@ -112,15 +112,33 @@ class DashboardController extends Controller
 		$products = SaleProduct::join('sales', 'sales.id', '=', 'sales_products.sale_id')->where('sales.deleted_at', null);
 		$hardware = SaleProduct::join('sales', 'sales.id', '=', 'sales_products.sale_id')->join('products', 'products.id', '=', 'sales_products.product_id')->where('sales.deleted_at', null)->where('products.type', 'hardware');
 		$software = SaleProduct::join('sales', 'sales.id', '=', 'sales_products.sale_id')->join('products', 'products.id', '=', 'sales_products.product_id')->where('sales.deleted_at', null)->where('products.type', 'software');
-		
-		if ($user->hasRole('Vendedor') || ($request->has('seller') && $request->seller != 'all'))
-		{
-			$seller_id = $request->seller ?? $user->seller->id;
-			$services->where('sales.seller_id', $seller_id);
-			$products->where('sales.seller_id', $seller_id);
-			$hardware->where('sales.seller_id', $seller_id);
-			$software->where('sales.seller_id', $seller_id);
-		}
+
+		// Mirror on the item queries the same sales-side filters (date range +
+		// seller) that were applied to $query above. Otherwise the count tiles
+		// stay frozen on the historical total regardless of the filter.
+		$applySalesFilters = function ($q) use ($request, $user) {
+			if ($request->isMethod('get')) {
+				$q->whereMonth('sales.registered_at', Carbon::now()->month);
+			}
+			if ($request->isMethod('post')) {
+				if ($request->has('start_date')) {
+					$q->whereDate('sales.registered_at', '>=', $request->start_date);
+				}
+				if ($request->has('final_date')) {
+					$q->whereDate('sales.registered_at', '<=', $request->final_date);
+				}
+			}
+			if ($user->hasRole('Vendedor')) {
+				$q->where('sales.seller_id', $user->seller->id);
+			} elseif ($request->isMethod('post') && $request->has('seller') && $request->seller != 'all') {
+				$q->where('sales.seller_id', $request->seller);
+			}
+		};
+
+		$applySalesFilters($services);
+		$applySalesFilters($products);
+		$applySalesFilters($hardware);
+		$applySalesFilters($software);
 
 		$total_services = $services->sum('quantity');
 		$total_products = $products->sum('quantity');
