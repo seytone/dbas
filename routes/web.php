@@ -73,6 +73,16 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 	Route::get('quotations/{quotation}/duplicate', 'Admin\QuotationsController@duplicate')->name('quotations.duplicate');
 	Route::get('quotations/{quotation}/pdf', 'Admin\QuotationsController@exportPdf')->name('quotations.pdf');
 	Route::get('quotations/{quotation}/print', 'Admin\QuotationsController@printView')->name('quotations.print');
+
+	// Administrative documents (invoice, credit_note, delivery_order, terms, exit_order)
+	Route::group(['prefix' => 'admin-docs', 'as' => 'admin_docs.'], function () {
+		Route::get('{type}', 'Admin\AdministrativeDocumentsController@index')->name('index');
+		Route::get('{type}/create', 'Admin\AdministrativeDocumentsController@create')->name('create');
+		Route::post('{type}', 'Admin\AdministrativeDocumentsController@store')->name('store');
+		Route::get('{type}/{document}', 'Admin\AdministrativeDocumentsController@show')->name('show');
+		Route::get('{type}/{document}/pdf', 'Admin\AdministrativeDocumentsController@pdf')->name('pdf');
+		Route::delete('{type}/{document}', 'Admin\AdministrativeDocumentsController@destroy')->name('destroy');
+	});
 	Route::delete('clients_mass_destroy', 'Admin\ClientsController@massDestroy')->name('clients.mass_destroy');
 	Route::delete('brands_mass_destroy', 'Admin\BrandsController@massDestroy')->name('brands.mass_destroy');
 	Route::delete('categories_mass_destroy', 'Admin\CategoriesController@massDestroy')->name('categories.mass_destroy');
