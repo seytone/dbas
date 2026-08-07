@@ -66,6 +66,17 @@
 						</div>
 					</div>
 					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label for="company"><b>Empresa emisora</b></label>
+								<select name="company" id="company" class="form-control">
+									@foreach(config('companies') as $code => $co)
+										<option value="{{ $code }}" {{ old('company', 've') == $code ? 'selected' : '' }}>{{ $co['label'] }}</option>
+									@endforeach
+								</select>
+								<small class="text-muted">Se usa como encabezado del PDF. Queda fija una vez guardada.</small>
+							</div>
+						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="price_mode_select"><b>Moneda</b></label>

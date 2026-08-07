@@ -67,6 +67,15 @@
 						</div>
 					</div>
 					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label for="company_display"><b>Empresa emisora</b></label>
+								<input type="text" id="company_display" class="form-control" value="{{ config('companies.' . ($quotation->company ?? 've') . '.label') }}" readonly>
+								{{-- Company is locked after creation — the value still needs to travel back to the store validator. --}}
+								<input type="hidden" name="company" value="{{ $quotation->company ?? 've' }}">
+								<small class="text-muted">Se define al crear la cotización y no se puede cambiar al editar.</small>
+							</div>
+						</div>
 						<div class="col-md-6">
 							<div class="form-group">
 								<label for="price_mode_select"><b>Moneda</b></label>

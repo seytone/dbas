@@ -156,12 +156,13 @@
 <body>
 	<div class="watermark">NO FISCAL</div>
 
-	{{-- HEADER --}}
+	{{-- HEADER — data driven by the quotation's emitting company (VE / US). --}}
+	@php $co = config('companies.' . ($quotation->company ?? 've')); @endphp
 	<div class="header">
-		<h2>DISTRIBUIDORA BIT DE ACTIVACIÓN Y SERVICIOS, C.A</h2>
-		<p><b>RIF:</b> J402111843</p>
-		<p>Dirección Fiscal: Calle Industrial el Coliseo, C.C Coliseo, Nivel 4, Local 160, Sector Potrerito Medio Guadalupe</p>
-		<p>Teléfonos: 0212.415.32.82 / 0424.182.64.08</p>
+		<h2>{{ $co['name'] }}</h2>
+		<p><b>{{ $co['tax_id_label'] }}:</b> {{ $co['tax_id'] }}</p>
+		<p>Dirección{{ $quotation->company === 'us' ? '' : ' Fiscal' }}: {{ $co['address'] }}</p>
+		<p>Teléfonos: {{ $co['phones'] }}</p>
 	</div>
 
 	{{-- CLIENT INFO + PRESUPUESTO --}}

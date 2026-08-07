@@ -21,6 +21,7 @@ class Quotation extends Model
 		'client_email',
 		'client_phone',
 		'client_address',
+		'company',
 		'quotation_number',
 		'emission_date',
 		'expiration_date',
