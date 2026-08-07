@@ -42,37 +42,30 @@ class DashboardController extends Controller
 		
 		$where = [];
 		$user = User::find(Auth::user()->id);
-		$query = Sale::where('deleted_at', null);
 
-		if ($request->isMethod('get'))
-		{
-			$query->whereMonth('registered_at', Carbon::now()->month);
+		// Resolve the effective filter values once and apply the same range
+		// on GET and POST. On a plain GET (first entry) the visible inputs
+		// default to "start-of-month → today"; previously the query used
+		// whereMonth() which didn't match those inputs 1:1, so the tiles
+		// showed different totals than the filter suggested until the user
+		// pressed "Filtrar".
+		$startDate = $request->start_date ?: Carbon::now()->startOfMonth()->format('Y-m-d');
+		$finalDate = $request->final_date ?: Carbon::now()->format('Y-m-d');
 
-			if ($user->hasRole('Vendedor'))
-			{
-				$query->where('seller_id', $user->seller->id);
-				$where = ['seller_id' => $user->seller->id];
-			}
+		$sellerFilter = null;
+		if ($user->hasRole('Vendedor')) {
+			$sellerFilter = $user->seller->id;
+		} elseif ($request->has('seller') && $request->seller != 'all' && $request->seller != '') {
+			$sellerFilter = $request->seller;
 		}
 
-		if ($request->isMethod('post'))
-		{
-			if ($user->hasRole('Vendedor'))
-			{
-				$query->where('seller_id', $user->seller->id);
-				$where = ['seller_id' => $user->seller->id];
-			}
-			else if ($request->has('seller') && $request->seller != 'all')
-			{
-				$query->where('seller_id', $request->seller);
-				$where = ['seller_id' => $request->seller];
-			}
+		$query = Sale::where('deleted_at', null)
+			->whereDate('registered_at', '>=', $startDate)
+			->whereDate('registered_at', '<=', $finalDate);
 
-			if ($request->has('start_date'))
-				$query->whereDate('registered_at', '>=', $request->start_date);
-
-			if ($request->has('final_date'))
-				$query->whereDate('registered_at', '<=', $request->final_date);
+		if ($sellerFilter) {
+			$query->where('seller_id', $sellerFilter);
+			$where = ['seller_id' => $sellerFilter];
 		}
 
 		$orders = Sale::select(
@@ -114,24 +107,13 @@ class DashboardController extends Controller
 		$software = SaleProduct::join('sales', 'sales.id', '=', 'sales_products.sale_id')->join('products', 'products.id', '=', 'sales_products.product_id')->where('sales.deleted_at', null)->where('products.type', 'software');
 
 		// Mirror on the item queries the same sales-side filters (date range +
-		// seller) that were applied to $query above. Otherwise the count tiles
-		// stay frozen on the historical total regardless of the filter.
-		$applySalesFilters = function ($q) use ($request, $user) {
-			if ($request->isMethod('get')) {
-				$q->whereMonth('sales.registered_at', Carbon::now()->month);
-			}
-			if ($request->isMethod('post')) {
-				if ($request->has('start_date')) {
-					$q->whereDate('sales.registered_at', '>=', $request->start_date);
-				}
-				if ($request->has('final_date')) {
-					$q->whereDate('sales.registered_at', '<=', $request->final_date);
-				}
-			}
-			if ($user->hasRole('Vendedor')) {
-				$q->where('sales.seller_id', $user->seller->id);
-			} elseif ($request->isMethod('post') && $request->has('seller') && $request->seller != 'all') {
-				$q->where('sales.seller_id', $request->seller);
+		// seller) resolved above. Otherwise the count tiles stay frozen on
+		// the historical total regardless of the filter.
+		$applySalesFilters = function ($q) use ($startDate, $finalDate, $sellerFilter) {
+			$q->whereDate('sales.registered_at', '>=', $startDate)
+			  ->whereDate('sales.registered_at', '<=', $finalDate);
+			if ($sellerFilter) {
+				$q->where('sales.seller_id', $sellerFilter);
 			}
 		};
 
@@ -147,8 +129,8 @@ class DashboardController extends Controller
 
 		$sellers = Seller::all();
 		$vendedor = $request->seller ?? 'all';
-		$start_date = $request->start_date ?? Carbon::now()->startOfMonth();
-		$final_date = $request->final_date ?? Carbon::now();
+		$start_date = $startDate;
+		$final_date = $finalDate;
 
 		// ============================================================
 		// COMMISSION PAYMENT STATE — single-seller, full-month basis
