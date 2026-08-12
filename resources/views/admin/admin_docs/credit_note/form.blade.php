@@ -38,14 +38,17 @@
 						<select name="parent_document_id" id="parent_invoice" class="form-control" required>
 							<option value="">Selecciona la Nota de Entrega a afectar…</option>
 							@foreach($invoices as $inv)
+								@php
+									$invoicePayload = json_encode([
+										'client_name'     => $inv->data['client_name']     ?? '',
+										'client_document' => $inv->data['client_document'] ?? '',
+										'client_phone'    => $inv->data['client_phone']    ?? '',
+										'client_address'  => $inv->data['client_address']  ?? '',
+										'items'           => $inv->data['items']           ?? [],
+									]);
+								@endphp
 								<option value="{{ $inv->id }}"
-									data-payload='@json([
-										"client_name"     => $inv->data["client_name"]     ?? "",
-										"client_document" => $inv->data["client_document"] ?? "",
-										"client_phone"    => $inv->data["client_phone"]    ?? "",
-										"client_address"  => $inv->data["client_address"]  ?? "",
-										"items"           => $inv->data["items"]           ?? [],
-									])'
+									data-payload='{{ $invoicePayload }}'
 									{{ old('parent_document_id') == $inv->id ? 'selected' : '' }}>
 									{{ $inv->formatted_number }} — {{ $inv->data['client_name'] ?? '' }} ({{ $inv->created_at->format('d/m/Y') }})
 								</option>
