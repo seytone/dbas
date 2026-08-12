@@ -1,9 +1,10 @@
 @extends('layouts.admin')
 @section('content')
+	@php $editing = isset($document) && $document; @endphp
 	<div class="row mb-3">
-		<div class="col-md-8"><h1>Nuevo Términos y Condiciones</h1></div>
+		<div class="col-md-8"><h1>{{ $editing ? 'Editar Términos y Condiciones' : 'Nuevo Términos y Condiciones' }} @if($editing)<small class="text-muted">{{ $document->formatted_number }}</small>@endif</h1></div>
 		<div class="col-md-4 text-right">
-			<a href="{{ route('admin.admin_docs.index', $type) }}" class="btn btn-secondary"><i class="fa fa-arrow-left mr-1"></i> Cancelar</a>
+			<a href="{{ $editing ? route('admin.admin_docs.show', [$type, $document->id]) : route('admin.admin_docs.index', $type) }}" class="btn btn-secondary"><i class="fa fa-arrow-left mr-1"></i> Cancelar</a>
 		</div>
 	</div>
 
@@ -11,8 +12,9 @@
 		<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul></div>
 	@endif
 
-	<form action="{{ route('admin.admin_docs.store', $type) }}" method="POST">
+	<form action="{{ $editing ? route('admin.admin_docs.update', [$type, $document->id]) : route('admin.admin_docs.store', $type) }}" method="POST">
 		@csrf
+		@if($editing) @method('PUT') @endif
 		<div class="card mb-3"><div class="card-body">
 			<div class="row">
 				<div class="col-md-6">
@@ -44,6 +46,6 @@
 				<div class="col-md-6"><div class="form-group"><label>Estado de firma *</label><input type="text" name="sign_state" class="form-control" value="{{ old('sign_state') }}" required maxlength="100"></div></div>
 			</div>
 		</div></div>
-		<button type="submit" class="btn btn-success btn-lg"><i class="fa fa-save mr-2"></i>Generar</button>
+		<button type="submit" class="btn btn-success btn-lg"><i class="fa fa-save mr-2"></i>{{ $editing ? 'Guardar cambios' : 'Generar' }}</button>
 	</form>
 @endsection

@@ -1,9 +1,10 @@
 @extends('layouts.admin')
 @section('content')
+	@php $editing = isset($document) && $document; @endphp
 	<div class="row mb-3">
-		<div class="col-md-8"><h1>Nueva Orden de Entrega</h1></div>
+		<div class="col-md-8"><h1>{{ $editing ? 'Editar Orden de Entrega' : 'Nueva Orden de Entrega' }} @if($editing)<small class="text-muted">{{ $document->formatted_number }}</small>@endif</h1></div>
 		<div class="col-md-4 text-right">
-			<a href="{{ route('admin.admin_docs.index', $type) }}" class="btn btn-secondary"><i class="fa fa-arrow-left mr-1"></i> Cancelar</a>
+			<a href="{{ $editing ? route('admin.admin_docs.show', [$type, $document->id]) : route('admin.admin_docs.index', $type) }}" class="btn btn-secondary"><i class="fa fa-arrow-left mr-1"></i> Cancelar</a>
 		</div>
 	</div>
 
@@ -11,8 +12,9 @@
 		<div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $err)<li>{{ $err }}</li>@endforeach</ul></div>
 	@endif
 
-	<form action="{{ route('admin.admin_docs.store', $type) }}" method="POST">
+	<form action="{{ $editing ? route('admin.admin_docs.update', [$type, $document->id]) : route('admin.admin_docs.store', $type) }}" method="POST">
 		@csrf
+		@if($editing) @method('PUT') @endif
 		<div class="card mb-3"><div class="card-body">
 			<div class="row">
 				<div class="col-md-6">
@@ -37,6 +39,8 @@
 			</div>
 
 			<h6 class="text-muted mt-2">ITEMS</h6>
+			@include('admin.admin_docs._product_picker')
+
 			<table class="table table-sm" id="items-table">
 				<thead>
 					<tr>
@@ -48,32 +52,53 @@
 				</thead>
 				<tbody id="items-body"></tbody>
 			</table>
-			<button type="button" class="btn btn-sm btn-outline-primary" id="btn-add-item"><i class="fa fa-plus mr-1"></i> Añadir item</button>
 		</div></div>
 
-		<button type="submit" class="btn btn-success btn-lg"><i class="fa fa-save mr-2"></i>Generar</button>
+		<button type="submit" class="btn btn-success btn-lg"><i class="fa fa-save mr-2"></i>{{ $editing ? 'Guardar cambios' : 'Generar' }}</button>
 	</form>
+@endsection
 
+@section('scripts')
 <script>
+(function() {
 	var idx = 0;
-	function addItem(data) {
+
+	function addRow(data) {
 		data = data || {};
 		var i = idx++;
 		$('#items-body').append(
 			'<tr>' +
-			'<td><input type="number" step="0.01" min="0" name="items[' + i + '][quantity]" class="form-control form-control-sm text-right" value="' + (data.quantity || 1) + '" required></td>' +
+			'<td><input type="number" step="0.01" min="0" name="items[' + i + '][quantity]" class="form-control form-control-sm text-right" value="' + (data.quantity != null ? data.quantity : 1) + '" required></td>' +
 			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm" rows="2" required>' + (data.description || '') + '</textarea></td>' +
 			'<td><input type="text" name="items[' + i + '][serial]" class="form-control form-control-sm" value="' + (data.serial || '') + '" maxlength="100"></td>' +
 			'<td><button type="button" class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></button></td>' +
 			'</tr>'
 		);
 	}
-	$('#btn-add-item').on('click', function() { addItem(); });
-	$('#items-body').on('click', '.btn-remove', function() { $(this).closest('tr').remove(); });
-	@if(is_array(old('items')))
-		@foreach(old('items') as $it) addItem(@json($it)); @endforeach
-	@else
-		addItem();
-	@endif
+
+	$(function() {
+		$('.selectize-products').selectize({
+			persist: false,
+			sortField: 'text',
+			onItemAdd: function(value) {
+				var product = this.options[value].data;
+				if (product) {
+					addRow({
+						quantity: 1,
+						description: product.title + (product.description ? ' - ' + product.description : ''),
+					});
+				}
+				this.clear(true);
+			},
+		});
+
+		$('#btn-add-free').on('click', function() { addRow(); });
+		$('#items-body').on('click', '.btn-remove', function() { $(this).closest('tr').remove(); });
+
+		@if(is_array(old('items')))
+			@foreach(old('items') as $it) addRow(@json($it)); @endforeach
+		@endif
+	});
+})();
 </script>
 @endsection

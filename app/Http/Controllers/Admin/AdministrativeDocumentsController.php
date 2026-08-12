@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdministrativeDocument;
+use App\Models\Category;
 use App\Models\Client;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -54,24 +55,81 @@ class AdministrativeDocumentsController extends Controller
     {
         $this->assertType($type);
 
-        // Client list feeds the searchable selector at the top of every
-        // admin doc form — lets the user pick an existing client and
-        // auto-fill the rest of the fields instead of retyping.
-        $clients = Client::orderBy('title')->get();
+        return view($this->viewFor($type, 'form'), array_merge([
+            'type' => $type,
+            'label' => AdministrativeDocument::$labels[$type],
+            'document' => null,
+        ], $this->formSharedData($type)));
+    }
 
-        $extra = [];
-        if ($type === AdministrativeDocument::TYPE_CREDIT_NOTE) {
-            // Nota de Crédito needs a parent Invoice to reference.
-            $extra['invoices'] = AdministrativeDocument::where('type', AdministrativeDocument::TYPE_INVOICE)
-                ->orderByDesc('number')
-                ->get();
-        }
+    // ---------- Edit / Update ----------
+
+    public function edit(string $type, int $documentId)
+    {
+        $this->assertType($type);
+        $document = AdministrativeDocument::where('type', $type)->findOrFail($documentId);
+
+        // Pre-fill the form using Laravel's old-input mechanism so every
+        // existing @old(...) call in the form templates picks up the stored
+        // data on first render — no need for parallel "edit" templates.
+        session()->flashInput(array_merge(
+            ['company' => $document->company, 'parent_document_id' => $document->parent_document_id],
+            (array) $document->data
+        ));
 
         return view($this->viewFor($type, 'form'), array_merge([
             'type' => $type,
             'label' => AdministrativeDocument::$labels[$type],
-            'clients' => $clients,
-        ], $extra));
+            'document' => $document,
+        ], $this->formSharedData($type)));
+    }
+
+    public function update(Request $request, string $type, int $documentId)
+    {
+        $this->assertType($type);
+        $document = AdministrativeDocument::where('type', $type)->findOrFail($documentId);
+
+        $validated = $request->validate($this->validationRulesFor($type));
+
+        $company = $validated['company'] ?? $document->company;
+        $parentId = $validated['parent_document_id'] ?? null;
+        $payload = collect($validated)->except(['company', 'parent_document_id'])->toArray();
+
+        $document->update([
+            'company' => $company,
+            'parent_document_id' => $parentId,
+            'data' => $payload,
+        ]);
+
+        return redirect()
+            ->route('admin.admin_docs.show', [$type, $document->id])
+            ->with('message', AdministrativeDocument::$labels[$type] . ' ' . $document->formatted_number . ' actualizado.');
+    }
+
+    /**
+     * Data shared by create() and edit() views: client list, product catalog
+     * for the picker (skipped for the text-only Términos type), and invoice
+     * dropdown for Nota de Crédito.
+     */
+    protected function formSharedData(string $type): array
+    {
+        $shared = [
+            'clients' => Client::orderBy('title')->get(),
+        ];
+
+        if ($type !== AdministrativeDocument::TYPE_TERMS) {
+            // Categorías con productos para el selector de productos, mismo
+            // patrón que el módulo de cotizaciones.
+            $shared['categories'] = Category::with('products')->get();
+        }
+
+        if ($type === AdministrativeDocument::TYPE_CREDIT_NOTE) {
+            $shared['invoices'] = AdministrativeDocument::where('type', AdministrativeDocument::TYPE_INVOICE)
+                ->orderByDesc('number')
+                ->get();
+        }
+
+        return $shared;
     }
 
     // ---------- Store ----------

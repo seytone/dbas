@@ -11,9 +11,7 @@
 		</div>
 	</div>
 
-	@if(session('message'))
-		<div class="alert alert-success">{{ session('message') }}</div>
-	@endif
+	{{-- session('message') already rendered by the layout at the top with an X button. --}}
 
 	<div class="card">
 		<div class="card-body">
@@ -44,6 +42,9 @@
 								<td class="text-right">
 									<a href="{{ route('admin.admin_docs.show', [$type, $doc->id]) }}" class="btn btn-sm btn-info" title="Ver">
 										<i class="fa fa-eye"></i>
+									</a>
+									<a href="{{ route('admin.admin_docs.edit', [$type, $doc->id]) }}" class="btn btn-sm btn-warning" title="Editar">
+										<i class="fa fa-pencil-alt"></i>
 									</a>
 									<a href="{{ route('admin.admin_docs.pdf', [$type, $doc->id]) }}" class="btn btn-sm btn-secondary" title="Descargar PDF">
 										<i class="fa fa-file-pdf"></i>

@@ -8,15 +8,16 @@
 			<a href="{{ route('admin.admin_docs.index', $type) }}" class="btn btn-secondary">
 				<i class="fa fa-arrow-left mr-1"></i> Volver
 			</a>
+			<a href="{{ route('admin.admin_docs.edit', [$type, $document->id]) }}" class="btn btn-warning">
+				<i class="fa fa-pencil-alt mr-1"></i> Editar
+			</a>
 			<a href="{{ route('admin.admin_docs.pdf', [$type, $document->id]) }}" class="btn btn-primary">
 				<i class="fa fa-file-pdf mr-1"></i> Descargar PDF
 			</a>
 		</div>
 	</div>
 
-	@if(session('message'))
-		<div class="alert alert-success">{{ session('message') }}</div>
-	@endif
+	{{-- session('message') already rendered by the layout at the top with an X button. --}}
 
 	<div class="card">
 		<div class="card-body">

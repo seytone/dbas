@@ -80,6 +80,8 @@ Route::group(['middleware' => ['auth'], 'prefix' => 'admin/', 'as' => 'admin.'],
 		Route::get('{type}/create', 'Admin\AdministrativeDocumentsController@create')->name('create');
 		Route::post('{type}', 'Admin\AdministrativeDocumentsController@store')->name('store');
 		Route::get('{type}/{document}', 'Admin\AdministrativeDocumentsController@show')->name('show');
+		Route::get('{type}/{document}/edit', 'Admin\AdministrativeDocumentsController@edit')->name('edit');
+		Route::put('{type}/{document}', 'Admin\AdministrativeDocumentsController@update')->name('update');
 		Route::get('{type}/{document}/pdf', 'Admin\AdministrativeDocumentsController@pdf')->name('pdf');
 		Route::delete('{type}/{document}', 'Admin\AdministrativeDocumentsController@destroy')->name('destroy');
 	});
