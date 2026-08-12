@@ -28,6 +28,7 @@
 			</div>
 
 			<h6 class="text-muted">DATOS DEL CLIENTE (se inyectan en el texto)</h6>
+			@include('admin.admin_docs._client_picker')
 			<div class="row">
 				<div class="col-md-6"><div class="form-group"><label>Razón Social / Nombre *</label><input type="text" name="client_name" class="form-control" value="{{ old('client_name') }}" required maxlength="255"></div></div>
 				<div class="col-md-6"><div class="form-group"><label>RIF o Cédula</label><input type="text" name="client_document" class="form-control" value="{{ old('client_document') }}" maxlength="50"></div></div>

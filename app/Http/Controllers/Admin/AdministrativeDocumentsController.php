@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AdministrativeDocument;
+use App\Models\Client;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -53,6 +54,11 @@ class AdministrativeDocumentsController extends Controller
     {
         $this->assertType($type);
 
+        // Client list feeds the searchable selector at the top of every
+        // admin doc form — lets the user pick an existing client and
+        // auto-fill the rest of the fields instead of retyping.
+        $clients = Client::orderBy('title')->get();
+
         $extra = [];
         if ($type === AdministrativeDocument::TYPE_CREDIT_NOTE) {
             // Nota de Crédito needs a parent Invoice to reference.
@@ -64,6 +70,7 @@ class AdministrativeDocumentsController extends Controller
         return view($this->viewFor($type, 'form'), array_merge([
             'type' => $type,
             'label' => AdministrativeDocument::$labels[$type],
+            'clients' => $clients,
         ], $extra));
     }
 

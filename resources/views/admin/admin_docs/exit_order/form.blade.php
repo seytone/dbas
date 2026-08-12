@@ -34,6 +34,7 @@
 			</div>
 
 			<h6 class="text-muted">DATOS DEL CLIENTE Y VENDEDOR</h6>
+			@include('admin.admin_docs._client_picker')
 			<div class="row">
 				<div class="col-md-6"><div class="form-group"><label>Cliente *</label><input type="text" name="client_name" class="form-control" value="{{ old('client_name') }}" required maxlength="255"></div></div>
 				<div class="col-md-6"><div class="form-group"><label>Vendedor Responsable *</label><input type="text" name="seller_name" class="form-control" value="{{ old('seller_name') }}" required maxlength="150"></div></div>

@@ -34,6 +34,7 @@
 				</div>
 
 				<h6 class="text-muted mt-2">BILL TO / DATOS DEL CLIENTE</h6>
+				@include('admin.admin_docs._client_picker')
 				<div class="row">
 					<div class="col-md-6">
 						<div class="form-group">

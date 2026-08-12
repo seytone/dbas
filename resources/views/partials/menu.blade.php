@@ -26,7 +26,10 @@
 				</li>
 			@endcan
 			@can('manage_quotations')
-				<li class="nav-item nav-dropdown">
+				{{-- Explicit `open` class when any admin_docs route is active so
+				     the dropdown stays expanded on /create, /show, /edit etc.,
+				     not just on the exact list URL. --}}
+				<li class="nav-item nav-dropdown {{ request()->is('admin/admin-docs/*') ? 'open' : '' }}">
 					<a class="nav-link nav-dropdown-toggle" href="#">
 						<i class="fa-fw fas fa-folder-open nav-icon"></i>
 						Administrativo
