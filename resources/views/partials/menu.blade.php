@@ -42,27 +42,27 @@
 							</a>
 						</li>
 						<li class="nav-item">
-							<a href="{{ route('admin.admin_docs.index', 'delivery_order') }}" class="nav-link {{ request()->is('admin/admin-docs/delivery_order*') ? 'active' : '' }}">
-								<i class="fa-fw fas fa-truck nav-icon ml-4"></i>
-								Orden de Entrega
-							</a>
-						</li>
-						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'credit_note') }}" class="nav-link {{ request()->is('admin/admin-docs/credit_note*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-undo nav-icon ml-4"></i>
 								Nota de Crédito
 							</a>
 						</li>
 						<li class="nav-item">
-							<a href="{{ route('admin.admin_docs.index', 'terms') }}" class="nav-link {{ request()->is('admin/admin-docs/terms*') ? 'active' : '' }}">
-								<i class="fa-fw fas fa-file-signature nav-icon ml-4"></i>
-								Términos
+							<a href="{{ route('admin.admin_docs.index', 'delivery_order') }}" class="nav-link {{ request()->is('admin/admin-docs/delivery_order*') ? 'active' : '' }}">
+								<i class="fa-fw fas fa-truck nav-icon ml-4"></i>
+								Orden de Entrega
 							</a>
 						</li>
 						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'exit_order') }}" class="nav-link {{ request()->is('admin/admin-docs/exit_order*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-sign-out-alt nav-icon ml-4"></i>
 								Orden de Salida
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ route('admin.admin_docs.index', 'terms') }}" class="nav-link {{ request()->is('admin/admin-docs/terms*') ? 'active' : '' }}">
+								<i class="fa-fw fas fa-file-signature nav-icon ml-4"></i>
+								Formato de T&C
 							</a>
 						</li>
 					</ul>
