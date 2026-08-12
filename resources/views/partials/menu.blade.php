@@ -35,7 +35,7 @@
 						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'invoice') }}" class="nav-link {{ request()->is('admin/admin-docs/invoice*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-file-invoice nav-icon ml-4"></i>
-								Nota de Entrega / Invoice
+								Nota de Entrega
 							</a>
 						</li>
 						<li class="nav-item">
@@ -53,7 +53,7 @@
 						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'terms') }}" class="nav-link {{ request()->is('admin/admin-docs/terms*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-file-signature nav-icon ml-4"></i>
-								Términos y Condiciones
+								Términos
 							</a>
 						</li>
 						<li class="nav-item">
