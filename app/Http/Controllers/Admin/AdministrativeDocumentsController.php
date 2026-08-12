@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdministrativeDocument;
 use App\Models\Category;
 use App\Models\Client;
+use App\Models\Seller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -117,9 +118,11 @@ class AdministrativeDocumentsController extends Controller
             'clients' => Client::orderBy('title')->get(),
         ];
 
-        if ($type !== AdministrativeDocument::TYPE_TERMS) {
-            // Categorías con productos para el selector de productos, mismo
-            // patrón que el módulo de cotizaciones.
+        // Categorías con productos para el selector de productos (mismo
+        // patrón que cotizaciones). Nota de Crédito NO usa selector libre
+        // porque sus items se derivan del Invoice padre, y Términos no
+        // maneja items.
+        if (! in_array($type, [AdministrativeDocument::TYPE_TERMS, AdministrativeDocument::TYPE_CREDIT_NOTE])) {
             $shared['categories'] = Category::with('products')->get();
         }
 
@@ -127,6 +130,12 @@ class AdministrativeDocumentsController extends Controller
             $shared['invoices'] = AdministrativeDocument::where('type', AdministrativeDocument::TYPE_INVOICE)
                 ->orderByDesc('number')
                 ->get();
+        }
+
+        if ($type === AdministrativeDocument::TYPE_EXIT_ORDER) {
+            $shared['sellers'] = Seller::with('user')->get()
+                ->filter(fn ($s) => $s->user)
+                ->values();
         }
 
         return $shared;

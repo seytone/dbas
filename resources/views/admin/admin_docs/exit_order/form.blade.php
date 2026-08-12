@@ -39,7 +39,18 @@
 			@include('admin.admin_docs._client_picker')
 			<div class="row">
 				<div class="col-md-6"><div class="form-group"><label>Cliente *</label><input type="text" name="client_name" class="form-control" value="{{ old('client_name') }}" required maxlength="255"></div></div>
-				<div class="col-md-6"><div class="form-group"><label>Vendedor Responsable *</label><input type="text" name="seller_name" class="form-control" value="{{ old('seller_name') }}" required maxlength="150"></div></div>
+				<div class="col-md-6">
+					<div class="form-group">
+						<label>Vendedor Responsable *</label>
+						<select name="seller_name" class="form-control" required>
+							<option value="">Selecciona el vendedor…</option>
+							@foreach($sellers as $s)
+								@php $sellerFullname = $s->user->getFullname(); @endphp
+								<option value="{{ $sellerFullname }}" {{ old('seller_name') === $sellerFullname ? 'selected' : '' }}>{{ $sellerFullname }}</option>
+							@endforeach
+						</select>
+					</div>
+				</div>
 				<div class="col-md-6"><div class="form-group"><label>Documento del cliente</label><input type="text" name="client_document" class="form-control" value="{{ old('client_document') }}" maxlength="50"></div></div>
 				<div class="col-md-6"><div class="form-group"><label>Teléfono del cliente</label><input type="text" name="client_phone" class="form-control" value="{{ old('client_phone') }}" maxlength="50"></div></div>
 				<div class="col-md-12"><div class="form-group"><label>Dirección</label><input type="text" name="client_address" class="form-control" value="{{ old('client_address') }}" maxlength="500"></div></div>
