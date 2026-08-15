@@ -42,13 +42,18 @@
 				<div class="col-md-6">
 					<div class="form-group">
 						<label>Vendedor Responsable *</label>
-						<select name="seller_name" class="form-control" required>
+						<select name="seller_name" class="selectize-seller form-control" required>
 							<option value="">Selecciona el vendedor…</option>
 							@foreach($sellers as $s)
 								@php $sellerFullname = $s->user->getFullname(); @endphp
 								<option value="{{ $sellerFullname }}" {{ old('seller_name') === $sellerFullname ? 'selected' : '' }}>{{ $sellerFullname }}</option>
 							@endforeach
+							@if(old('seller_name') && !$sellers->pluck('user.name')->contains(old('seller_name')))
+								{{-- Persistir el valor libre en caso de error de validación. --}}
+								<option value="{{ old('seller_name') }}" selected>{{ old('seller_name') }}</option>
+							@endif
 						</select>
+						<small class="text-muted">Elige un vendedor registrado o escribe el nombre y presiona Enter para agregarlo como texto libre.</small>
 					</div>
 				</div>
 				<div class="col-md-6"><div class="form-group"><label>Documento del cliente</label><input type="text" name="client_document" class="form-control" value="{{ old('client_document') }}" maxlength="50"></div></div>
@@ -91,14 +96,36 @@
 		$('#items-body').append(
 			'<tr>' +
 			'<td><input type="number" step="0.01" min="0" name="items[' + i + '][quantity]" class="form-control form-control-sm text-right" value="' + (data.quantity != null ? data.quantity : 1) + '" required></td>' +
-			'<td><input type="text" name="items[' + i + '][sku]" class="form-control form-control-sm" value="' + (data.sku || '') + '" maxlength="100"></td>' +
-			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm" rows="2" required>' + (data.description || '') + '</textarea></td>' +
+			'<td><input type="text" name="items[' + i + '][sku]" class="form-control form-control-sm code-lookup" value="' + (data.sku || '') + '" maxlength="100" placeholder="SKU..."></td>' +
+			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm desc" rows="2" required>' + (data.description || '') + '</textarea></td>' +
 			'<td><button type="button" class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></button></td>' +
 			'</tr>'
 		);
 	}
 
+	// Al salir del campo SKU, si coincide con un producto registrado,
+	// autollenar la descripción si está vacía.
+	function onCodeLookup() {
+		var $input = $(this);
+		var product = window.__lookupProductBySku($input.val());
+		if (!product) return;
+		var $desc = $input.closest('tr').find('.desc');
+		if (!$desc.val().trim()) {
+			$desc.val(product.title + (product.description ? ' - ' + product.description : ''));
+		}
+	}
+
 	$(function() {
+		// Vendedor: dropdown que también acepta un nombre libre (ej. si quien
+		// hace la venta no está registrado como Seller). El primer <option>
+		// vacío es el placeholder — no debe aparecer en la lista desplegable.
+		$('.selectize-seller').selectize({
+			create: true,
+			persist: false,
+			sortField: 'text',
+			createOnBlur: true,
+		});
+
 		$('.selectize-products').selectize({
 			persist: false,
 			sortField: 'text',
@@ -116,6 +143,7 @@
 		});
 
 		$('#btn-add-free').on('click', function() { addRow(); });
+		$('#items-body').on('blur change', '.code-lookup', onCodeLookup);
 		$('#items-body').on('click', '.btn-remove', function() { $(this).closest('tr').remove(); });
 
 		@if(is_array(old('items')))

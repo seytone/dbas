@@ -20,7 +20,7 @@
 					Aún no hay documentos de este tipo. Crea el primero con el botón "Nuevo".
 				</p>
 			@else
-				<table class="table table-hover table-sm">
+				<table class="table table-hover table-sm datatable datatable-admin-docs">
 					<thead>
 						<tr>
 							<th>Número</th>
@@ -58,8 +58,20 @@
 						@endforeach
 					</tbody>
 				</table>
-				{{ $documents->links() }}
 			@endif
 		</div>
 	</div>
+@endsection
+
+@section('scripts')
+<script>
+$(function() {
+	// DataTable init (search box + sortable columns + pagination). The
+	// last column has HTML action buttons and shouldn't sort/search.
+	$('.datatable-admin-docs').DataTable({
+		order: [[4, 'desc']],
+		columnDefs: [{ orderable: false, searchable: false, targets: -1 }],
+	});
+});
+</script>
 @endsection

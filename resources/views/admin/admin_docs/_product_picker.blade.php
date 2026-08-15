@@ -1,10 +1,7 @@
-{{-- Product picker shared by the 4 item-based admin_docs forms
-     (invoice, credit_note, delivery_order, exit_order). Renders the
-     Selectize search + "Producto Libre" button. Each form is expected to
-     define two JS callbacks the picker will invoke:
-        addProductRow(data)  -> data = {id, code, title, price, description}
-        addFreeRow()
-     These handlers own the specific row markup for their format. --}}
+{{-- Product picker shared by the item-based admin_docs forms
+     (invoice, delivery_order, exit_order). Renders the Selectize search
+     + "Producto Libre" button. Also publishes window.__productsBySku so
+     each form can wire up an SKU lookup on the row's code input. --}}
 
 <div class="row mb-3">
 	<div class="col-md-8">
@@ -29,3 +26,31 @@
 		</button>
 	</div>
 </div>
+
+<script>
+{{-- Look-up table so the form can resolve a SKU typed in the row's code
+     column to the full product record without hitting the server. Keys
+     are uppercased/trimmed for case-insensitive matches. Pure vanilla
+     JS so it can run at parse time (before jQuery is loaded). --}}
+@php
+	$productsBySku = [];
+	foreach ($categories as $category) {
+		foreach ($category->products as $p) {
+			if (!empty($p->code)) {
+				$productsBySku[mb_strtoupper(trim($p->code))] = [
+					'id'          => $p->id,
+					'code'        => $p->code,
+					'title'       => $p->title,
+					'description' => $p->description,
+					'price'       => $p->price,
+				];
+			}
+		}
+	}
+@endphp
+window.__productsBySku = @json($productsBySku);
+window.__lookupProductBySku = function(sku) {
+	if (!sku) return null;
+	return window.__productsBySku[String(sku).trim().toUpperCase()] || null;
+};
+</script>

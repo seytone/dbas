@@ -39,9 +39,11 @@ class AdministrativeDocumentsController extends Controller
     {
         $this->assertType($type);
 
+        // DataTables handles pagination/search client-side (mismo patrón que
+        // el listado de cotizaciones y ventas), así que traemos todo.
         $documents = AdministrativeDocument::where('type', $type)
             ->orderByDesc('created_at')
-            ->paginate(30);
+            ->get();
 
         return view('admin.admin_docs.index', [
             'type' => $type,

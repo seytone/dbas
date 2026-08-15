@@ -19,7 +19,7 @@
 		.items { width: 100%; border-collapse: collapse; margin-top: 10px; }
 		.items th, .items td { border: 1px solid #333; padding: 8px 6px; font-size: 11px; vertical-align: top; }
 		.items th { background: #f5f5f5; text-align: center; }
-		.observations { border: 1px solid #333; margin-top: 15px; padding: 10px; min-height: 60px; font-size: 11px; }
+		.observations { border: 1px solid #333; margin-top: 15px; padding: 10px; min-height: 170px; font-size: 11px; }
 		.observations .obs-title { text-align: center; font-weight: bold; padding-bottom: 8px; border-bottom: 1px solid #ccc; margin-bottom: 8px; }
 		.signatures { margin-top: 60px; }
 		.signatures p { margin: 0; }

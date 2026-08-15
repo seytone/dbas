@@ -58,13 +58,13 @@
 					</div>
 					<div class="col-md-6">
 						<div class="form-group">
-							<label>Dirección (Bill To)</label>
+							<label>Dirección de entrega (Ship To)</label>
 							<input type="text" name="client_address" class="form-control" value="{{ old('client_address') }}" maxlength="500">
 						</div>
 					</div>
 					<div class="col-md-12">
 						<div class="form-group">
-							<label>Ship To — Dirección de entrega (opcional)</label>
+							<label>Ship To alterno <small class="text-muted">(opcional — solo si la entrega va a una dirección distinta a la de arriba)</small></label>
 							<textarea name="ship_address" class="form-control" rows="2" maxlength="500">{{ old('ship_address') }}</textarea>
 						</div>
 					</div>
@@ -106,14 +106,33 @@
 		data = data || {};
 		var i = idx++;
 		var row = '<tr>' +
-			'<td><input type="text" name="items[' + i + '][code]" class="form-control form-control-sm" value="' + (data.code || '') + '" maxlength="100"></td>' +
-			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm" rows="2" required>' + (data.description || '') + '</textarea></td>' +
+			'<td><input type="text" name="items[' + i + '][code]" class="form-control form-control-sm code-lookup" value="' + (data.code || '') + '" maxlength="100" placeholder="SKU..."></td>' +
+			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm desc" rows="2" required>' + (data.description || '') + '</textarea></td>' +
 			'<td><input type="number" step="0.01" min="0" name="items[' + i + '][quantity]" class="form-control form-control-sm text-right qty" value="' + (data.quantity != null ? data.quantity : 1) + '" required></td>' +
 			'<td><input type="number" step="0.01" name="items[' + i + '][price]" class="form-control form-control-sm text-right price" value="' + (data.price != null ? data.price : 0) + '" required></td>' +
 			'<td class="text-right amount align-middle">0,00</td>' +
 			'<td><button type="button" class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></button></td>' +
 			'</tr>';
 		$('#items-body').append(row);
+		recalc();
+	}
+
+	// Al salir del campo Código, si coincide con el SKU de un producto
+	// registrado autollenar descripción y precio (solo si están vacíos o
+	// en su default para no pisar edits manuales).
+	function onCodeLookup() {
+		var $input = $(this);
+		var product = window.__lookupProductBySku($input.val());
+		if (!product) return;
+		var $row = $input.closest('tr');
+		var $desc = $row.find('.desc');
+		var $price = $row.find('.price');
+		if (!$desc.val().trim()) {
+			$desc.val(product.title + (product.description ? ' - ' + product.description : ''));
+		}
+		if (parseFloat($price.val()) === 0 || !$price.val()) {
+			$price.val(product.price);
+		}
 		recalc();
 	}
 
@@ -149,6 +168,7 @@
 
 		$('#btn-add-free').on('click', function() { addRow(); });
 		$('#items-body').on('input', '.qty, .price', recalc);
+		$('#items-body').on('blur change', '.code-lookup', onCodeLookup);
 		$('#items-body').on('click', '.btn-remove', function() { $(this).closest('tr').remove(); recalc(); });
 
 		@if(is_array(old('items')))

@@ -50,14 +50,17 @@
 					<div>{{ $document->data['client_name'] ?? '' }}</div>
 					@if(!empty($document->data['client_document']))<div>Rif: {{ $document->data['client_document'] }}</div>@endif
 					@if(!empty($document->data['client_phone']))<div>Número de teléfono: {{ $document->data['client_phone'] }}</div>@endif
-					@if(!empty($document->data['client_address']))<div>{{ $document->data['client_address'] }}</div>@endif
 				</div>
 			</td>
 			<td width="50%">
 				<div class="box">
 					<div class="label">Ship To</div>
-					@if(!empty($document->data['ship_address']))
-						<div><b>Dirección:</b> {{ $document->data['ship_address'] }}</div>
+					{{-- La dirección del cliente cae acá (donde se entrega). Si
+					     el usuario capturó un Ship To específico distinto, ese
+					     se muestra en su lugar. --}}
+					@php $shipTo = $document->data['ship_address'] ?? $document->data['client_address'] ?? null; @endphp
+					@if($shipTo)
+						<div><b>Dirección:</b> {{ $shipTo }}</div>
 					@else
 						<div>&nbsp;</div>
 					@endif

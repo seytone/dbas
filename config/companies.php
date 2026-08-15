@@ -30,11 +30,12 @@ return [
         'label'        => 'United States (Distribuidora Bit Corp)',
         'name'         => 'DISTRIBUIDORA BIT CORP',
         // TODO: Reemplazar con el EIN real cuando el cliente lo proporcione.
-        'tax_id'       => 'EIN-PENDIENTE',
+        // Mientras esté en null, la línea no se pinta en el PDF.
+        'tax_id'       => null,
         'tax_id_label' => 'EIN',
         'address'      => '230 NW 109TH AVE APT 206 MIAMI FL 33172 - 5255',
         // TODO: Reemplazar con el teléfono real cuando el cliente lo proporcione.
-        'phones'       => 'TELÉFONO-PENDIENTE',
+        'phones'       => null,
     ],
 
 ];

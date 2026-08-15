@@ -160,9 +160,13 @@
 	@php $co = config('companies.' . ($quotation->company ?? 've')); @endphp
 	<div class="header">
 		<h2>{{ $co['name'] }}</h2>
-		<p><b>{{ $co['tax_id_label'] }}:</b> {{ $co['tax_id'] }}</p>
+		@if(!empty($co['tax_id']))
+			<p><b>{{ $co['tax_id_label'] }}:</b> {{ $co['tax_id'] }}</p>
+		@endif
 		<p>Dirección{{ $quotation->company === 'us' ? '' : ' Fiscal' }}: {{ $co['address'] }}</p>
-		<p>Teléfonos: {{ $co['phones'] }}</p>
+		@if(!empty($co['phones']))
+			<p>Teléfonos: {{ $co['phones'] }}</p>
+		@endif
 	</div>
 
 	{{-- CLIENT INFO + PRESUPUESTO --}}
