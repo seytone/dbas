@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AdministrativeDocument;
 use App\Models\Category;
 use App\Models\Client;
+use App\Models\Quotation;
 use App\Models\Seller;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -138,6 +139,18 @@ class AdministrativeDocumentsController extends Controller
             $shared['sellers'] = Seller::with('user')->get()
                 ->filter(fn ($s) => $s->user)
                 ->values();
+        }
+
+        if ($type === AdministrativeDocument::TYPE_INVOICE) {
+            // Cotizaciones que se pueden importar como base para un Invoice.
+            // Se excluyen "draft" y "rejected" porque un Invoice representa
+            // una venta ya confirmada. Trae los items ordenados como se
+            // guardaron (sort_order asc, patrón del hasMany del modelo).
+            $shared['quotations'] = Quotation::with('items')
+                ->whereIn('status', ['sent', 'accepted'])
+                ->orderByDesc('emission_date')
+                ->orderByDesc('id')
+                ->get();
         }
 
         return $shared;

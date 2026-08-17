@@ -22,6 +22,42 @@
 
 		<div class="card mb-3">
 			<div class="card-body">
+				@if(!$editing && isset($quotations) && $quotations->count())
+					{{-- Importar desde una cotización previamente aprobada.
+					     Rellena cliente + items para no retipear la venta. --}}
+					<div class="form-group">
+						<label for="import_quotation"><b><i class="fa fa-file-import mr-1"></i> Importar desde cotización</b> <small class="text-muted">(opcional)</small></label>
+						<select id="import_quotation" class="selectize-import-quotation">
+							<option value="">Selecciona una cotización aprobada para autollenar…</option>
+							@foreach($quotations as $q)
+								@php
+									$qPayload = json_encode([
+										'client_name'     => $q->client_title    ?? '',
+										'client_document' => $q->client_document ?? '',
+										'client_phone'    => $q->client_phone    ?? '',
+										'client_address'  => $q->client_address  ?? '',
+										'items'           => $q->items->map(function ($it) {
+											$factor = 1 + (($it->discount_percent ?? 0) / 100);
+											return [
+												'code'        => $it->code,
+												// Descripción viene como HTML (contenteditable); la limpiamos para el textarea del invoice.
+												'description' => trim(preg_replace('/\s+/', ' ', strip_tags((string) $it->description))),
+												'quantity'    => (int) $it->quantity,
+												'price'       => round((float) $it->unit_price * $factor, 2),
+											];
+										})->values(),
+									]);
+								@endphp
+								<option value="{{ $q->id }}" data-payload='{{ $qPayload }}'>
+									{{ $q->formatted_number }} — {{ $q->client_title ?? '' }} ({{ $q->emission_date->format('d/m/Y') }} · {{ ucfirst($q->status) }})
+								</option>
+							@endforeach
+						</select>
+						<small class="text-muted">Al seleccionar, se reemplazan los datos del cliente y todos los items con los de la cotización. Podés editarlos después.</small>
+					</div>
+					<hr>
+				@endif
+
 				<div class="row">
 					<div class="col-md-6">
 						<div class="form-group">
@@ -148,7 +184,34 @@
 		$('#grand-total').text(grand.toFixed(2).replace('.', ','));
 	}
 
+	function importFromQuotation(payload) {
+		if (!payload) return;
+
+		// Reemplazar datos del cliente.
+		$('[name="client_name"]').val(payload.client_name || '');
+		$('[name="client_document"]').val(payload.client_document || '');
+		$('[name="client_phone"]').val(payload.client_phone || '');
+		$('[name="client_address"]').val(payload.client_address || '');
+
+		// Reemplazar items completos.
+		$('#items-body').empty();
+		idx = 0;
+		(payload.items || []).forEach(function(it) { addRow(it); });
+	}
+
 	$(function() {
+		// Selector de import (solo modo create).
+		$('.selectize-import-quotation').selectize({
+			persist: false,
+			sortField: 'text',
+			onChange: function(value) {
+				if (!value) return;
+				var payload = $(this.getOption(value)).data('payload');
+				importFromQuotation(payload);
+				this.clear(true);
+			},
+		});
+
 		$('.selectize-products').selectize({
 			persist: false,
 			sortField: 'text',
