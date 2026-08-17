@@ -48,7 +48,10 @@
 										})->values(),
 									]);
 								@endphp
-								<option value="{{ $q->id }}" data-payload='{{ $qPayload }}'>
+								{{-- Selectize parsea automáticamente el atributo data-data
+								     como JSON y lo expone en option.data — usar cualquier
+								     otro nombre pierde ese binding. --}}
+								<option value="{{ $q->id }}" data-data='{{ $qPayload }}'>
 									{{ $q->formatted_number }} — {{ $q->client_title ?? '' }} ({{ $q->emission_date->format('d/m/Y') }} · {{ ucfirst($q->status) }})
 								</option>
 							@endforeach
@@ -200,14 +203,16 @@
 	}
 
 	$(function() {
-		// Selector de import (solo modo create).
+		// Selector de import (solo modo create). Selectize parsea data-data
+		// como JSON y lo expone en options[value].data — mismo patrón que
+		// usa el picker de productos.
 		$('.selectize-import-quotation').selectize({
 			persist: false,
 			sortField: 'text',
 			onChange: function(value) {
 				if (!value) return;
-				var payload = $(this.getOption(value)).data('payload');
-				importFromQuotation(payload);
+				var payload = this.options[value] && this.options[value].data;
+				if (payload) importFromQuotation(payload);
 				this.clear(true);
 			},
 		});
