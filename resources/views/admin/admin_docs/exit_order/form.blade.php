@@ -42,7 +42,9 @@
 				<div class="col-md-6">
 					<div class="form-group">
 						<label>Vendedor Responsable *</label>
-						<select name="seller_name" class="selectize-seller form-control" required>
+						{{-- Sin form-control acá: Selectize crea su propio input estilizado
+						     y encimarlo produce doble caja + fondo transparente del dropdown. --}}
+						<select name="seller_name" class="selectize-seller" required>
 							<option value="">Selecciona el vendedor…</option>
 							@foreach($sellers as $s)
 								@php $sellerFullname = $s->user->getFullname(); @endphp
