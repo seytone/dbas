@@ -80,6 +80,7 @@
 		$('.selectize-products').selectize({
 			persist: false,
 			sortField: 'text',
+			searchField: ['text', 'code', 'title'],
 			onItemAdd: function(value) {
 				var product = this.options[value].data;
 				if (product) {

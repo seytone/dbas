@@ -220,6 +220,9 @@
 		$('.selectize-products').selectize({
 			persist: false,
 			sortField: 'text',
+			// Buscar por SKU además del texto visible (option.data viene
+			// de data-data que Selectize parsea como JSON).
+			searchField: ['text', 'code', 'title'],
 			onItemAdd: function(value) {
 				var product = this.options[value].data;
 				if (product) {

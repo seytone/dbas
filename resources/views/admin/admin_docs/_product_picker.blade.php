@@ -5,14 +5,14 @@
 
 <div class="row mb-3">
 	<div class="col-md-8">
-		<select id="product-selector" class="selectize-products" placeholder="Buscar producto por código o nombre...">
-			<option value="">Seleccione un producto para agregar...</option>
+		<select id="product-selector" class="selectize-products" placeholder="Buscar producto por SKU o nombre...">
+			<option value="">Buscar producto por SKU o nombre...</option>
 			@foreach ($categories as $category)
 				@if ($category->products->count() > 0)
 					<optgroup label="{{ mb_strtoupper($category->title) }}">
 						@foreach ($category->products as $product)
 							<option value="{{ $product->id }}" data-data='@json($product)'>
-								{{ $product->title }} ({{ $product->code }})
+								{{ $product->code }} — {{ $product->title }}
 							</option>
 						@endforeach
 					</optgroup>

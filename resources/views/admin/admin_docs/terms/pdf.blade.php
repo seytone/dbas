@@ -4,18 +4,19 @@
 	<meta charset="UTF-8">
 	<title>Términos y Condiciones {{ $document->formatted_number }}</title>
 	<style>
-		/* Tightened to fit the full document on a single letter page.
-		   Márgenes reducidos + font 9px + line-height 1.3. */
-		@page { size: letter portrait; margin: 0.45in 0.55in 0.4in 0.55in; }
-		body { font-family: 'DejaVu Sans', sans-serif; font-size: 9px; color: #333; margin: 0; padding: 0; line-height: 1.3; }
-		.header { border-bottom: 1.5px solid #333; padding-bottom: 5px; margin-bottom: 10px; }
-		.header h1 { font-size: 17px; margin: 0 0 2px 0; }
-		.header p { margin: 0; font-size: 8.5px; color: #555; }
-		.title { text-align: center; font-weight: bold; font-size: 12px; margin: 8px 0 8px 0; }
-		p.body { text-align: justify; margin: 0 0 6px 0; }
-		.signature { margin-top: 14px; }
-		.signature p { margin: 3px 0; }
-		.signature .line { border-bottom: 1px solid #333; display: inline-block; width: 180px; margin-left: 10px; }
+		/* Ajustado para ocupar buena parte de una letter page dejando
+		   un colchón para nombres/direcciones largas que estiran el
+		   texto una o dos líneas más. */
+		@page { size: letter portrait; margin: 0.55in 0.6in 0.5in 0.6in; }
+		body { font-family: 'DejaVu Sans', sans-serif; font-size: 10.5px; color: #333; margin: 0; padding: 0; line-height: 1.45; }
+		.header { border-bottom: 1.5px solid #333; padding-bottom: 6px; margin-bottom: 14px; }
+		.header h1 { font-size: 20px; margin: 0 0 3px 0; }
+		.header p { margin: 0; font-size: 10px; color: #555; }
+		.title { text-align: center; font-weight: bold; font-size: 14px; margin: 12px 0 12px 0; }
+		p.body { text-align: justify; margin: 0 0 8px 0; }
+		.signature { margin-top: 24px; }
+		.signature p { margin: 5px 0; }
+		.signature .line { border-bottom: 1px solid #333; display: inline-block; width: 200px; margin-left: 10px; }
 	</style>
 </head>
 <body>
