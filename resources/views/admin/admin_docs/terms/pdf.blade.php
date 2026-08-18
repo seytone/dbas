@@ -8,7 +8,7 @@
 		   un colchón para nombres/direcciones largas que estiran el
 		   texto una o dos líneas más. */
 		@page { size: letter portrait; margin: 0.55in 0.6in 0.5in 0.6in; }
-		body { font-family: 'DejaVu Sans', sans-serif; font-size: 11.5px; color: #333; margin: 0; padding: 0; line-height: 1.45; }
+		body { font-family: 'DejaVu Sans', sans-serif; font-size: 10.5px; color: #333; margin: 0; padding: 0; line-height: 1.45; }
 		.header { border-bottom: 1.5px solid #333; padding-bottom: 6px; margin-bottom: 14px; }
 		.header h1 { font-size: 20px; margin: 0 0 3px 0; }
 		.header p { margin: 0; font-size: 10px; color: #555; }
