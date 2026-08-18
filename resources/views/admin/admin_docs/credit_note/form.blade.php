@@ -110,7 +110,8 @@
 			'<td><input type="text" name="items[' + i + '][code]" class="form-control form-control-sm" value="' + (data.code || '') + '" maxlength="100"></td>' +
 			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm" rows="2" required>' + (data.description || '') + '</textarea></td>' +
 			'<td><input type="number" step="0.01" min="0" name="items[' + i + '][quantity]" class="form-control form-control-sm text-right qty" value="' + (data.quantity != null ? data.quantity : 1) + '" required></td>' +
-			'<td><input type="number" step="0.01" name="items[' + i + '][price]" class="form-control form-control-sm text-right price" value="' + (data.price != null ? data.price : 0) + '" required></td>' +
+			// step="any" acepta el precio con más decimales que llega desde el Invoice padre.
+			'<td><input type="number" step="any" name="items[' + i + '][price]" class="form-control form-control-sm text-right price" value="' + (data.price != null ? data.price : 0) + '" required></td>' +
 			'<td class="text-right amount align-middle">0,00</td>' +
 			'<td><button type="button" class="btn btn-sm btn-danger btn-remove" title="Quitar esta línea de la nota de crédito"><i class="fa fa-times"></i></button></td>' +
 			'</tr>'

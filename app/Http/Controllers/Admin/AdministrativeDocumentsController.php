@@ -141,11 +141,10 @@ class AdministrativeDocumentsController extends Controller
                 ->values();
         }
 
-        if ($type === AdministrativeDocument::TYPE_INVOICE) {
-            // Cotizaciones que se pueden importar como base para un Invoice.
-            // Se excluyen "draft" y "rejected" porque un Invoice representa
-            // una venta ya confirmada. Trae los items ordenados como se
-            // guardaron (sort_order asc, patrón del hasMany del modelo).
+        // Cotizaciones importables. Aplica a Invoice y Orden de Entrega —
+        // ambos parten típicamente de una venta cotizada. Se excluyen
+        // 'draft' y 'rejected' porque no representan ventas confirmadas.
+        if (in_array($type, [AdministrativeDocument::TYPE_INVOICE, AdministrativeDocument::TYPE_DELIVERY_ORDER])) {
             $shared['quotations'] = Quotation::with('items')
                 ->whereIn('status', ['sent', 'accepted'])
                 ->orderByDesc('emission_date')

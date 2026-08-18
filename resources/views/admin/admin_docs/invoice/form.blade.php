@@ -37,13 +37,19 @@
 										'client_phone'    => $q->client_phone    ?? '',
 										'client_address'  => $q->client_address  ?? '',
 										'items'           => $q->items->map(function ($it) {
-											$factor = 1 + (($it->discount_percent ?? 0) / 100);
+											// Se prefiere derivar el precio unitario del total de línea guardado
+											// en la cotización (total / cantidad) en lugar de unit_price*factor
+											// redondeado, porque unit_price puede tener más de 2 decimales
+											// internos. Así qty × price en la Nota de Entrega coincide con el
+											// total de la cotización sin discrepancias por redondeo.
+											$qty = (int) $it->quantity;
+											$price = $qty > 0 ? round((float) $it->total / $qty, 4) : 0;
 											return [
 												'code'        => $it->code,
 												// Descripción viene como HTML (contenteditable); la limpiamos para el textarea del invoice.
 												'description' => trim(preg_replace('/\s+/', ' ', strip_tags((string) $it->description))),
-												'quantity'    => (int) $it->quantity,
-												'price'       => round((float) $it->unit_price * $factor, 2),
+												'quantity'    => $qty,
+												'price'       => $price,
 											];
 										})->values(),
 									]);
@@ -148,7 +154,9 @@
 			'<td><input type="text" name="items[' + i + '][code]" class="form-control form-control-sm code-lookup" value="' + (data.code || '') + '" maxlength="100" placeholder="SKU..."></td>' +
 			'<td><textarea name="items[' + i + '][description]" class="form-control form-control-sm desc" rows="2" required>' + (data.description || '') + '</textarea></td>' +
 			'<td><input type="number" step="0.01" min="0" name="items[' + i + '][quantity]" class="form-control form-control-sm text-right qty" value="' + (data.quantity != null ? data.quantity : 1) + '" required></td>' +
-			'<td><input type="number" step="0.01" name="items[' + i + '][price]" class="form-control form-control-sm text-right price" value="' + (data.price != null ? data.price : 0) + '" required></td>' +
+			// step="any" acepta el precio con más decimales que llega desde la cotización
+			// (ej. 138.015) para que el total (qty × price) coincida al centavo.
+			'<td><input type="number" step="any" name="items[' + i + '][price]" class="form-control form-control-sm text-right price" value="' + (data.price != null ? data.price : 0) + '" required></td>' +
 			'<td class="text-right amount align-middle">0,00</td>' +
 			'<td><button type="button" class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></button></td>' +
 			'</tr>';
