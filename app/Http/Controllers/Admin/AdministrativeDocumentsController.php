@@ -152,6 +152,15 @@ class AdministrativeDocumentsController extends Controller
                 ->get();
         }
 
+        // Envíos anteriores para copiar como plantilla — clientes frecuentes
+        // se identifican por el recipient. No es tabla de "templates" aparte
+        // sino re-uso del histórico.
+        if ($type === AdministrativeDocument::TYPE_SHIPPING) {
+            $shared['previous_shippings'] = AdministrativeDocument::where('type', AdministrativeDocument::TYPE_SHIPPING)
+                ->orderByDesc('created_at')
+                ->get();
+        }
+
         return $shared;
     }
 
@@ -297,6 +306,16 @@ class AdministrativeDocumentsController extends Controller
                     'items.*.sku' => 'nullable|string|max:100',
                     'items.*.description' => 'required|string|max:2000',
                     'observations' => 'nullable|string|max:1000',
+                ];
+
+            case AdministrativeDocument::TYPE_SHIPPING:
+                // Guía de envío — no lleva items. El cliente es el recipient;
+                // sender es la empresa que despacha (defaults del config).
+                return $base + [
+                    'sender_name'     => 'required|string|max:255',
+                    'sender_document' => 'nullable|string|max:50',
+                    'sender_address'  => 'required|string|max:500',
+                    'sender_phones'   => 'nullable|string|max:150',
                 ];
         }
 

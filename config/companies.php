@@ -24,6 +24,14 @@ return [
         'tax_id_label' => 'RIF',
         'address'      => 'Calle Industrial el Coliseo, C.C Coliseo, Nivel 4, Local 160, Sector Potrerito Medio Guadalupe',
         'phones'       => '0212.415.32.82 / 0424.182.64.08',
+        // Datos de despacho (guías de envío nacionales). Distintos a la dirección
+        // fiscal porque las guías salen desde la oficina en San Antonio de los Altos.
+        'dispatch' => [
+            'name'    => 'DISTRIBUIDORA BIT',
+            'tax_id'  => 'J-402111843',
+            'address' => 'SAN ANTONIO DE LOS ALTOS',
+            'phones'  => '0414-1238023 / 0424-2337174',
+        ],
     ],
 
     'us' => [

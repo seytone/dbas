@@ -60,6 +60,12 @@
 							</a>
 						</li>
 						<li class="nav-item">
+							<a href="{{ route('admin.admin_docs.index', 'shipping') }}" class="nav-link {{ request()->is('admin/admin-docs/shipping*') ? 'active' : '' }}">
+								<i class="fa-fw fas fa-shipping-fast nav-icon ml-4"></i>
+								Guía de Envío
+							</a>
+						</li>
+						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'terms') }}" class="nav-link {{ request()->is('admin/admin-docs/terms*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-file-signature nav-icon ml-4"></i>
 								Formato de T&C
