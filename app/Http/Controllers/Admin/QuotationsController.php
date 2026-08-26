@@ -369,10 +369,13 @@ class QuotationsController extends Controller
 
 		// Bandera para que create.blade detecte "vengo de duplicar" y muestre
 		// el prompt de "¿mantener la tasa anterior?" en vez de refrescar
-		// silenciosamente. Se consume en el siguiente request.
-		session()->flash('from_duplicate', true);
-
-		return redirect()->route('admin.quotations.create')->with('message', 'Cotización duplicada. Revísala y guárdala para confirmarla.');
+		// silenciosamente. Se flashea vía ->with() encadenado, que es la
+		// forma de Laravel más robusta (flashea junto con el mensaje sin
+		// riesgo de ser sobreescrito).
+		return redirect()
+			->route('admin.quotations.create')
+			->with('message', 'Cotización duplicada. Revísala y guárdala para confirmarla.')
+			->with('from_duplicate', true);
 	}
 
 	/**

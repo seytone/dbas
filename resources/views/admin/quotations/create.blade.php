@@ -681,7 +681,12 @@ $(function() {
 	//   tasas de la original). Se pregunta si mantener o actualizar.
 	// - Botón "Actualizar" del widget: cuando estamos frozen, dispara el
 	//   mismo prompt en vez de refrescar en silencio.
-	var needsRatePrompt = @json(session('from_duplicate') ?: false);
+	//
+	// Detectamos "vengo de duplicar" por presencia de old('binance_rate')
+	// o old('bcv_rate') — más robusto que confiar en un session flash
+	// aparte, y cubre también el caso de validation error preservando
+	// las tasas flasheadas.
+	var needsRatePrompt = @json(session('from_duplicate') || old('binance_rate') !== null || old('bcv_rate') !== null);
 	var ratesFrozen = needsRatePrompt;
 	var autoRefreshTimer = null;
 
