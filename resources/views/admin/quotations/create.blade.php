@@ -674,10 +674,66 @@ $(function() {
 		$('#btn-save-rates').removeClass('d-none');
 	});
 
-	// Auto-refresh: fetch once shortly after page load, then every 15 minutes
-	// while the form stays open, so the cotización always reflects current rates.
-	setTimeout(function() { fetchAndApplyRates(true); }, 1500);
-	setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
+	// Auto-refresh de tasas.
+	// - Cotización nueva: refresca automáticamente al abrir y cada 15 min.
+	// - Cotización duplicada (viene con tasas snapshot de la original): NO
+	//   refresca en silencio. Al abrir, compara y si difieren, pregunta al
+	//   usuario si mantiene la tasa vieja o la actualiza al día. Si mantiene
+	//   → auto-refresh desactivado; si actualiza → interval habilitado.
+	var needsRatePrompt = @json(session('from_duplicate') ?: false);
+
+	function enableRateAutoRefresh() {
+		setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
+	}
+
+	function promptRateDecision() {
+		var savedBinance = parseFloat($('#rate_binance_input').val()) || 0;
+		var savedBcv = parseFloat($('#rate_bcv_input').val()) || 0;
+		$.get("{{ route('admin.quotations.fetch_rates') }}").done(function(res) {
+			var serverBinance = parseFloat(res.binance) || 0;
+			var serverBcv = parseFloat(res.bcv) || 0;
+			var same = Math.abs(savedBinance - serverBinance) < 0.001 &&
+			           Math.abs(savedBcv - serverBcv) < 0.001;
+			if (same) {
+				// No cambió nada — habilitamos auto-refresh silenciosamente.
+				enableRateAutoRefresh();
+				return;
+			}
+			Swal.fire({
+				title: '¿Deseas mantener la tasa anterior?',
+				html: 'La cotización duplicada trae estas tasas:<br>' +
+				      '<b>BCV:</b> ' + savedBcv.toFixed(4) + ' &nbsp; <b>Binance:</b> ' + savedBinance.toFixed(4) + '<br><br>' +
+				      'Tasas del día:<br>' +
+				      '<b>BCV:</b> ' + serverBcv.toFixed(4) + ' &nbsp; <b>Binance:</b> ' + serverBinance.toFixed(4),
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonText: 'Sí, mantener',
+				cancelButtonText: 'No, actualizar',
+				reverseButtons: true,
+				allowOutsideClick: false,
+			}).then(function(result) {
+				if (result.isConfirmed) {
+					// Mantener: los inputs ya tienen las tasas viejas. Sin auto-refresh.
+					return;
+				}
+				// Actualizar: aplicar tasas del día + habilitar auto-refresh.
+				$('#rate_binance_input').val(serverBinance);
+				$('#rate_bcv_input').val(serverBcv);
+				$('#btn-save-rates').addClass('d-none');
+				currentRates.binance = serverBinance;
+				currentRates.bcv = serverBcv;
+				recalcAll();
+				enableRateAutoRefresh();
+			});
+		});
+	}
+
+	if (needsRatePrompt) {
+		setTimeout(promptRateDecision, 800);
+	} else {
+		setTimeout(function() { fetchAndApplyRates(true); }, 1500);
+		enableRateAutoRefresh();
+	}
 
 	// Save manually-entered rates
 	$('#btn-save-rates').on('click', function() {

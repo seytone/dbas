@@ -671,11 +671,53 @@ $(function() {
 		$('#btn-save-rates').removeClass('d-none');
 	});
 
-	// Auto-refresh: every 15 minutes. Only on editable quotations — locked ones
-	// (accepted) keep their snapshot rates untouched so stored prices don't drift.
-	if (!quotationLocked) {
-		setTimeout(function() { fetchAndApplyRates(true); }, 1500);
+	// Auto-refresh de tasas.
+	// Al editar, NUNCA se refresca en silencio: se pregunta primero al usuario
+	// si mantiene la tasa snapshot de la cotización o la actualiza al día.
+	// Solo aplica cuando la cotización no está locked (accepted).
+	function enableRateAutoRefresh() {
 		setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
+	}
+
+	function promptRateDecision() {
+		var savedBinance = parseFloat($('#rate_binance_input').val()) || 0;
+		var savedBcv = parseFloat($('#rate_bcv_input').val()) || 0;
+		$.get("{{ route('admin.quotations.fetch_rates') }}").done(function(res) {
+			var serverBinance = parseFloat(res.binance) || 0;
+			var serverBcv = parseFloat(res.bcv) || 0;
+			var same = Math.abs(savedBinance - serverBinance) < 0.001 &&
+			           Math.abs(savedBcv - serverBcv) < 0.001;
+			if (same) {
+				enableRateAutoRefresh();
+				return;
+			}
+			Swal.fire({
+				title: '¿Deseas mantener la tasa anterior?',
+				html: 'La cotización tiene guardadas estas tasas:<br>' +
+				      '<b>BCV:</b> ' + savedBcv.toFixed(4) + ' &nbsp; <b>Binance:</b> ' + savedBinance.toFixed(4) + '<br><br>' +
+				      'Tasas del día:<br>' +
+				      '<b>BCV:</b> ' + serverBcv.toFixed(4) + ' &nbsp; <b>Binance:</b> ' + serverBinance.toFixed(4),
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonText: 'Sí, mantener',
+				cancelButtonText: 'No, actualizar',
+				reverseButtons: true,
+				allowOutsideClick: false,
+			}).then(function(result) {
+				if (result.isConfirmed) return;
+				$('#rate_binance_input').val(serverBinance);
+				$('#rate_bcv_input').val(serverBcv);
+				$('#btn-save-rates').addClass('d-none');
+				currentRates.binance = serverBinance;
+				currentRates.bcv = serverBcv;
+				recalcAll();
+				enableRateAutoRefresh();
+			});
+		});
+	}
+
+	if (!quotationLocked) {
+		setTimeout(promptRateDecision, 800);
 	}
 
 	$('#btn-save-rates').on('click', function() {

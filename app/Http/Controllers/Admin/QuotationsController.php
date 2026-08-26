@@ -358,6 +358,11 @@ class QuotationsController extends Controller
 			'items' => $items,
 		]);
 
+		// Bandera para que create.blade detecte "vengo de duplicar" y muestre
+		// el prompt de "¿mantener la tasa anterior?" en vez de refrescar
+		// silenciosamente. Se consume en el siguiente request.
+		session()->flash('from_duplicate', true);
+
 		return redirect()->route('admin.quotations.create')->with('message', 'Cotización duplicada. Revísala y guárdala para confirmarla.');
 	}
 
