@@ -722,6 +722,9 @@ $(function() {
 				enterLiveState();
 				return;
 			}
+			// Congelar mientras el usuario decide (así el widget refleja
+			// las tasas de la cotización, no las del día).
+			enterFrozenState();
 			Swal.fire({
 				title: '¿Deseas mantener la tasa anterior?',
 				html: 'La cotización tiene guardadas estas tasas:<br>' +
@@ -735,10 +738,8 @@ $(function() {
 				reverseButtons: true,
 				allowOutsideClick: false,
 			}).then(function(result) {
-				// SweetAlert2 v8 (cargado en el layout) usa result.value=true
-				// al confirmar. isConfirmed llegó en v9+, no aplica aquí.
 				if (result.value) {
-					enterFrozenState();
+					// Ya estamos en frozen — no hay nada más que hacer.
 					return;
 				}
 				$('#rate_binance_input').val(serverBinance);
@@ -763,8 +764,11 @@ $(function() {
 	});
 
 	if (!quotationLocked) {
-		enterFrozenState();
-		setTimeout(promptRateDecision, 800);
+		// promptRateDecision decide el estado final (frozen si difieren y el
+		// usuario elige mantener, live en cualquier otro caso). Evitamos
+		// llamar enterFrozenState() upfront para no ver el "flip" visual
+		// cuando las tasas ya coinciden con las del día.
+		setTimeout(promptRateDecision, 300);
 	}
 
 	$('#btn-save-rates').on('click', function() {

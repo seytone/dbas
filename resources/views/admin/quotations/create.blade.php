@@ -732,6 +732,10 @@ $(function() {
 				enterLiveState();
 				return;
 			}
+			// Congelar mientras el usuario decide (así el widget refleja
+			// las tasas de la cotización, no las del día, mientras el modal
+			// está abierto).
+			enterFrozenState();
 			Swal.fire({
 				title: '¿Deseas mantener la tasa anterior?',
 				html: 'La cotización duplicada trae estas tasas:<br>' +
@@ -748,7 +752,7 @@ $(function() {
 				// SweetAlert2 v8 (cargado en el layout) usa result.value=true
 				// al confirmar. isConfirmed llegó en v9+, no aplica aquí.
 				if (result.value) {
-					enterFrozenState();
+					// Ya estamos en frozen — no hay nada más que hacer.
 					return;
 				}
 				$('#rate_binance_input').val(serverBinance);
@@ -771,8 +775,10 @@ $(function() {
 	});
 
 	if (needsRatePrompt) {
-		enterFrozenState();
-		setTimeout(promptRateDecision, 800);
+		// No cambiamos UI upfront — evita el "flip" naranja→verde cuando
+		// la cotización origen no tiene tasas o sus tasas coinciden con
+		// las del día. promptRateDecision decide el estado final.
+		setTimeout(promptRateDecision, 300);
 	} else {
 		setTimeout(function() {
 			fetchAndApplyRates(true).done(function() { enterLiveState(); });

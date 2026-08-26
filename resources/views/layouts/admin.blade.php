@@ -185,6 +185,55 @@
     {{-- Custom scripts --}}
     <script src="{{ asset('js/main.js') }}"></script>
     <script>
+		// ============================================================
+		// CONFIRM HELPER — reemplaza los confirm() nativos por SweetAlert
+		// ============================================================
+		// Cualquier <a>, <button> o <form> con data-confirm-msg dispara
+		// un SweetAlert2 en vez del confirm() del navegador. Al confirmar,
+		// re-ejecuta la acción original (click en enlaces/botones, submit
+		// en forms). Atributos opcionales:
+		//   data-confirm-title  — título del modal (default "¿Estás seguro?")
+		//   data-confirm-icon   — icon SweetAlert ('question'|'warning'|...)
+		//   data-confirm-yes    — texto botón confirmar (default "Sí, continuar")
+		//   data-confirm-no     — texto botón cancelar (default "Cancelar")
+		function __confirmWithSweet(el, action) {
+			Swal.fire({
+				title: el.dataset.confirmTitle || '¿Estás seguro?',
+				text:  el.dataset.confirmMsg  || '',
+				icon:  el.dataset.confirmIcon || 'question',
+				showCancelButton: true,
+				confirmButtonText: el.dataset.confirmYes || 'Sí, continuar',
+				cancelButtonText:  el.dataset.confirmNo  || 'Cancelar',
+				reverseButtons: true,
+			}).then(function(result) {
+				if (result.value) {
+					el.dataset.confirmed = 'true';
+					action();
+				}
+			});
+		}
+		// Capture phase (nativo) — se dispara ANTES que cualquier handler
+		// jQuery/direct del elemento. Necesario para que el confirmación
+		// bloquee el click original, no que corra después.
+		document.addEventListener('click', function(e) {
+			var el = e.target.closest('a[data-confirm-msg], button[data-confirm-msg]');
+			if (!el) return;
+			if (el.dataset.confirmed === 'true') return;
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			__confirmWithSweet(el, function() { el.click(); });
+		}, true);
+		document.addEventListener('submit', function(e) {
+			var form = e.target;
+			if (!form.matches || !form.matches('form[data-confirm-msg]')) return;
+			if (form.dataset.confirmed === 'true') return;
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			__confirmWithSweet(form, function() { form.submit(); });
+		}, true);
+
         $(function()
 		{
 			setTimeout(function() {

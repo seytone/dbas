@@ -18,7 +18,7 @@
 	@if($quotation->status !== 'accepted')
 		<a class="btn btn-warning" href="{{ route('admin.quotations.edit', $quotation->id) }}"><i class="fa fa-wrench mr-2"></i>Editar</a>
 	@endif
-	<a class="btn btn-info" href="{{ route('admin.quotations.duplicate', $quotation->id) }}" onclick="return confirm('¿Desea duplicar esta cotización?');"><i class="fa fa-copy mr-2"></i>Duplicar</a>
+	<a class="btn btn-info" href="{{ route('admin.quotations.duplicate', $quotation->id) }}" data-confirm-msg="¿Desea duplicar esta cotización?" data-confirm-title="Duplicar cotización" data-confirm-yes="Sí, duplicar"><i class="fa fa-copy mr-2"></i>Duplicar</a>
 	<a class="btn btn-dark" href="{{ route('admin.quotations.pdf', $quotation->id) }}" target="_blank"><i class="fa fa-file-pdf-o mr-2"></i>PDF</a>
 	<a class="btn btn-default" href="{{ route('admin.quotations.print', $quotation->id) }}" target="_blank"><i class="fa fa-print mr-2"></i>Imprimir</a>
 </div>

@@ -49,7 +49,7 @@
 									<a href="{{ route('admin.admin_docs.pdf', [$type, $doc->id]) }}" class="btn btn-sm btn-secondary" title="Descargar PDF">
 										<i class="fa fa-file-pdf"></i>
 									</a>
-									<form action="{{ route('admin.admin_docs.destroy', [$type, $doc->id]) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este documento?');">
+									<form action="{{ route('admin.admin_docs.destroy', [$type, $doc->id]) }}" method="POST" class="d-inline" data-confirm-msg="¿Eliminar este documento?" data-confirm-title="Eliminar" data-confirm-icon="warning" data-confirm-yes="Sí, eliminar">
 										@csrf @method('DELETE')
 										<button type="submit" class="btn btn-sm btn-danger" title="Eliminar"><i class="fa fa-times"></i></button>
 									</form>

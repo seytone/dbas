@@ -256,7 +256,7 @@
 					<form id="unpayForm" method="POST" class="d-inline">
 						@csrf
 						@method('DELETE')
-						<button type="button" class="btn btn-danger" id="btn-unpay-commission" onclick="return confirm('¿Deseas revertir este pago? El registro volverá al estado pendiente.');">
+						<button type="button" class="btn btn-danger" id="btn-unpay-commission" data-confirm-msg="¿Deseas revertir este pago? El registro volverá al estado pendiente." data-confirm-title="Revertir pago" data-confirm-icon="warning" data-confirm-yes="Sí, revertir">
 							<i class="fa fa-undo mr-1"></i> Revertir pago
 						</button>
 					</form>
@@ -530,11 +530,11 @@
 			}
 		});
 
-		// Revert payment (unpay)
+		// Revert payment (unpay) — la confirmación la maneja el helper global
+		// del layout via data-confirm-msg en el botón.
 		$('#btn-unpay-commission').on('click', function() {
 			var paymentId = $(this).data('payment-id');
 			if (!paymentId) return;
-			if (!confirm('¿Deseas revertir este pago? El registro volverá al estado pendiente.')) return;
 
 			$.ajax({
 				url: '{{ url("admin/commission_unpay") }}/' + paymentId,

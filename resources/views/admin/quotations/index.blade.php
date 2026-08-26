@@ -118,13 +118,13 @@
 											<i class="fa fa-fw fa-lock" aria-hidden="true"></i>
 										</button>
 									@endif
-									<a class="btn btn-sm btn-info m-1" href="{{ route('admin.quotations.duplicate', $quotation->id) }}" title="DUPLICAR" onclick="return confirm('¿Desea duplicar esta cotización?');">
+									<a class="btn btn-sm btn-info m-1" href="{{ route('admin.quotations.duplicate', $quotation->id) }}" title="DUPLICAR" data-confirm-msg="¿Desea duplicar esta cotización?" data-confirm-title="Duplicar cotización" data-confirm-yes="Sí, duplicar">
 										<i class="fa fa-fw fa-copy" aria-hidden="true"></i>
 									</a>
 									<a class="btn btn-sm btn-dark m-1" href="{{ route('admin.quotations.pdf', $quotation->id) }}" target="_blank" title="PDF">
 										<i class="fa fa-fw fa-file-pdf-o" aria-hidden="true"></i>
 									</a>
-									<form action="{{ route('admin.quotations.destroy', $quotation->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
+									<form action="{{ route('admin.quotations.destroy', $quotation->id) }}" method="POST" data-confirm-msg="{{ trans('global.areYouSure') }}" data-confirm-title="Eliminar" data-confirm-icon="warning" data-confirm-yes="Sí, eliminar" style="display: inline-block;">
 										<input type="hidden" name="_method" value="delete">
 										<input type="hidden" name="_token" value="{{ csrf_token() }}">
 										<button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">

@@ -58,7 +58,7 @@
                                     <a class="btn btn-sm btn-warning m-1" href="{{ route('admin.roles.edit', $role->id) }}" title="EDITAR">
                                         <i class="fa fa-fw fa-wrench" aria-hidden="true"></i>
                                     </a>
-                                    <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
+                                    <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" data-confirm-msg="{{ trans('global.areYouSure') }}" data-confirm-title="Eliminar" data-confirm-icon="warning" data-confirm-yes="Sí, eliminar" style="display: inline-block;">
                                         <input type="hidden" name="_method" value="delete">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-sm btn-danger m-1" title="ELIMINAR">
