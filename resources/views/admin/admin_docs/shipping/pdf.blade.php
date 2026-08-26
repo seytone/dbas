@@ -71,7 +71,9 @@
 		<tr>
 			<td class="label">RECIBE</td>
 			<td class="content recibe">
-				<div><span class="prefix">recibe:</span> {{ $d['client_name'] ?? '' }}</div>
+				{{-- No repetimos "recibe:" porque la label vertical de la izquierda
+				     ya dice RECIBE — sería redundante. --}}
+				<div>{{ $d['client_name'] ?? '' }}</div>
 				@if(!empty($d['client_document']))<div>RIF: {{ $d['client_document'] }}</div>@endif
 				@if(!empty($d['client_phone']))<div>TELEFONO: {{ $d['client_phone'] }}</div>@endif
 				@if(!empty($d['client_address']))<div>ZOOM: {{ $d['client_address'] }}</div>@endif
