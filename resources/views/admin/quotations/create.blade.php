@@ -666,24 +666,51 @@ $(function() {
 			.always(function() { if (!silent) $btn.prop('disabled', false); });
 	}
 
-	$('#btn-fetch-rates').on('click', function() { fetchAndApplyRates(false); });
-
 	// Manual rate edits: show the save button. After fetch (auto or manual) the
 	// inputs are in sync with the DB again, so the button is hidden once more.
 	$('#rate_binance_input, #rate_bcv_input').on('input', function() {
 		$('#btn-save-rates').removeClass('d-none');
 	});
 
-	// Auto-refresh de tasas.
-	// - Cotización nueva: refresca automáticamente al abrir y cada 15 min.
-	// - Cotización duplicada (viene con tasas snapshot de la original): NO
-	//   refresca en silencio. Al abrir, compara y si difieren, pregunta al
-	//   usuario si mantiene la tasa vieja o la actualiza al día. Si mantiene
-	//   → auto-refresh desactivado; si actualiza → interval habilitado.
+	// ========================================
+	// RATE STATE (frozen vs live) — per-cotización
+	// ========================================
+	// - Cotización nueva: arranca en modo live y refresca cada 15 min sin
+	//   preguntar (no hay snapshot que preservar).
+	// - Cotización duplicada: arranca en modo frozen (los inputs traen las
+	//   tasas de la original). Se pregunta si mantener o actualizar.
+	// - Botón "Actualizar" del widget: cuando estamos frozen, dispara el
+	//   mismo prompt en vez de refrescar en silencio.
 	var needsRatePrompt = @json(session('from_duplicate') ?: false);
+	var ratesFrozen = needsRatePrompt;
+	var autoRefreshTimer = null;
 
-	function enableRateAutoRefresh() {
-		setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
+	function setRatesUI(state) {
+		var $dot = $('#rates-dot');
+		var $label = $('#rates-label');
+		if (state === 'live') {
+			$dot.css('background', '#28a745');
+			$label.html('<i class="fa fa-check-circle mr-1"></i><b>Tasas del día · actualizadas</b>');
+		} else {
+			$dot.css('background', '#f0ad4e');
+			$label.html('<i class="fa fa-snowflake mr-1"></i><b>Tasas congeladas</b>');
+		}
+	}
+
+	function enterLiveState() {
+		ratesFrozen = false;
+		setRatesUI('live');
+		if (!autoRefreshTimer) {
+			autoRefreshTimer = setInterval(function() {
+				fetchAndApplyRates(true).done(function() { setRatesUI('live'); });
+			}, 15 * 60 * 1000);
+		}
+	}
+
+	function enterFrozenState() {
+		ratesFrozen = true;
+		setRatesUI('frozen');
+		if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
 	}
 
 	function promptRateDecision() {
@@ -695,8 +722,9 @@ $(function() {
 			var same = Math.abs(savedBinance - serverBinance) < 0.001 &&
 			           Math.abs(savedBcv - serverBcv) < 0.001;
 			if (same) {
-				// No cambió nada — habilitamos auto-refresh silenciosamente.
-				enableRateAutoRefresh();
+				currentRates.binance = serverBinance;
+				currentRates.bcv = serverBcv;
+				enterLiveState();
 				return;
 			}
 			Swal.fire({
@@ -713,26 +741,35 @@ $(function() {
 				allowOutsideClick: false,
 			}).then(function(result) {
 				if (result.isConfirmed) {
-					// Mantener: los inputs ya tienen las tasas viejas. Sin auto-refresh.
+					enterFrozenState();
 					return;
 				}
-				// Actualizar: aplicar tasas del día + habilitar auto-refresh.
 				$('#rate_binance_input').val(serverBinance);
 				$('#rate_bcv_input').val(serverBcv);
 				$('#btn-save-rates').addClass('d-none');
 				currentRates.binance = serverBinance;
 				currentRates.bcv = serverBcv;
 				recalcAll();
-				enableRateAutoRefresh();
+				enterLiveState();
 			});
 		});
 	}
 
+	$('#btn-fetch-rates').on('click', function() {
+		if (ratesFrozen) {
+			promptRateDecision();
+		} else {
+			fetchAndApplyRates(false).done(function() { setRatesUI('live'); });
+		}
+	});
+
 	if (needsRatePrompt) {
+		enterFrozenState();
 		setTimeout(promptRateDecision, 800);
 	} else {
-		setTimeout(function() { fetchAndApplyRates(true); }, 1500);
-		enableRateAutoRefresh();
+		setTimeout(function() {
+			fetchAndApplyRates(true).done(function() { enterLiveState(); });
+		}, 1500);
 	}
 
 	// Save manually-entered rates

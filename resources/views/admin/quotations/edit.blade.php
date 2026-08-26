@@ -663,20 +663,48 @@ $(function() {
 			.always(function() { if (!silent) $btn.prop('disabled', false); });
 	}
 
-	$('#btn-fetch-rates').on('click', function() { fetchAndApplyRates(false); });
-
 	// Manual rate edits: show the save button. After fetch (auto or manual) the
 	// inputs are in sync with the DB again, so the button is hidden once more.
 	$('#rate_binance_input, #rate_bcv_input').on('input', function() {
 		$('#btn-save-rates').removeClass('d-none');
 	});
 
-	// Auto-refresh de tasas.
-	// Al editar, NUNCA se refresca en silencio: se pregunta primero al usuario
-	// si mantiene la tasa snapshot de la cotización o la actualiza al día.
-	// Solo aplica cuando la cotización no está locked (accepted).
-	function enableRateAutoRefresh() {
-		setInterval(function() { fetchAndApplyRates(true); }, 15 * 60 * 1000);
+	// ========================================
+	// RATE STATE (frozen vs live) — per-cotización
+	// ========================================
+	// Al editar, los inputs vienen con el snapshot de la cotización, así que
+	// arrancamos en estado "congelado". Al preguntar por el prompt (o al
+	// hacer clic en "Actualizar tasas") se puede pasar a "live" con la
+	// tasa del día y activar el auto-refresh cada 15 min.
+	var ratesFrozen = true;
+	var autoRefreshTimer = null;
+
+	function setRatesUI(state) {
+		var $dot = $('#rates-dot');
+		var $label = $('#rates-label');
+		if (state === 'live') {
+			$dot.css('background', '#28a745');
+			$label.html('<i class="fa fa-check-circle mr-1"></i><b>Tasas del día · actualizadas</b>');
+		} else {
+			$dot.css('background', '#f0ad4e');
+			$label.html('<i class="fa fa-snowflake mr-1"></i><b>Tasas congeladas</b>');
+		}
+	}
+
+	function enterLiveState() {
+		ratesFrozen = false;
+		setRatesUI('live');
+		if (!autoRefreshTimer) {
+			autoRefreshTimer = setInterval(function() {
+				fetchAndApplyRates(true).done(function() { setRatesUI('live'); });
+			}, 15 * 60 * 1000);
+		}
+	}
+
+	function enterFrozenState() {
+		ratesFrozen = true;
+		setRatesUI('frozen');
+		if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
 	}
 
 	function promptRateDecision() {
@@ -688,7 +716,10 @@ $(function() {
 			var same = Math.abs(savedBinance - serverBinance) < 0.001 &&
 			           Math.abs(savedBcv - serverBcv) < 0.001;
 			if (same) {
-				enableRateAutoRefresh();
+				// Rates already coinciden con las del día — estado live sin preguntar.
+				currentRates.binance = serverBinance;
+				currentRates.bcv = serverBcv;
+				enterLiveState();
 				return;
 			}
 			Swal.fire({
@@ -704,19 +735,33 @@ $(function() {
 				reverseButtons: true,
 				allowOutsideClick: false,
 			}).then(function(result) {
-				if (result.isConfirmed) return;
+				if (result.isConfirmed) {
+					enterFrozenState();
+					return;
+				}
 				$('#rate_binance_input').val(serverBinance);
 				$('#rate_bcv_input').val(serverBcv);
 				$('#btn-save-rates').addClass('d-none');
 				currentRates.binance = serverBinance;
 				currentRates.bcv = serverBcv;
 				recalcAll();
-				enableRateAutoRefresh();
+				enterLiveState();
 			});
 		});
 	}
 
+	// Botón "Actualizar" del widget: cuando estamos frozen, muestra el mismo
+	// prompt (mantener vs actualizar). Cuando ya estamos live, refresca directo.
+	$('#btn-fetch-rates').on('click', function() {
+		if (ratesFrozen) {
+			promptRateDecision();
+		} else {
+			fetchAndApplyRates(false).done(function() { setRatesUI('live'); });
+		}
+	});
+
 	if (!quotationLocked) {
+		enterFrozenState();
 		setTimeout(promptRateDecision, 800);
 	}
 

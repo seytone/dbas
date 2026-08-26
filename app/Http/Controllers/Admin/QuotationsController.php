@@ -198,7 +198,16 @@ class QuotationsController extends Controller
 		$clients = Client::all();
 		$categories = Category::with('products')->get();
 		$quotation->load(['client', 'items.product']);
-		$rates = $this->savedRates();
+
+		// Seed rate inputs with the quotation's snapshot (what was saved),
+		// not today's config values. Legacy quotations without snapshot
+		// fall back to the config as before. El prompt "¿mantener tasa
+		// anterior?" compara este snapshot vs la tasa del día.
+		$savedFallback = $this->savedRates();
+		$rates = [
+			'binance' => (float) ($quotation->binance_rate ?? $savedFallback['binance']),
+			'bcv' => (float) ($quotation->bcv_rate ?? $savedFallback['bcv']),
+		];
 
 		return view('admin.quotations.edit', compact('quotation', 'clients', 'categories', 'rates'));
 	}
