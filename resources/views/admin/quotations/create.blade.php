@@ -708,7 +708,7 @@ $(function() {
 				icon: 'question',
 				showCancelButton: true,
 				confirmButtonText: 'Sí, mantener',
-				cancelButtonText: 'No, actualizar',
+				cancelButtonText: 'Actualizar tasas',
 				reverseButtons: true,
 				allowOutsideClick: false,
 			}).then(function(result) {
