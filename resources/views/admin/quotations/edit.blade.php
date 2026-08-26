@@ -725,9 +725,9 @@ $(function() {
 			Swal.fire({
 				title: '¿Deseas mantener la tasa anterior?',
 				html: 'La cotización tiene guardadas estas tasas:<br>' +
-				      '<b>BCV:</b> ' + savedBcv.toFixed(4) + ' &nbsp; <b>Binance:</b> ' + savedBinance.toFixed(4) + '<br><br>' +
+				      '<b>Binance:</b> ' + savedBinance.toFixed(4) + ' &nbsp; <b>BCV:</b> ' + savedBcv.toFixed(4) + '<br><br>' +
 				      'Tasas del día:<br>' +
-				      '<b>BCV:</b> ' + serverBcv.toFixed(4) + ' &nbsp; <b>Binance:</b> ' + serverBinance.toFixed(4),
+				      '<b>Binance:</b> ' + serverBinance.toFixed(4) + ' &nbsp; <b>BCV:</b> ' + serverBcv.toFixed(4),
 				icon: 'question',
 				showCancelButton: true,
 				confirmButtonText: 'Sí, mantener',
@@ -735,7 +735,9 @@ $(function() {
 				reverseButtons: true,
 				allowOutsideClick: false,
 			}).then(function(result) {
-				if (result.isConfirmed) {
+				// SweetAlert2 v8 (cargado en el layout) usa result.value=true
+				// al confirmar. isConfirmed llegó en v9+, no aplica aquí.
+				if (result.value) {
 					enterFrozenState();
 					return;
 				}
