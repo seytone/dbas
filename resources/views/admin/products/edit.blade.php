@@ -99,7 +99,7 @@
 				<div class="col-sm-12">
 					<div class="form-group {{ $errors->has('description') ? 'has-error' : '' }}">
 						<label for="description">Descripción&nbsp;<b class="text-danger">*</b></label>
-						<textarea id="description" name="description" rows="1" class="form-control description" maxlength="140">{{ old('description', isset($product) ? $product->description : '') }}</textarea>
+						<textarea id="description" name="description" rows="2" class="form-control description resume" maxlength="500">{{ old('description', isset($product) ? $product->description : '') }}</textarea>
 						@if ($errors->has('description'))
 							<em class="invalid-feedback">
 								{{ $errors->first('description') }}
@@ -150,7 +150,7 @@
                 threshold: 50
             });
             $('.resume').maxlength({
-                threshold: 140
+                threshold: 100
             });
         });
     </script>

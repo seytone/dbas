@@ -98,18 +98,24 @@
 						<label>Teléfono</label>
 						<input type="text" name="client_phone" class="form-control" value="{{ old('client_phone') }}" maxlength="50">
 					</div>
-					<div class="form-group">
-						<label>Empresa de envío *</label>
-						<select name="shipping_company" class="form-control" required>
-							<option value="">Selecciona la empresa…</option>
-							@foreach($shippingCarriers as $carrier)
-								<option value="{{ $carrier }}" {{ old('shipping_company') === $carrier ? 'selected' : '' }}>{{ $carrier }}</option>
-							@endforeach
-						</select>
-					</div>
-					<div class="form-group">
-						<label>Dirección de envío *</label>
-						<input type="text" name="client_address" class="form-control" value="{{ old('client_address') }}" required maxlength="500" placeholder="ej. av 8 santa rita maracaibo">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Empresa de envío *</label>
+								<select name="shipping_company" class="form-control" required>
+									<option value="">Selecciona…</option>
+									@foreach($shippingCarriers as $carrier)
+										<option value="{{ $carrier }}" {{ old('shipping_company') === $carrier ? 'selected' : '' }}>{{ $carrier }}</option>
+									@endforeach
+								</select>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Dirección de envío *</label>
+								<input type="text" name="client_address" class="form-control" value="{{ old('client_address') }}" required maxlength="500" placeholder="ej. av 8 santa rita maracaibo">
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

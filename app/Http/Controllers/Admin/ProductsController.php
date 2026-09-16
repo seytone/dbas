@@ -52,7 +52,7 @@ class ProductsController extends Controller
             'group' => 'required|string',
             'type' => 'required|string',
             'title' => 'required|string|max:200',
-            'description' => 'required|string|max:140',
+            'description' => 'required|string|max:500',
             'cost' => 'required|numeric|between:0,999999.99',
             'price' => 'required|numeric|between:0,999999.99',
         ]);
@@ -134,7 +134,7 @@ class ProductsController extends Controller
             'group' => 'required|string',
             'type' => 'required|string',
             'title' => 'required|string|max:200',
-            'description' => 'required|string|max:140',
+            'description' => 'required|string|max:500',
             'cost' => 'required|numeric|between:0,999999.99',
             'price' => 'required|numeric|between:0,999999.99',
         ]);
