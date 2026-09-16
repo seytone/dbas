@@ -14,7 +14,7 @@
 				<div class="col-sm-2">
 					<div class="form-group {{ $errors->has('code') ? 'has-error' : '' }}">
 						<label for="code">Código&nbsp;<b class="text-danger">*</b></label>
-						<input type="text" id="code" name="code" class="form-control" value="{{ old('code', isset($product) ? $product->code : '') }}" required>
+						<input type="text" id="code" name="code" class="form-control" value="{{ old('code', isset($product) ? $product->code : '') }}" maxlength="50" required>
 						@if ($errors->has('code'))
 							<em class="invalid-feedback">
 								{{ $errors->first('code') }}
@@ -88,7 +88,7 @@
 				<div class="col-sm-12">
 					<div class="form-group {{ $errors->has('title') ? 'has-error' : '' }}">
 						<label for="title">Titulo&nbsp;<b class="text-danger">*</b></label>
-						<input type="text" id="title" name="title" class="form-control" value="{{ old('title', isset($product) ? $product->title : '') }}" required>
+						<input type="text" id="title" name="title" class="form-control title" value="{{ old('title', isset($product) ? $product->title : '') }}" maxlength="200" required>
 						@if ($errors->has('title'))
 							<em class="invalid-feedback">
 								{{ $errors->first('title') }}

@@ -312,10 +312,15 @@ class AdministrativeDocumentsController extends Controller
                 // Guía de envío — no lleva items. El cliente es el recipient;
                 // sender es la empresa que despacha (defaults del config).
                 return $base + [
-                    'sender_name'     => 'required|string|max:255',
-                    'sender_document' => 'nullable|string|max:50',
-                    'sender_address'  => 'required|string|max:500',
-                    'sender_phones'   => 'nullable|string|max:150',
+                    'sender_name'      => 'required|string|max:255',
+                    'sender_document'  => 'nullable|string|max:50',
+                    'sender_address'   => 'required|string|max:500',
+                    'sender_phones'    => 'nullable|string|max:150',
+                    // Courier (ZOOM, DOMESA, MRW, etc.). Se valida como
+                    // string libre por si el cliente agrega otras opciones
+                    // en el futuro; el selector del form limita las
+                    // habituales.
+                    'shipping_company' => 'required|string|max:50',
                 ];
         }
 

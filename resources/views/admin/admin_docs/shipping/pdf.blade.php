@@ -76,7 +76,9 @@
 				<div>{{ $d['client_name'] ?? '' }}</div>
 				@if(!empty($d['client_document']))<div>RIF: {{ $d['client_document'] }}</div>@endif
 				@if(!empty($d['client_phone']))<div>TELEFONO: {{ $d['client_phone'] }}</div>@endif
-				@if(!empty($d['client_address']))<div>ZOOM: {{ $d['client_address'] }}</div>@endif
+				@if(!empty($d['client_address']))
+					<div>{{ $d['shipping_company'] ?? 'ENVIO' }}: {{ $d['client_address'] }}</div>
+				@endif
 			</td>
 		</tr>
 	</table>

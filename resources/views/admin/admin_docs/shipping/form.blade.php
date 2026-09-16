@@ -6,6 +6,8 @@
 		// (sección dispatch). Si el usuario los edita en el form quedan
 		// congelados en el snapshot del envío.
 		$defaultDispatch = config('companies.ve.dispatch', []);
+		// Empresas de courier soportadas (para el selector de la sección RECIBE).
+		$shippingCarriers = ['ZOOM','DOMESA','MRW','TEALCA','DHL','LIBERTY EXPRESS','AERO POST'];
 	@endphp
 	<div class="row mb-3">
 		<div class="col-md-8"><h1>{{ $editing ? 'Editar Guía de Envío' : 'Nueva Guía de Envío' }} @if($editing)<small class="text-muted">{{ $document->formatted_number }}</small>@endif</h1></div>
@@ -37,14 +39,15 @@
 						@foreach($previous_shippings as $prev)
 							@php
 								$prevPayload = json_encode([
-									'sender_name'     => $prev->data['sender_name']     ?? '',
-									'sender_document' => $prev->data['sender_document'] ?? '',
-									'sender_address'  => $prev->data['sender_address']  ?? '',
-									'sender_phones'   => $prev->data['sender_phones']   ?? '',
-									'client_name'     => $prev->data['client_name']     ?? '',
-									'client_document' => $prev->data['client_document'] ?? '',
-									'client_phone'    => $prev->data['client_phone']    ?? '',
-									'client_address'  => $prev->data['client_address']  ?? '',
+									'sender_name'      => $prev->data['sender_name']      ?? '',
+									'sender_document'  => $prev->data['sender_document']  ?? '',
+									'sender_address'   => $prev->data['sender_address']   ?? '',
+									'sender_phones'    => $prev->data['sender_phones']    ?? '',
+									'client_name'      => $prev->data['client_name']      ?? '',
+									'client_document'  => $prev->data['client_document']  ?? '',
+									'client_phone'     => $prev->data['client_phone']     ?? '',
+									'client_address'   => $prev->data['client_address']   ?? '',
+									'shipping_company' => $prev->data['shipping_company'] ?? '',
 								]);
 							@endphp
 							<option value="{{ $prev->id }}" data-data='{{ $prevPayload }}'>
@@ -96,8 +99,17 @@
 						<input type="text" name="client_phone" class="form-control" value="{{ old('client_phone') }}" maxlength="50">
 					</div>
 					<div class="form-group">
-						<label>ZOOM (dirección del courier) *</label>
-						<input type="text" name="client_address" class="form-control" value="{{ old('client_address') }}" required maxlength="500" placeholder="ej. Zoom de av 8 santa rita maracaibo">
+						<label>Empresa de envío *</label>
+						<select name="shipping_company" class="form-control" required>
+							<option value="">Selecciona la empresa…</option>
+							@foreach($shippingCarriers as $carrier)
+								<option value="{{ $carrier }}" {{ old('shipping_company') === $carrier ? 'selected' : '' }}>{{ $carrier }}</option>
+							@endforeach
+						</select>
+					</div>
+					<div class="form-group">
+						<label>Dirección de envío *</label>
+						<input type="text" name="client_address" class="form-control" value="{{ old('client_address') }}" required maxlength="500" placeholder="ej. av 8 santa rita maracaibo">
 					</div>
 				</div>
 			</div>
@@ -113,7 +125,8 @@
 	function importFromShipping(payload) {
 		if (!payload) return;
 		['sender_name','sender_document','sender_address','sender_phones',
-		 'client_name','client_document','client_phone','client_address'].forEach(function(f) {
+		 'client_name','client_document','client_phone','client_address',
+		 'shipping_company'].forEach(function(f) {
 			if (payload[f] != null) $('[name="' + f + '"]').val(payload[f]);
 		});
 	}

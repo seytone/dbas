@@ -46,12 +46,12 @@ class ProductsController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20|unique:products,deleted_at,NULL',
+            'code' => 'required|string|max:50|unique:products,deleted_at,NULL',
             'category_id' => 'required|string|max:30',
             'brand_id' => 'required|string|max:30',
             'group' => 'required|string',
             'type' => 'required|string',
-            'title' => 'required|string|max:100',
+            'title' => 'required|string|max:200',
             'description' => 'required|string|max:140',
             'cost' => 'required|numeric|between:0,999999.99',
             'price' => 'required|numeric|between:0,999999.99',
@@ -128,12 +128,12 @@ class ProductsController extends Controller
     public function update(Request $request, Product $product)
     {
         $validatedData = $request->validate([
-            'code' => 'required|string|max:20|unique:products,code,' . $product->id . ',id,deleted_at,NULL',
+            'code' => 'required|string|max:50|unique:products,code,' . $product->id . ',id,deleted_at,NULL',
 			'category_id' => 'required|string|max:30',
 			'brand_id' => 'required|string|max:30',
             'group' => 'required|string',
             'type' => 'required|string',
-            'title' => 'required|string|max:100',
+            'title' => 'required|string|max:200',
             'description' => 'required|string|max:140',
             'cost' => 'required|numeric|between:0,999999.99',
             'price' => 'required|numeric|between:0,999999.99',
