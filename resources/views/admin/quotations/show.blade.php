@@ -129,6 +129,9 @@
 					@if($quotation->freight > 0)
 						<tr><td>Flete</td><td class="text-right">${{ number_format($quotation->freight, 2, ',', '.') }}</td></tr>
 					@endif
+					@foreach($quotation->extra_charges ?? [] as $charge)
+						<tr><td>{{ $charge['label'] }}</td><td class="text-right">${{ number_format($charge['amount'], 2, ',', '.') }}</td></tr>
+					@endforeach
 					<tr><td><b>Total Exento</b></td><td class="text-right">${{ number_format($quotation->tax_exempt, 2, ',', '.') }}</td></tr>
 					<tr><td><b>Base Imponible</b></td><td class="text-right">${{ number_format($quotation->tax_base, 2, ',', '.') }}</td></tr>
 					<tr><td><b>IVA ({{ number_format($quotation->iva_rate, 2, ',', '.') }}%)</b></td><td class="text-right">${{ number_format($quotation->iva_amount, 2, ',', '.') }}</td></tr>

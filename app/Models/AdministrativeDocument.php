@@ -16,6 +16,7 @@ class AdministrativeDocument extends Model
     const TYPE_TERMS = 'terms';
     const TYPE_EXIT_ORDER = 'exit_order';
     const TYPE_SHIPPING = 'shipping';
+    const TYPE_SERVICE_ORDER = 'service_order';
 
     /**
      * Prefix used in the human-readable document number (IN-0001, etc.).
@@ -27,6 +28,7 @@ class AdministrativeDocument extends Model
         self::TYPE_TERMS          => 'TC',
         self::TYPE_EXIT_ORDER     => 'OS',
         self::TYPE_SHIPPING       => 'EN',
+        self::TYPE_SERVICE_ORDER  => 'SV',
     ];
 
     /**
@@ -39,6 +41,7 @@ class AdministrativeDocument extends Model
         self::TYPE_TERMS          => 'Términos y Condiciones',
         self::TYPE_EXIT_ORDER     => 'Orden de Salida',
         self::TYPE_SHIPPING       => 'Guía de Envío',
+        self::TYPE_SERVICE_ORDER  => 'Orden de Servicio',
     ];
 
     protected $fillable = [

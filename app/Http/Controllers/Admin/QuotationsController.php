@@ -106,6 +106,9 @@ class QuotationsController extends Controller
 			'discount_2' => 'required|numeric|min:0|max:100',
 			'discount_2_amount' => 'required|numeric|min:0',
 			'freight' => 'required|numeric|min:0',
+			'extra_charges' => 'nullable|array|max:5',
+			'extra_charges.*.label' => 'required_with:extra_charges|string|max:60',
+			'extra_charges.*.amount' => 'required_with:extra_charges|numeric',
 			'tax_exempt' => 'required|numeric|min:0',
 			'tax_base' => 'required|numeric|min:0',
 			'iva_amount' => 'required|numeric|min:0',
@@ -128,6 +131,7 @@ class QuotationsController extends Controller
 
 		$validatedData['client_id'] = $client->id;
 		$validatedData['created_by'] = Auth::id();
+		$validatedData['extra_charges'] = $this->normalizeExtraCharges($request->input('extra_charges'));
 		// Snapshot the client's data on the quotation. Keeps each PDF/edit
 		// view stable against later changes to the shared Client record.
 		$validatedData['client_title'] = $client->title;
@@ -240,6 +244,9 @@ class QuotationsController extends Controller
 			'discount_2' => 'required|numeric|min:0|max:100',
 			'discount_2_amount' => 'required|numeric|min:0',
 			'freight' => 'required|numeric|min:0',
+			'extra_charges' => 'nullable|array|max:5',
+			'extra_charges.*.label' => 'required_with:extra_charges|string|max:60',
+			'extra_charges.*.amount' => 'required_with:extra_charges|numeric',
 			'tax_exempt' => 'required|numeric|min:0',
 			'tax_base' => 'required|numeric|min:0',
 			'iva_amount' => 'required|numeric|min:0',
@@ -261,6 +268,7 @@ class QuotationsController extends Controller
 		], [], $this->validationAttributes());
 
 		$validatedData['client_id'] = $client->id;
+		$validatedData['extra_charges'] = $this->normalizeExtraCharges($request->input('extra_charges'));
 		// Snapshot the client's data on the quotation. Keeps each PDF/edit
 		// view stable against later changes to the shared Client record.
 		$validatedData['client_title'] = $client->title;
@@ -363,6 +371,7 @@ class QuotationsController extends Controller
 			'discount_1' => $quotation->discount_1,
 			'discount_2' => $quotation->discount_2,
 			'freight' => $quotation->freight,
+			'extra_charges' => $quotation->extra_charges ?: [],
 			'notes' => $quotation->notes,
 			'items' => $items,
 		]);
@@ -395,6 +404,35 @@ class QuotationsController extends Controller
 			]);
 
 		return $pdf->download("cotizacion-{$quotation->quotation_number}.pdf");
+	}
+
+	/**
+	 * Clean up the extra_charges array posted by the form: drop rows the
+	 * user left blank, coerce the amount to a float and cap at 5 entries.
+	 * Returns null when nothing usable came through, so the column stays
+	 * NULL instead of holding an empty array.
+	 */
+	protected function normalizeExtraCharges($raw): ?array
+	{
+		if (! is_array($raw)) return null;
+
+		$charges = collect($raw)
+			->filter(function ($row) {
+				return is_array($row)
+					&& trim((string) ($row['label'] ?? '')) !== ''
+					&& ($row['amount'] ?? '') !== '';
+			})
+			->map(function ($row) {
+				return [
+					'label' => trim((string) $row['label']),
+					'amount' => (float) $row['amount'],
+				];
+			})
+			->take(5)
+			->values()
+			->all();
+
+		return count($charges) ? $charges : null;
 	}
 
 	/**
@@ -435,6 +473,8 @@ class QuotationsController extends Controller
 			'items.*.quantity' => 'cantidad del producto',
 			'items.*.unit_price' => 'precio unitario del producto',
 			'items.*.discount_percent' => 'tributos del producto',
+			'extra_charges.*.label' => 'nombre del campo adicional',
+			'extra_charges.*.amount' => 'monto del campo adicional',
 			'status_comment' => 'comentario del estado',
 		];
 	}

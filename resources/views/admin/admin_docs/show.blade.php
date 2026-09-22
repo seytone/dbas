@@ -45,28 +45,45 @@
 				</div>
 			</div>
 
-			@if(!empty($document->data['items']))
+			{{-- Render every row-table stored in the payload. Most formats use
+			     a single "items" key; la Orden de Servicio trae dos
+			     (product_items / inventory_items), así que recorremos
+			     genéricamente cualquier clave cuyo valor sea una lista de filas. --}}
+			@php
+				$tableLabels = [
+					'items' => 'ITEMS',
+					'product_items' => 'PARA AGREGAR AL PRODUCTO',
+					'inventory_items' => 'PARA INCLUIR EN EL INVENTARIO',
+				];
+				$rowTables = collect($document->data ?? [])->filter(function ($value) {
+					if (! is_array($value) || ! count($value)) return false;
+					$first = $value[array_key_first($value)];
+					return is_array($first);
+				});
+			@endphp
+			@foreach($rowTables as $key => $rows)
+				@php $firstRow = $rows[array_key_first($rows)]; @endphp
 				<hr>
-				<h6 class="text-muted">ITEMS</h6>
+				<h6 class="text-muted">{{ $tableLabels[$key] ?? mb_strtoupper(str_replace('_', ' ', $key)) }}</h6>
 				<table class="table table-sm">
 					<thead>
 						<tr>
-							@foreach(array_keys($document->data['items'][0]) as $col)
+							@foreach(array_keys($firstRow) as $col)
 								<th>{{ ucfirst($col) }}</th>
 							@endforeach
 						</tr>
 					</thead>
 					<tbody>
-						@foreach($document->data['items'] as $item)
+						@foreach($rows as $row)
 							<tr>
-								@foreach($item as $val)
+								@foreach($row as $val)
 									<td>{{ $val }}</td>
 								@endforeach
 							</tr>
 						@endforeach
 					</tbody>
 				</table>
-			@endif
+			@endforeach
 		</div>
 	</div>
 @endsection

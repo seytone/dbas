@@ -66,6 +66,12 @@
 							</a>
 						</li>
 						<li class="nav-item">
+							<a href="{{ route('admin.admin_docs.index', 'service_order') }}" class="nav-link {{ request()->is('admin/admin-docs/service_order*') ? 'active' : '' }}">
+								<i class="fa-fw fas fa-tools nav-icon ml-4"></i>
+								Orden de Servicio
+							</a>
+						</li>
+						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'terms') }}" class="nav-link {{ request()->is('admin/admin-docs/terms*') ? 'active' : '' }}">
 								<i class="fa-fw fas fa-file-signature nav-icon ml-4"></i>
 								Formato de T&C

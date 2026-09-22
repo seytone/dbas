@@ -36,6 +36,7 @@ class Quotation extends Model
 		'discount_2',
 		'discount_2_amount',
 		'freight',
+		'extra_charges',
 		'tax_exempt',
 		'tax_base',
 		'iva_amount',
@@ -49,6 +50,10 @@ class Quotation extends Model
 	];
 
 	protected $dates = ['emission_date', 'expiration_date'];
+
+	protected $casts = [
+		'extra_charges' => 'array',
+	];
 
 	/**
 	 * A quotation belongs to a client.

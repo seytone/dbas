@@ -135,7 +135,7 @@ class AdministrativeDocumentsController extends Controller
                 ->get();
         }
 
-        if ($type === AdministrativeDocument::TYPE_EXIT_ORDER) {
+        if (in_array($type, [AdministrativeDocument::TYPE_EXIT_ORDER, AdministrativeDocument::TYPE_SERVICE_ORDER])) {
             $shared['sellers'] = Seller::with('user')->get()
                 ->filter(fn ($s) => $s->user)
                 ->values();
@@ -321,6 +321,23 @@ class AdministrativeDocumentsController extends Controller
                     // en el futuro; el selector del form limita las
                     // habituales.
                     'shipping_company' => 'required|string|max:50',
+                ];
+
+            case AdministrativeDocument::TYPE_SERVICE_ORDER:
+                // Orden de Servicio — dos tablas de items (agregar al producto /
+                // incluir en inventario) más un bloque de configuración final.
+                return $base + [
+                    'requested_by'    => 'required|string|max:150',
+                    'prepared_by'     => 'required|string|max:150',
+                    'product'         => 'required|string|max:255',
+                    'note'            => 'nullable|string|max:500',
+                    'product_items'   => 'nullable|array|max:20',
+                    'product_items.*.quantity'    => 'required_with:product_items|numeric|min:0',
+                    'product_items.*.description' => 'required_with:product_items|string|max:2000',
+                    'inventory_items' => 'nullable|array|max:20',
+                    'inventory_items.*.quantity'    => 'required_with:inventory_items|numeric|min:0',
+                    'inventory_items.*.description' => 'required_with:inventory_items|string|max:2000',
+                    'final_config'    => 'nullable|string|max:2000',
                 ];
         }
 

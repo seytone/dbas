@@ -285,6 +285,18 @@
 							<input type="text" name="freight" id="freight" class="form-control text-right" inputmode="decimal" value="{{ old('freight', '0,00') }}">
 						</div>
 					</div>
+
+					{{-- Campos adicionales con nombre libre (ej. impuestos de otros
+					     países). Suman al final del total, igual que el flete. --}}
+					<div id="extra-charges-list"></div>
+					<div class="form-group row">
+						<div class="col-sm-12">
+							<button type="button" class="btn btn-sm btn-outline-secondary btn-block" id="btn-add-extra-charge">
+								<i class="fa fa-plus mr-1"></i> Agregar campo adicional
+							</button>
+							<small class="text-muted">Máximo 5. Se suman al total sin afectar la base imponible ni el IVA.</small>
+						</div>
+					</div>
 				</div>
 				<div class="col-md-6">
 					<div class="form-group row">
@@ -492,7 +504,7 @@ $(function() {
 	// MONEY FORMATTING HELPERS (Spanish: dot thousands, comma decimal)
 	// ========================================
 	// Selectors for visible money inputs that get formatted/unformatted.
-	var MONEY_INPUTS_SELECTOR = '.unit-price, .line-total, #subtotal, #discount_1_amount, #discount_2_amount, #freight, #tax_exempt, #tax_base, #iva_amount, #igtf_amount, #total';
+	var MONEY_INPUTS_SELECTOR = '.unit-price, .line-total, #subtotal, #discount_1_amount, #discount_2_amount, #freight, .extra-charge-amount, #tax_exempt, #tax_base, #iva_amount, #igtf_amount, #total';
 
 	function parseMoney(value) {
 		if (value === null || value === undefined || value === '') return 0;
@@ -927,6 +939,64 @@ $(function() {
 	// ========================================
 	// TOTALS CALCULATION
 	// ========================================
+	// ========================================
+	// CAMPOS ADICIONALES (extra charges)
+	// ========================================
+	var EXTRA_CHARGES_MAX = 5;
+	var extraChargeIndex = 0;
+
+	function extraChargesTotal() {
+		var sum = 0;
+		$('#extra-charges-list .extra-charge-row').each(function() {
+			sum += parseMoney($(this).find('.extra-charge-amount').val());
+		});
+		return sum;
+	}
+
+	function syncAddExtraChargeButton() {
+		var count = $('#extra-charges-list .extra-charge-row').length;
+		$('#btn-add-extra-charge').prop('disabled', count >= EXTRA_CHARGES_MAX);
+	}
+
+	function addExtraCharge(data) {
+		if ($('#extra-charges-list .extra-charge-row').length >= EXTRA_CHARGES_MAX) return;
+		data = data || {};
+		var i = extraChargeIndex++;
+		var amount = data.amount != null && data.amount !== '' ? formatMoney(parseFloat(data.amount) || 0) : '0,00';
+		$('#extra-charges-list').append(
+			'<div class="form-group row extra-charge-row">' +
+				'<div class="col-sm-5">' +
+					'<input type="text" name="extra_charges[' + i + '][label]" class="form-control form-control-sm extra-charge-label" ' +
+						'maxlength="60" placeholder="Nombre del campo" value="' + htmlEscape(data.label || '') + '">' +
+				'</div>' +
+				'<div class="col-sm-6">' +
+					'<input type="text" name="extra_charges[' + i + '][amount]" class="form-control form-control-sm text-right extra-charge-amount" ' +
+						'inputmode="decimal" value="' + amount + '">' +
+				'</div>' +
+				'<div class="col-sm-1 pl-0">' +
+					'<button type="button" class="btn btn-sm btn-danger btn-remove-extra-charge" title="Quitar"><i class="fa fa-times"></i></button>' +
+				'</div>' +
+			'</div>'
+		);
+		syncAddExtraChargeButton();
+		calculateTotals();
+	}
+
+	$('#btn-add-extra-charge').on('click', function() { addExtraCharge(); });
+	$('#extra-charges-list').on('input', '.extra-charge-amount', calculateTotals);
+	$('#extra-charges-list').on('click', '.btn-remove-extra-charge', function() {
+		$(this).closest('.extra-charge-row').remove();
+		syncAddExtraChargeButton();
+		calculateTotals();
+	});
+
+	@if(is_array(old('extra_charges')))
+		@foreach(old('extra_charges') as $charge)
+			addExtraCharge(@json($charge));
+		@endforeach
+	@endif
+	syncAddExtraChargeButton();
+
 	function calculateTotals() {
 		var subtotal = 0;
 		$('#products-list .item').each(function() {
@@ -938,6 +1008,7 @@ $(function() {
 		var disc1Amt = subtotal * (disc1Pct / 100);
 		var disc2Amt = subtotal * (disc2Pct / 100);
 		var freight = parseMoney($('#freight').val());
+		var extras = extraChargesTotal();
 
 		var baseAfterDiscounts = subtotal - disc1Amt - disc2Amt;
 
@@ -949,7 +1020,7 @@ $(function() {
 		var ivaAmount = taxBase * (ivaRate / 100);
 		var igtfAmount = taxBase * (igtfRate / 100);
 
-		var total = taxBase + taxExempt + ivaAmount + igtfAmount + freight;
+		var total = taxBase + taxExempt + ivaAmount + igtfAmount + freight + extras;
 
 		$('#subtotal').val(formatMoney(subtotal));
 		$('#discount_1_amount').val(formatMoney(disc1Amt));

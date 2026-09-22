@@ -238,6 +238,9 @@
 					@if($quotation->freight > 0)
 						<tr><td>Flete</td><td class="value">{{ number_format($quotation->freight, 2, ',', '.') }}</td></tr>
 					@endif
+					@foreach($quotation->extra_charges ?? [] as $charge)
+						<tr><td>{{ $charge['label'] }}</td><td class="value">{{ number_format($charge['amount'], 2, ',', '.') }}</td></tr>
+					@endforeach
 				</table>
 			</td>
 			<td class="totals-right-col">
