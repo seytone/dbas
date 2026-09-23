@@ -982,7 +982,13 @@ $(function() {
 		calculateTotals();
 	}
 
-	$('#btn-add-extra-charge').on('click', function() { addExtraCharge(); });
+	// El foco va al nombre del campo recién creado para poder escribir de
+	// una — solo al agregar a mano, no cuando se precargan filas desde
+	// old() o desde la cotización en edición (saltaría el scroll al cargar).
+	$('#btn-add-extra-charge').on('click', function() {
+		addExtraCharge();
+		$('#extra-charges-list .extra-charge-row:last .extra-charge-label').focus();
+	});
 	$('#extra-charges-list').on('input', '.extra-charge-amount', calculateTotals);
 	$('#extra-charges-list').on('click', '.btn-remove-extra-charge', function() {
 		$(this).closest('.extra-charge-row').remove();
