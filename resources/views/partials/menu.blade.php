@@ -67,7 +67,9 @@
 						</li>
 						<li class="nav-item">
 							<a href="{{ route('admin.admin_docs.index', 'service_order') }}" class="nav-link {{ request()->is('admin/admin-docs/service_order*') ? 'active' : '' }}">
-								<i class="fa-fw fas fa-tools nav-icon ml-4"></i>
+								{{-- fa-cog y no fa-tools: el layout carga Font Awesome 5.2.0
+								     y fa-tools recién existe desde la 5.3. --}}
+								<i class="fa-fw fas fa-cog nav-icon ml-4"></i>
 								Orden de Servicio
 							</a>
 						</li>
