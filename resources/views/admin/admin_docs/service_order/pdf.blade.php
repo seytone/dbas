@@ -8,38 +8,42 @@
 		   con espaciado cómodo. Si se cargan muchos items, desborda a una
 		   segunda página de forma natural. Solo 2 filas en blanco por tabla
 		   (el Excel original rellenaba hasta 6 y 7). */
-		@page { size: letter portrait; margin: 0.5in 0.55in 0.5in 0.55in; }
-		body { font-family: 'DejaVu Sans', sans-serif; font-size: 12px; color: #000; margin: 0; padding: 0; }
+		@page { size: letter portrait; margin: 0.45in 0.55in 0.45in 0.55in; }
+		body { font-family: 'DejaVu Sans', sans-serif; font-size: 11.5px; color: #000; margin: 0; padding: 0; }
 
-		.head { width: 100%; border-collapse: collapse; margin-bottom: 26px; }
+		.head { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
 		.head td { vertical-align: top; padding: 0; }
 		.head .company-cell { width: 33%; }
-		.head .company-cell .name { font-weight: bold; font-size: 14px; line-height: 1.35; }
-		.head .company-cell .addr { font-size: 9px; color: #444; margin-top: 5px; line-height: 1.4; }
-		.head .nota-cell { width: 45%; font-size: 12px; line-height: 1.75; }
+		/* 13px y no más: a 14px el nombre de la empresa pasa a tres líneas
+		   y estira todo el encabezado. */
+		.head .company-cell .name { font-weight: bold; font-size: 13px; line-height: 1.35; }
+		.head .company-cell .addr { font-size: 8.5px; color: #444; margin-top: 4px; line-height: 1.4; }
+		.head .nota-cell { width: 45%; font-size: 11.5px; line-height: 1.6; }
 		.head .nota-cell .k { font-weight: bold; }
-		.head .order-cell { width: 22%; text-align: right; font-weight: bold; font-size: 14px; }
+		.head .order-cell { width: 22%; text-align: right; font-weight: bold; font-size: 13px; }
 
 		.section-title {
 			text-align: center;
 			font-weight: bold;
-			font-size: 13px;
+			font-size: 12.5px;
 			border: 1px solid #000;
 			border-bottom: 0;
-			padding: 8px;
+			padding: 6px;
 		}
-		.items { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
-		.items th, .items td { border: 1px solid #000; padding: 9px; font-size: 12px; }
+		.items { width: 100%; border-collapse: collapse; margin-bottom: 18px; }
+		.items th, .items td { border: 1px solid #000; padding: 7px; font-size: 11.5px; }
 		.items th { text-align: center; font-weight: bold; }
 		.items td.num { text-align: center; width: 12%; }
 		.items td.qty { text-align: center; width: 14%; }
-		.items tr.blank td { height: 20px; }
+		.items tr.blank td { height: 17px; }
 
-		.final-box { border: 1px solid #000; border-top: 0; padding: 18px 14px; min-height: 115px; text-align: center; line-height: 1.7; }
+		.final-box { border: 1px solid #000; border-top: 0; padding: 14px 12px; min-height: 95px; text-align: center; line-height: 1.6; }
 
-		.signoff { margin-top: 36px; text-align: center; }
-		.signoff .title { font-weight: bold; margin-bottom: 38px; }
-		.signoff .line { border-bottom: 1px solid #000; width: 250px; margin: 0 auto 34px auto; }
+		/* page-break-inside evita que el título quede en una hoja y las
+		   líneas de firma en la siguiente si algún día crece el contenido. */
+		.signoff { margin-top: 26px; text-align: center; page-break-inside: avoid; }
+		.signoff .title { font-weight: bold; margin-bottom: 28px; }
+		.signoff .line { border-bottom: 1px solid #000; width: 250px; margin: 0 auto 26px auto; }
 	</style>
 </head>
 <body>
