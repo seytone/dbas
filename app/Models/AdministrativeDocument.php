@@ -32,6 +32,21 @@ class AdministrativeDocument extends Model
     ];
 
     /**
+     * Nombre descriptivo que lleva el PDF al descargarse. Se prefiere sobre
+     * el prefijo corto (in-0001.pdf, nc-0001.pdf…) porque el cliente
+     * archiva los PDFs en carpetas y necesita reconocerlos de un vistazo.
+     */
+    public static $fileSlugs = [
+        self::TYPE_INVOICE        => 'nota_entrega',
+        self::TYPE_CREDIT_NOTE    => 'nota_credito',
+        self::TYPE_DELIVERY_ORDER => 'orden_entrega',
+        self::TYPE_EXIT_ORDER     => 'orden_salida',
+        self::TYPE_SHIPPING       => 'guia_envio',
+        self::TYPE_TERMS          => 'terminos_condiciones',
+        self::TYPE_SERVICE_ORDER  => 'orden_servicio',
+    ];
+
+    /**
      * Human label for each type — shown in menus, breadcrumbs, list headers.
      */
     public static $labels = [
@@ -84,5 +99,16 @@ class AdministrativeDocument extends Model
     {
         $prefix = self::$prefixes[$this->type] ?? 'DOC';
         return $prefix . '-' . str_pad($this->number, 4, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Nombre del archivo al descargar el PDF, ej. "nota_entrega-0001.pdf".
+     * Se conserva el guion antes del correlativo para que el número siga
+     * mapeando a simple vista con el que muestra la app (IN-0001).
+     */
+    public function getFileNameAttribute(): string
+    {
+        $slug = self::$fileSlugs[$this->type] ?? 'documento';
+        return $slug . '-' . str_pad($this->number, 4, '0', STR_PAD_LEFT) . '.pdf';
     }
 }

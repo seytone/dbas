@@ -233,8 +233,7 @@ class AdministrativeDocumentsController extends Controller
             'chroot' => public_path(),
         ]);
 
-        $filename = strtolower(AdministrativeDocument::$prefixes[$type]) . '-' . str_pad($document->number, 4, '0', STR_PAD_LEFT) . '.pdf';
-        return $pdf->download($filename);
+        return $pdf->download($document->file_name);
     }
 
     // ---------- Destroy ----------
