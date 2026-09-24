@@ -228,6 +228,9 @@ class AdministrativeDocumentsController extends Controller
             'defaultFont' => 'DejaVu Sans',
             'isHtml5ParserEnabled' => true,
             'dpi' => 96,
+            // Sin esto DomPDF solo lee imágenes dentro de vendor/dompdf y
+            // descarta las de public/ (logos, marcas de agua, etc.).
+            'chroot' => public_path(),
         ]);
 
         $filename = strtolower(AdministrativeDocument::$prefixes[$type]) . '-' . str_pad($document->number, 4, '0', STR_PAD_LEFT) . '.pdf';

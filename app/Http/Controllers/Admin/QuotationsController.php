@@ -401,6 +401,12 @@ class QuotationsController extends Controller
 				'isHtml5ParserEnabled' => true,
 				'isFontSubsettingEnabled' => true,
 				'dpi' => 96,
+				// Sin esto DomPDF solo lee imágenes dentro de vendor/dompdf y
+				// descarta las de public/ (la marca de agua, logos, etc.).
+				// public_path() y no base_path(): las descripciones de los items
+				// son HTML editable por el usuario, así que no conviene darle
+				// alcance de lectura a .env ni al resto del proyecto.
+				'chroot' => public_path(),
 			]);
 
 		return $pdf->download("cotizacion-{$quotation->quotation_number}.pdf");

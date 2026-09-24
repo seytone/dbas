@@ -23,16 +23,23 @@
 			print-color-adjust: exact !important;
 		}
 
+		/* La marca de agua es una imagen y no texto: como texto, DomPDF la
+		   escribía como texto real en el PDF y quedaba seleccionable junto
+		   con el contenido de la cotización. El PNG ya viene rotado y con
+		   la opacidad aplicada (ver public/img/watermark-no-fiscal.png). */
 		.watermark {
 			position: fixed;
-			top: 38%;
-			left: 15%;
-			font-size: 130px;
-			font-weight: bold;
-			color: rgba(200, 200, 200, 0.12);
-			transform: rotate(-30deg);
+			top: 220px;
+			left: -25px;
+			width: 780px;
 			z-index: -1;
-			letter-spacing: 20px;
+			/* Para la vista de impresión en navegador: ni seleccionable ni
+			   arrastrable. En el PDF ya no hay texto que seleccionar. */
+			user-select: none;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			pointer-events: none;
 		}
 
 		.header { border-bottom: 3px solid #192440; padding-bottom: 10px; margin-bottom: 20px; }
@@ -154,7 +161,16 @@
 	</style>
 </head>
 <body>
-	<div class="watermark">NO FISCAL</div>
+	@php
+		// Este template sirve tanto al PDF (DomPDF, lee del disco) como a la
+		// vista de impresión del navegador (necesita URL HTTP). $autoPrint
+		// solo lo setea printView().
+		$isPrintView = isset($autoPrint) && $autoPrint;
+		$watermarkSrc = $isPrintView
+			? asset('img/watermark-no-fiscal.png')
+			: public_path('img/watermark-no-fiscal.png');
+	@endphp
+	<img class="watermark" src="{{ $watermarkSrc }}" alt="">
 
 	{{-- HEADER — data driven by the quotation's emitting company (VE / US). --}}
 	@php $co = config('companies.' . ($quotation->company ?? 've')); @endphp
