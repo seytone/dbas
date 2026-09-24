@@ -38,6 +38,27 @@
 window.addEventListener('load', function() {
 	var clientsData = @json($clientsForJs);
 
+	// Expuesto para que otros selectores del formulario (ej. la referencia a
+	// Nota de Entrega / Cotización en la Orden de Servicio) puedan marcar el
+	// cliente correspondiente en este picker.
+	window.__clientsData = clientsData;
+
+	/**
+	 * Id del cliente registrado que coincide con un nombre/documento dados.
+	 * El documento manda por ser más único; el nombre es el respaldo cuando
+	 * el origen no guardó RIF. Devuelve null si no hay coincidencia.
+	 */
+	window.__findClientId = function(name, document) {
+		var norm = function(v) { return (v || '').toString().trim().toLowerCase(); };
+		var byDoc = null, byName = null;
+		Object.keys(clientsData).forEach(function(id) {
+			var c = clientsData[id];
+			if (norm(document) && norm(c.document) === norm(document)) byDoc = byDoc || id;
+			if (norm(name) && norm(c.name) === norm(name)) byName = byName || id;
+		});
+		return byDoc || byName || null;
+	};
+
 	function fillFrom(c) {
 		$('[name="client_name"]').val(c.name || '');
 		$('[name="client_document"]').val(c.document || '');

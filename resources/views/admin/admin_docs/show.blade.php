@@ -31,6 +31,10 @@
 						<tr><td><b>Emitido por</b></td><td>{{ $document->author->name ?? '—' }}</td></tr>
 						@if($document->parent)
 							<tr><td><b>Referencia</b></td><td>{{ $document->parent->formatted_number }}</td></tr>
+						@elseif(!empty($document->data['reference_number']))
+							{{-- Orden de Servicio: la referencia (Nota de Entrega o
+							     Cotización) se guarda en el JSON, no como FK. --}}
+							<tr><td><b>Referencia</b></td><td>{{ $document->data['reference_number'] }}</td></tr>
 						@endif
 					</table>
 				</div>

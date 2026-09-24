@@ -51,9 +51,20 @@
 		$d = $document->data;
 		$productItems = $d['product_items'] ?? [];
 		$inventoryItems = $d['inventory_items'] ?? [];
-		// Dos filas en blanco por tabla, por si hay que completar algo a mano
-		// después de imprimir — sin inflar el documento a una segunda hoja.
-		$blankRows = 2;
+
+		// Mínimo de 3 filas por tabla: las vacías solo rellenan lo que falte
+		// para llegar a ese mínimo, no se suman a las que ya traen datos. Así
+		// la orden mantiene siempre la misma altura y entra en una sola hoja.
+		// Con muchos items la segunda hoja es inevitable y se acepta.
+		$minRows = 3;
+		$productBlanks = max(0, $minRows - count($productItems));
+		$inventoryBlanks = max(0, $minRows - count($inventoryItems));
+
+		// Campo NOTA del encabezado: referencia a la Nota de Entrega o
+		// Cotización de origen. Las órdenes anteriores al selector guardaban
+		// texto libre en 'note' — se sigue imprimiendo para no dejarlas en
+		// blanco.
+		$reference = $d['reference_number'] ?? ($d['note'] ?? '');
 	@endphp
 
 	<table class="head">
@@ -63,7 +74,7 @@
 				<div class="addr">{{ $company['address'] }}</div>
 			</td>
 			<td class="nota-cell">
-				<div><span class="k">NOTA:</span> {{ $d['note'] ?? '' }}</div>
+				<div><span class="k">NOTA:</span> {{ $reference }}</div>
 				<div><span class="k">CLIENTE:</span> {{ $d['client_name'] ?? '' }}</div>
 				<div><span class="k">FECHA:</span> {{ $document->created_at->format('d/m/Y') }}</div>
 				<div><span class="k">SOLICITADO POR:</span> {{ $d['requested_by'] ?? '' }}</div>
@@ -91,7 +102,7 @@
 					<td>{{ $item['description'] ?? '' }}</td>
 				</tr>
 			@endforeach
-			@for($i = 0; $i < $blankRows; $i++)
+			@for($i = 0; $i < $productBlanks; $i++)
 				<tr class="blank">
 					<td class="num">{{ count($productItems) + $i + 1 }}</td>
 					<td class="qty">&nbsp;</td>
@@ -118,7 +129,7 @@
 					<td>{{ $item['description'] ?? '' }}</td>
 				</tr>
 			@endforeach
-			@for($i = 0; $i < $blankRows; $i++)
+			@for($i = 0; $i < $inventoryBlanks; $i++)
 				<tr class="blank">
 					<td class="num">{{ count($inventoryItems) + $i + 1 }}</td>
 					<td class="qty">&nbsp;</td>

@@ -129,7 +129,10 @@ class AdministrativeDocumentsController extends Controller
             $shared['categories'] = Category::with('products')->get();
         }
 
-        if ($type === AdministrativeDocument::TYPE_CREDIT_NOTE) {
+        // Notas de Entrega referenciables. La Nota de Crédito las afecta
+        // (parent_document_id); la Orden de Servicio solo las referencia en
+        // su campo NOTA para arrastrar cliente e items.
+        if (in_array($type, [AdministrativeDocument::TYPE_CREDIT_NOTE, AdministrativeDocument::TYPE_SERVICE_ORDER])) {
             $shared['invoices'] = AdministrativeDocument::where('type', AdministrativeDocument::TYPE_INVOICE)
                 ->orderByDesc('number')
                 ->get();
@@ -141,10 +144,15 @@ class AdministrativeDocumentsController extends Controller
                 ->values();
         }
 
-        // Cotizaciones importables. Aplica a Invoice y Orden de Entrega —
-        // ambos parten típicamente de una venta cotizada. Se excluyen
-        // 'draft' y 'rejected' porque no representan ventas confirmadas.
-        if (in_array($type, [AdministrativeDocument::TYPE_INVOICE, AdministrativeDocument::TYPE_DELIVERY_ORDER])) {
+        // Cotizaciones importables. Aplica a Invoice, Orden de Entrega y
+        // Orden de Servicio — los tres parten típicamente de una venta
+        // cotizada. Se excluyen 'draft' y 'rejected' porque no representan
+        // ventas confirmadas.
+        if (in_array($type, [
+            AdministrativeDocument::TYPE_INVOICE,
+            AdministrativeDocument::TYPE_DELIVERY_ORDER,
+            AdministrativeDocument::TYPE_SERVICE_ORDER,
+        ])) {
             $shared['quotations'] = Quotation::with('items')
                 ->whereIn('status', ['sent', 'accepted'])
                 ->orderByDesc('emission_date')
@@ -332,6 +340,17 @@ class AdministrativeDocumentsController extends Controller
                     'requested_by'    => 'required|string|max:150',
                     'prepared_by'     => 'required|string|max:150',
                     'product'         => 'required|string|max:255',
+                    // Campo NOTA del encabezado: referencia opcional a la
+                    // Nota de Entrega o Cotización de origen. Se guarda como
+                    // snapshot en el JSON y no como FK — las cotizaciones
+                    // viven en otra tabla, y un documento ya impreso no debe
+                    // perder su referencia si se elimina el origen.
+                    'reference_kind'   => 'nullable|string|in:invoice,quotation',
+                    'reference_id'     => 'nullable|integer',
+                    'reference_number' => 'nullable|string|max:50',
+                    // Notas de texto libre de órdenes creadas antes de que
+                    // NOTA pasara a ser un selector. Se sigue aceptando para
+                    // no borrarlas al editar una orden vieja.
                     'note'            => 'nullable|string|max:500',
                     'product_items'   => 'nullable|array|max:20',
                     'product_items.*.quantity'    => 'required_with:product_items|numeric|min:0',
