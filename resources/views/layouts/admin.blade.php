@@ -133,6 +133,24 @@
                         </div>
                     </div>
                 @endif
+                {{-- El POST superó post_max_size y PHP descartó la petición
+                     entera. Llega por query string y no por sesión porque el
+                     middleware que lo detecta corre antes de que la sesión
+                     exista (ver App\Exceptions\Handler). --}}
+                @if(request('aviso') === 'post_demasiado_grande')
+                    <div class="row mb-2">
+                        <div class="col-lg-12">
+                            <div class="alert alert-danger" role="alert">
+								No se pudo enviar: el formulario pesa más de lo que acepta el servidor y no se guardó nada.
+								Suele ocurrir cuando se pegan muchas imágenes en las descripciones de los productos.
+								Quita o reduce algunas imágenes e inténtalo de nuevo.
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+                        </div>
+                    </div>
+                @endif
                 @if($errors->count() > 0)
                     <div class="alert alert-danger">
                         <ul class="list-unstyled">

@@ -538,7 +538,19 @@ class QuotationsController extends Controller
 	 */
 	public function heartbeat()
 	{
-		return response()->json(['alive' => true]);
+		// Devuelve el token vigente además del estado. Si la sesión se
+		// regeneró (por ejemplo tras volver a iniciar sesión en otra
+		// pestaña) el formulario puede refrescar su _token y seguir
+		// guardando sin perder nada.
+		//
+		// Ojo al consumir esto desde JS: si la sesión murió, esta ruta
+		// redirige al login y XHR sigue el redirect en silencio, devolviendo
+		// 200 con el HTML del login. Por eso hay que comprobar que la
+		// respuesta sea JSON con alive=true, no basta con que no falle.
+		return response()->json([
+			'alive' => true,
+			'token' => csrf_token(),
+		]);
 	}
 
 	/**

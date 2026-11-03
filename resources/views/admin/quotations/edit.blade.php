@@ -239,7 +239,7 @@
 				<div class="col-md-6">
 					<h5 class="mb-3"><i class="fa fa-sticky-note-o mr-2"></i>Notas</h5>
 					<div class="form-group">
-						<textarea name="notes" id="notes" class="form-control" rows="3">{{ $quotation->notes }}</textarea>
+						<textarea name="notes" id="notes" class="form-control" rows="3">{{ old('notes', $quotation->notes) }}</textarea>
 					</div>
 				</div>
 			</div>
@@ -352,13 +352,6 @@
 <script>
 $(function() {
 	var itemIndex = {{ $quotation->items->count() }};
-
-	// ========================================
-	// SESSION HEARTBEAT (keep session alive while form is open)
-	// ========================================
-	setInterval(function() {
-		$.get("{{ route('admin.quotations.heartbeat') }}").fail(function() {});
-	}, 5 * 60 * 1000); // every 5 minutes
 
 	// ========================================
 	// DESCRIPTION EDITOR (contenteditable + paste image compression)
@@ -1165,4 +1158,6 @@ $(function() {
 	});
 });
 </script>
+
+@include('admin.quotations._session_guard')
 @endsection

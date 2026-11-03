@@ -6,6 +6,8 @@ use Exception;
 use Throwable;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\PostTooLargeException;
+use Illuminate\Session\TokenMismatchException;
 
 class Handler extends ExceptionHandler
 {
@@ -47,6 +49,36 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        // La sesión (y con ella el token CSRF) venció con el formulario
+        // abierto. Por defecto Laravel responde un 419 "Page Expired": el
+        // usuario pierde todo lo cargado, no ve una explicación y no queda
+        // rastro en el log, porque TokenMismatchException está en
+        // $dontReport. Lo devolvemos al formulario con los datos intactos.
+        if ($exception instanceof TokenMismatchException && ! $request->expectsJson())
+        {
+            return redirect()->back()
+                ->withInput($request->except('_token'))
+                ->with('error', 'Tu sesión expiró por inactividad y no se pudo guardar. '
+                    . 'Los datos siguen cargados en el formulario: revisa que esté todo y vuelve a guardar. '
+                    . 'Si el problema persiste, vuelve a iniciar sesión en otra pestaña y regresa aquí.');
+        }
+
+        // El POST superó post_max_size, así que PHP descartó la petición
+        // entera (incluido el token). Pasa cuando se pegan muchas imágenes
+        // en las descripciones. No hay datos que devolver, pero al menos el
+        // usuario se entera de qué ocurrió en vez de ver una página en blanco.
+        if ($exception instanceof PostTooLargeException && ! $request->expectsJson())
+        {
+            // Ojo: ValidatePostSize es middleware global y corre ANTES de
+            // StartSession, así que aquí todavía no hay sesión donde flashear
+            // el mensaje — se perdería en silencio. Se avisa por query string
+            // y el layout lo convierte en alerta.
+            $volver = $request->headers->get('referer') ?: url('/');
+            $separador = strpos($volver, '?') === false ? '?' : '&';
+
+            return redirect()->to($volver . $separador . 'aviso=post_demasiado_grande');
+        }
+
         return parent::render($request, $exception);
     }
 

@@ -29,7 +29,11 @@ return [
     |
     */
 
-    'lifetime' => 120,
+    // Se lee del .env. Estaba fijo en 120, así que SESSION_LIFETIME se
+    // ignoraba por completo: la sesión moría a las 2 horas aunque el .env
+    // dijera 480. Era la causa de que las cotizaciones con el formulario
+    // mucho rato abierto murieran con 419 al guardar.
+    'lifetime' => env('SESSION_LIFETIME', 120),
 
     'expire_on_close' => false,
 
